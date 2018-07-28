@@ -1,5 +1,5 @@
-import { ShowPlanParser } from '../../../src/parser/showplan-parser';
-import * as ShowPlan from '../../../src/parser//showplan';
+import { ShowPlanParser } from '@/parser/showplan-parser';
+import * as ShowPlan from '@/parser/showplan';
 import { expect } from 'chai';
 
 // tslint:disable-next-line:no-var-requires

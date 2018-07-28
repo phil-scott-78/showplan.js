@@ -298,7 +298,7 @@ export class BaseStmtInfo {
     }
 
     const total =  this.Batch!.Statements
-      .filter((i) => i.StatementSubTreeCost !== null)
+      .filter((i) => i.StatementSubTreeCost != null)
       .map((i) => i.StatementSubTreeCost!)
       .reduce((sum, current) => sum + current);
 
