@@ -1,7 +1,4 @@
 module.exports = function (w) {
-  process.env.VUE_CLI_BABEL_TRANSPILE_MODULES = true;
-
-
     return {
       files: [
         'src/**/*.ts',
@@ -18,14 +15,6 @@ module.exports = function (w) {
       env: {
         type: 'node',
         runner: 'node'
-      },
-
-      preprocessors: {
-        '**/*.js?(x)': file => require('@babel/core').transform(
-          file.content,
-          {sourceMap: true, compact: false, filename: file.path}),
-
-        '**/*.vue': file => require('vue-jest').process(file.content, file.path)
       },
 
       testFramework: 'mocha',

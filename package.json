@@ -13,7 +13,6 @@
     "singleQuote": true
   },
   "dependencies": {
-    "@types/numeral": "0.0.25",
     "element-ui": "^2.4.5",
     "guid-typescript": "^1.0.7",
     "numeral": "^2.0.6",
@@ -27,13 +26,12 @@
     "@types/chai": "^4.1.4",
     "@types/mocha": "^5.2.5",
     "@types/node": "^10.5.4",
+    "@types/numeral": "0.0.25",
     "@types/xmldom": "^0.1.29",
-    "@vue/cli-plugin-babel": "^3.0.0-rc.8",
     "@vue/cli-plugin-typescript": "^3.0.0-rc.8",
     "@vue/cli-plugin-unit-mocha": "^3.0.0-rc.8",
     "@vue/cli-service": "^3.0.0-rc.8",
     "@vue/test-utils": "^1.0.0-beta.21",
-    "babel-core": "^7.0.0-bridge.0",
     "chai": "^4.1.2",
     "node-sass": "^4.9.2",
     "sass-loader": "^7.0.3",
