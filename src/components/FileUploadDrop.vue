@@ -19,22 +19,23 @@ import { ElUploadInternalFileDetail } from 'element-ui/types/upload';
 import * as ShowPlan from '@/parser/showplan';
 import { ShowPlanParser } from '@/parser/showplan-parser';
 
-@Component
-export default class FileUploadDrop extends Vue{
+@Component export default class FileUploadDrop extends Vue {
   public handleOnChanged(file: ElUploadInternalFileDetail , fileList: FileList) {
     const parser = new ShowPlanParser();
-    var reader = new FileReader();
+    const reader = new FileReader();
     reader.onload = (e) => {
-      var text = reader.result;
+      const text = reader.result;
       const showPlan = parser.Parse(text);
       this.emitShowPlanChanged(showPlan);
-    }
+    };
 
     reader.readAsText(file.raw);
   }
 
   @Emit('showplan-changed')
-  emitShowPlanChanged(showPlan: ShowPlan.ShowPlanXML){}
+  public emitShowPlanChanged(showPlan: ShowPlan.ShowPlanXML) {
+    //
+  }
 
 }
 </script>

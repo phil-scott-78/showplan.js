@@ -1,6 +1,0 @@
---colors
---require source-map-support/register
---require ts-node/register
---require tsconfig-paths/register
---recursive
-tests/**/*.spec.ts

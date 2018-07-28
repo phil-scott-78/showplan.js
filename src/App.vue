@@ -47,13 +47,13 @@
   import * as ShowPlan from '@/parser/showplan';
 
   @Component({
-    components: { FileUploadDrop, SelectPlan }
+    components: { FileUploadDrop, SelectPlan },
   })
   export default class App extends Vue {
-    showPlan: ShowPlan.ShowPlanXML | null = null;
-    currentStatementGuid: string | null = null;
+    public showPlan: ShowPlan.ShowPlanXML | null = null;
+    public currentStatementGuid: string | null = null;
 
-    get currentStatement(): ShowPlan.BaseStmtInfo | null {
+    public get currentStatement(): ShowPlan.BaseStmtInfo | null {
       if (this.showPlan === null || this.currentStatementGuid === null) {
         return null;
       }
@@ -61,11 +61,11 @@
       return this.showPlan.GetStatementByGuid(this.currentStatementGuid);
     }
 
-    showPlanChanged(showPlan: ShowPlan.ShowPlanXML) {
+    public showPlanChanged(showPlan: ShowPlan.ShowPlanXML) {
       this.showPlan = showPlan;
     }
 
-    statementChanged(statementGuid: string) {
+    public statementChanged(statementGuid: string) {
       this.currentStatementGuid = statementGuid;
     }
   }
