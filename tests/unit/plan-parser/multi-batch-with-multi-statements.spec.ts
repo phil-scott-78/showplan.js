@@ -26,6 +26,7 @@ describe('multi-batch-with-multi-statements.sqlplan', () => {
     expect(useDbStatement.Database).to.equal('[StackOverflowMovies]');
 
     const statementSimple = (plan.Batches[0].Statements[1] as ShowPlan.StmtSimple);
+    expect(statementSimple.QueryPlan!.CachedPlanSize).to.equal(24);
     expect(statementSimple.CostPercentOfBatch()).to.equal(.5);
     expect(statementSimple.QueryPlan!.RelOp.Action).instanceof(ShowPlan.Top);
   });

@@ -2,23 +2,11 @@
   <div id="app">
     <el-container>
       <el-header>
-        <el-menu class="el-menu-demo" mode="horizontal">
-          <el-menu-item index="1">Processing Center</el-menu-item>
-          <el-submenu index="2">
-            <template slot="title">Workspace</template>
-            <el-menu-item index="2-1">item one</el-menu-item>
-            <el-menu-item index="2-2">item two</el-menu-item>
-            <el-menu-item index="2-3">item three</el-menu-item>
-            <el-submenu index="2-4">
-              <template slot="title">item four</template>
-              <el-menu-item index="2-4-1">item one</el-menu-item>
-              <el-menu-item index="2-4-2">item two</el-menu-item>
-              <el-menu-item index="2-4-3">item three</el-menu-item>
-            </el-submenu>
-          </el-submenu>
-          <el-menu-item index="3" disabled>Info</el-menu-item>
-          <el-menu-item index="4"><a href="https://www.ele.me" target="_blank">Orders</a></el-menu-item>
-        </el-menu>
+        <el-row>
+          <el-col :span="12"><div class="grid-content"><h1 class="title">ShowPlan.js</h1></div></el-col>
+          <el-col :span="12"><div class="grid-content" style="text-align:right"><el-button type="primary" v-on:click="newPlan">New Plan</el-button></div>
+</el-col>
+        </el-row>
 
       </el-header>
       <el-main>
@@ -31,7 +19,7 @@
           </div>
 
           <div v-if="currentStatement !== null">
-            <h1>{{ currentStatement.StatementType }}</h1>
+            <statement v-bind:statement="currentStatement"></statement>
           </div>
         </div>
       </el-main>
@@ -44,10 +32,11 @@
 
   import FileUploadDrop from '@/components/FileUploadDrop.vue';
   import SelectPlan from '@/components/SelectPlan.vue';
+  import Statement from '@/components/Statement.vue';
   import * as ShowPlan from '@/parser/showplan';
 
   @Component({
-    components: { FileUploadDrop, SelectPlan },
+    components: { FileUploadDrop, SelectPlan, Statement },
   })
   export default class App extends Vue {
     public showPlan: ShowPlan.ShowPlanXML | null = null;
@@ -61,22 +50,44 @@
       return this.showPlan.GetStatementByGuid(this.currentStatementGuid);
     }
 
-    public showPlanChanged(showPlan: ShowPlan.ShowPlanXML) {
+    public showPlanChanged(showPlan: ShowPlan.ShowPlanXML | null) {
       this.showPlan = showPlan;
     }
 
     public statementChanged(statementGuid: string) {
       this.currentStatementGuid = statementGuid;
     }
+
+    public newPlan() {
+      this.showPlan = null;
+    }
   }
 </script>
 
 <style lang="scss">
+  .upload-demo {
+    .el-upload, .el-upload-dragger {
+      width:100%;
+    }
+  }
+</style>
+
+<style lang="scss" scoped>
   #app {
     position: relative;
-    width: 900px !important;
+    min-width:800px;
+    max-width:1200px;
     left: 0px;
     margin-left: auto !important;
     margin-right: auto !important;
+  }
+
+  h1.title {
+    margin:0;
+  }
+
+  div.grid-content {
+    min-height: 40px;
+    vertical-align: baseline;
   }
 </style>
