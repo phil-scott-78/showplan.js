@@ -1,29 +1,13 @@
 <template>
   <div id="app">
-    <el-container>
-      <el-header>
-        <el-row>
-          <el-col :span="12"><div class="grid-content"><h1 class="title">ShowPlan.js</h1></div></el-col>
-          <el-col :span="12"><div class="grid-content" style="text-align:right"><el-button type="primary" v-on:click="newPlan">New Plan</el-button></div>
-</el-col>
-        </el-row>
-
-      </el-header>
-      <el-main>
-        <div v-if="showPlan === null">
-            <file-upload-drop v-on:showplan-changed="showPlanChanged" ></file-upload-drop>
-        </div>
-        <div v-else>
-          <div>
-            <select-plan v-bind:showPlan="showPlan" v-on:showplan-statement-changed="statementChanged"></select-plan>
-          </div>
-
-          <div v-if="currentStatement !== null">
-            <statement v-bind:statement="currentStatement"></statement>
-          </div>
-        </div>
-      </el-main>
-    </el-container>
+    <div v-if="showPlan === null">
+        <file-upload-drop v-on:showplan-changed="showPlanChanged" ></file-upload-drop>
+    </div>
+    <div v-else>
+      <div v-if="currentStatement !== null">
+        <statement v-bind:statement="currentStatement"></statement>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -52,6 +36,24 @@
 
     public showPlanChanged(showPlan: ShowPlan.ShowPlanXML | null) {
       this.showPlan = showPlan;
+
+      if (showPlan == null) {
+        return;
+      }
+
+      // select a logical first item
+      let firstItem: string | null = null;
+      for (const batch of this.showPlan!.Batches) {
+        for (const statement of batch.Statements) {
+          if (firstItem == null) {
+            firstItem = statement.Guid;
+          }
+
+          if (statement.StatementType !== 'USE DATABASE') {
+            this.currentStatementGuid = statement.Guid;
+          }
+        }
+      }
     }
 
     public statementChanged(statementGuid: string) {

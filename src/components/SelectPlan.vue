@@ -1,34 +1,11 @@
 <template>
-  <el-select
-    v-model="selectedStatement"
-    placeholder="Select"
-    class="query-plan"
-    size="large"
-    v-on:change="selectChanged"
-    default-first-option
-        >
-    <el-option-group
-      v-for="(batch, index) in showPlan.Batches"
-      :key="index"
-      :label="index | filterBatch">
-      <el-option
-        v-for="item in batch.Statements"
-        :key="item.Guid"
-        :label="item.StatementText.trim()"
-        :value="item.Guid"
-        >
-
-        <div v-if="item.StatementSubTreeCost !== undefined">
-          <span style="float: left;">{{ item.StatementText.trim().substring(0,100) }}</span>
-          <span style="float: right; margin-left:2rem"><small>Cost: {{ item.StatementSubTreeCost }} ({{ item.CostPercentOfBatch() | filterPercentage }})</small></span>
-        </div>
-        <div v-else>
-          {{ item.StatementText }}
-        </div>
-
-      </el-option>
-    </el-option-group>
-  </el-select>
+  <select v-model="selectedStatement" v-on:change="selectChanged">
+    <optgroup v-for="(batch, index) in showPlan.Batches" :label="index | filterBatch" v-bind:key="index">
+      <option v-for="item in batch.Statements" :value="item.Guid" v-bind:key="item.Guid">
+        {{ item.StatementText.trim().substring(0,100)  }}
+      </option>
+    </optgroup>
+  </select>
 </template>
 
 <script lang="ts">
@@ -59,8 +36,8 @@ export default class SelectPlan extends Vue {
     //
   }
 
-  public selectChanged(statementGuid: string) {
-    this.statementSelected(statementGuid);
+  public selectChanged(e: Event) {
+    //
   }
 
   @Watch('showPlan', { immediate: true, deep: false })
