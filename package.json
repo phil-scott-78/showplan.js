@@ -17,6 +17,7 @@
     "d3-hierarchy": "^1.1.6",
     "d3-path": "~1.0.5",
     "d3-shape": "^1.2.0",
+    "flexboxgrid": "^6.3.1",
     "guid-typescript": "^1.0.7",
     "normalize.css": "^8.0.0",
     "numeral": "^2.0.6",

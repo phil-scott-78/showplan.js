@@ -15,23 +15,27 @@
   import { Component, Prop, Vue } from 'vue-property-decorator';
 
   import FileUploadDrop from '@/components/FileUploadDrop.vue';
-  import SelectPlan from '@/components/SelectPlan.vue';
-  import Statement from '@/components/Statement.vue';
   import * as ShowPlan from '@/parser/showplan';
 
+  import 'flexboxgrid';
+
   @Component({
-    components: { FileUploadDrop, SelectPlan, Statement },
+    components: { FileUploadDrop, Statement: () => import('@/components/Statement.vue')},
   })
   export default class App extends Vue {
     public showPlan: ShowPlan.ShowPlanXML | null = null;
-    public currentStatementGuid: string | null = null;
+    public selectedStatementGuid: string | null = null;
 
     public get currentStatement(): ShowPlan.BaseStmtInfo | null {
-      if (this.showPlan === null || this.currentStatementGuid === null) {
+      if (this.showPlan == null) {
         return null;
       }
 
-      return this.showPlan.GetStatementByGuid(this.currentStatementGuid);
+      if (this.selectedStatementGuid != null) {
+        return this.showPlan.GetStatementByGuid(this.selectedStatementGuid);
+      }
+
+      return null;
     }
 
     public showPlanChanged(showPlan: ShowPlan.ShowPlanXML | null) {
@@ -50,14 +54,14 @@
           }
 
           if (statement.StatementType !== 'USE DATABASE') {
-            this.currentStatementGuid = statement.Guid;
+            this.selectedStatementGuid = statement.Guid;
           }
         }
       }
     }
 
     public statementChanged(statementGuid: string) {
-      this.currentStatementGuid = statementGuid;
+      this.selectedStatementGuid = statementGuid;
     }
 
     public newPlan() {

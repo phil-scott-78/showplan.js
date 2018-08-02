@@ -2,3 +2,121 @@ body {
   font-family: 'Segoe Ui', Verdana, sans-serif;
   padding:1rem;
 }
+
+h1,h2,h3,h5,h6 {
+  .subheading {
+    font-size: .75em;
+    font-weight: normal
+  }
+}
+
+.card {
+  $border-radius: .28571429rem;
+
+  border-radius: $border-radius;
+  box-shadow: 0 1px 3px 0 #d4d4d5, 0 0 0 1px #d4d4d5;
+
+  >:first-child {
+    border-radius: $border-radius $border-radius 0 0!important;
+    border-top: none!important;
+  }
+
+  .content {
+    border: none;
+    border-top: 1px solid rgba(34,36,38,.1);
+    margin: 0;
+    padding: 1em 1em;
+  }
+
+  .header {
+    .meta {
+      color: rgba(0,0,0,.4);
+    }
+  }
+}
+
+
+ul.stats {
+  font-size: .8rem;
+  color: #555;
+  padding:0;
+  margin: 0;
+
+  li {
+    display: inline;
+    padding: 0 .25rem;
+    border-right: 1px solid #ccc;
+  }
+
+  li:first-child {
+    padding-left:0;
+  }
+
+  li:last-child {
+    border-right:none;
+  }
+}
+
+
+
+$themeColor: #63B8FF;
+$backColor: #ddd;
+$textShadow: rgba(black, 0.35) 1px 1px 1px;
+.progress-circle {
+  position: relative;
+  display: inline-block;
+  top:-.25rem;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  background-color: $backColor;
+  &:before {
+    content: '';
+    position: absolute;
+    top: .5rem;
+    left: .5rem;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    background-color: white;
+  }
+  &:after {
+    content: '';
+    display: inline-block;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background-color: $themeColor;
+  }
+
+  .progress-number {
+    position: absolute;
+    top: 50%;
+    width: 100%;
+    line-height: 1;
+    margin-top: -0.35rem;
+    text-align: center;
+    font-size: .8rem;
+    color: #777;
+  }
+}
+
+$step: 1;
+$loops: round(100 / $step);
+$increment: 360 / $loops;
+$half: round($loops / 2);
+
+@for $i from 0 through $loops {
+  @if $i < 10 or $i % 5 == 0 {
+    .progress-circle.progress-#{$i * $step}:after {
+      @if $i < $half {
+        $nextDeg: 90deg + ($increment * $i);
+        background-image: linear-gradient(90deg, $backColor 50%, transparent 50%, transparent), linear-gradient($nextDeg, $themeColor 50%, $backColor 50%, $backColor);
+      }
+      @else {
+        $nextDeg: -90deg + ($increment * ($i - $half));
+        background-image: linear-gradient($nextDeg, $themeColor 50%, transparent 50%, transparent), linear-gradient(270deg, $themeColor 50%, $backColor 50%, $backColor);
+      }
+    }
+  }
+}

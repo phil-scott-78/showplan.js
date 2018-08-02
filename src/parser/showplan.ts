@@ -62,6 +62,9 @@ export class RelOp {
   public EstimatedRowsRead?: number;
   public EstimatedTotalSubtreeCost: number;
   public EstimateIO: number;
+  public get EstimateTotalCost(): number {
+    return this.EstimateCPU + this.EstimateIO;
+  }
   public EstimateRebinds: number;
   public EstimateRewinds: number;
   public EstimateRows: number;

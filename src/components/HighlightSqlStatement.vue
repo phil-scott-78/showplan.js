@@ -48,5 +48,6 @@ export default class HighlightSqlStatement extends Vue {
     padding:.5rem;
     max-height:8rem;
     overflow-y: auto;
+    white-space: pre-wrap;
   }
 </style>

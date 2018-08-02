@@ -9,7 +9,7 @@
           <strong v-if="statement.QueryPlan.DegreeOfParallelism != null">{{ statement.statement.QueryPlan.DegreeOfParallelism }}</strong>
           <strong v-else>1</strong>
       </span>
-      <span v-if="statement.QueryPlan.CachedPlanSize != null">Cached Plan Size: <strong>{{ statement.QueryPlan.CachedPlanSize | filterKilobytes }}</strong></span>
+      <span v-if="statement.QueryPlan.CachedPlanSize != null">Cached Plan Size: <strong>{{ statement.QueryPlan.CachedPlanSize | filterKiloBytes }}</strong></span>
     </span>
   </h1>
 
@@ -18,11 +18,18 @@
     <highlight-sql-statement v-bind:statementText="statement.StatementText"></highlight-sql-statement>
   </div>
 
-  <div v-if="statement.QueryPlan != null">
-    <show-plan-sunburst v-bind:queryPlan="statement.QueryPlan" v-on:rel-op-selected="relOpSelected"></show-plan-sunburst>
-
-    <div v-if="selectedOp != null">
-      <h4>{{ selectedOp.LogicalOp }}</h4>
+  <div v-if="statement.QueryPlan != null" class="row">
+    <div class="col-xs-8">
+      <div class="box">
+        <show-plan-sunburst width="600" v-bind:queryPlan="statement.QueryPlan" v-on:rel-op-selected="relOpSelected" v-on:rel-op-highlighted="relOpHighlighted"></show-plan-sunburst>
+      </div>
+    </div>
+    <div class="col-xs">
+      <div class="box">
+        <div v-if="displayedOp != null" class="opSummary">
+          <operation-summary v-bind:statement="statement" v-bind:operation="displayedOp"></operation-summary>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -31,27 +38,36 @@
 <script lang='ts'>
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator';
 import { BaseStmtInfo, RelOp } from '@/parser/showplan';
-import * as numeral from 'numeral';
 
 import ShowPlanSunburst from './ShowPlanSunburst.vue';
 import HighlightSqlStatement from './HighlightSqlStatement.vue';
+import OperationSummary from './OperationSummary.vue';
 
 @Component({
-  filters: {
-    filterKilobytes(value: number) {
-      return numeral(value * 1024).format('0.0 ib').replace('KiB', 'KB');
-    },
-  },
   components: {
-    ShowPlanSunburst, HighlightSqlStatement,
+    ShowPlanSunburst, HighlightSqlStatement, OperationSummary,
   },
 })
 export default class Statement extends Vue {
   @Prop() public statement!: BaseStmtInfo;
+
   private selectedOp: RelOp | null = null;
+  private highlightedOp: RelOp | null = null;
+
+  private get displayedOp(): RelOp | null {
+    if (this.highlightedOp != null) {
+      return this.highlightedOp;
+    }
+
+    return this.selectedOp;
+  }
 
   private relOpSelected(op: RelOp) {
     this.selectedOp = op;
+  }
+
+  private relOpHighlighted(op: RelOp) {
+    this.highlightedOp = op;
   }
 }
 

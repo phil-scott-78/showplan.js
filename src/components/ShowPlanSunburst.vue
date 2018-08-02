@@ -2,7 +2,7 @@
     <svg :width="width" :height="width">
     <g>
       <g :transform="'translate(' + width / 2 + ',' + width  /2 + ')'">
-        <a xlink:href="#"  v-for="(line, index) in lines" v-bind:key="index" :title="line.operation.LogicalOp" v-on:mouseover="hover(line.operation)" v-on:click="operationClicked(line.operation)">
+        <a xlink:href="#"  v-for="(line, index) in lines" v-bind:key="index" :title="line.operation.LogicalOp" v-on:mouseout="hover(null)" v-on:mouseover="hover(line.operation)" v-on:click="operationClicked(line.operation)">
           <path :d="line.path" v-bind:fill="colors[getOperationType(line.operation.LogicalOp)]" />
         </a>
       </g>
@@ -13,7 +13,7 @@
 <script lang='ts'>
 import { Vue, Component, Prop, Watch, Emit } from 'vue-property-decorator';
 
-import * as ShowPlan from '../parser/showplan';
+import * as ShowPlan from '@/parser/showplan';
 import { hierarchy, partition, HierarchyRectangularNode } from 'd3-hierarchy';
 import { arc } from 'd3-shape';
 
@@ -54,8 +54,13 @@ export default class ShowPlanSunburst extends Vue {
     //
   }
 
-  private hover(op: ShowPlan.RelOp) {
+  @Emit('rel-op-highlighted')
+  public statementHighlighted(op: ShowPlan.RelOp | null) {
     //
+  }
+
+  private hover(op: ShowPlan.RelOp | null) {
+    this.statementHighlighted(op);
   }
 
   private operationClicked(op: ShowPlan.RelOp) {
