@@ -29,6 +29,7 @@ describe('simple-index-seek.sqlplan', () => {
     expect(columnReference.Schema).to.equal('[dbo]');
     expect(columnReference.Table).to.equal('[Posts]');
     expect(columnReference.Column).to.equal('Id');
+    expect(columnReference.toString()).to.equal('[StackOverflowMovies].[dbo].[Posts].Id');
 
     const indexScan = statement.QueryPlan!.RelOp.Action as ShowPlan.IndexScan;
     expect(indexScan.Ordered).to.be.true;

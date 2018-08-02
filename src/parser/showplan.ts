@@ -376,6 +376,27 @@ export class ColumnReference {
   constructor(ColumnName: string) {
     this.Column = ColumnName;
   }
+
+  public toString(): string {
+    let out = '';
+    if (this.Database !== undefined) {
+      out += this.Database + '.';
+    }
+
+    if (this.Schema !== undefined) {
+      out += this.Schema + '.';
+    }
+    if (this.Table !== undefined) {
+      out += this.Table + '.';
+    }
+
+    out += this.Column;
+
+    if (this.Alias !== undefined) {
+      out += 'out as ' + this.Alias;
+    }
+    return out;
+  }
 }
 
 export class Column {
@@ -1297,6 +1318,18 @@ export class ScanRange {
     this.RangeColumns = rangeColumns;
     this.RangeExpressions = rangeExpressions;
   }
+
+  public ScanTypeToString(): string {
+    switch (this.ScanType) {
+      case 'EQ': return '=';
+      case 'GE': return '>=';
+      case 'GT': return '>';
+      case 'LE': return '<=';
+      case 'LT': return '<';
+      case 'NE': return '!=';
+      default: return this.ScanType;
+    }
+  }
 }
 
 export class SeekPredicateNew {
@@ -1326,6 +1359,16 @@ export class SeekPredicate {
   public IsNotNull?: ColumnReference;
   public Prefix?: ScanRange;
   public StartRange?: ScanRange;
+
+  public toString(): string {
+    if (this.Prefix != null) {
+      if (this.Prefix.RangeColumns.length === 1 && this.Prefix.RangeExpressions.length === 1) {
+        return this.Prefix.RangeColumns[0].toString() + ' ' + this.Prefix.ScanTypeToString() + ' ' + this.Prefix.RangeExpressions[0].ScalarOperator.ScalarString;
+      }
+    }
+
+    return 'seeek!';
+  }
 }
 
 export class Segment extends RelOpAction {

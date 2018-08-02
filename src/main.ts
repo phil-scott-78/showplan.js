@@ -38,3 +38,8 @@ function setFilters() {
     return value.split('[').join('').split(']').join('');
   });
 }
+
+String.prototype.replaceAll = function(this: string, search: string, replace: string) {
+  const s = this;
+  return s.split(search).join(replace);
+};

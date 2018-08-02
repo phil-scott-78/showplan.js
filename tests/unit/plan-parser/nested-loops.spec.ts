@@ -24,4 +24,14 @@ describe('nested-loops.sqlplan', () => {
 
     expect(nestedLoops.OuterReferences![0].Column).to.equal('OwnerUserId');
   });
+
+  it('predicate is parsed correctly', function() {
+    const statement = plan.Batches[0].Statements[0] as ShowPlan.StmtSimple;
+    const action = statement.QueryPlan!.RelOp.Action
+      .RelOp[1].Action as ShowPlan.IndexScan;
+
+    expect(action.SeekPredicates!.SeekPredicateNew).to.have.length(1);
+    expect(action.SeekPredicates!.SeekPredicateNew![0].SeekKeys[0].Prefix!.RangeColumns[0].Column).to.not.be.undefined;
+
+  });
 });

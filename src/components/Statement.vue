@@ -14,7 +14,6 @@
   </h1>
 
   <div v-if="statement.StatementText != null">
-    <h3>Statement Text</h3>
     <highlight-sql-statement v-bind:statementText="statement.StatementText"></highlight-sql-statement>
   </div>
 
@@ -24,7 +23,7 @@
         <show-plan-sunburst width="600" v-bind:queryPlan="statement.QueryPlan" v-on:rel-op-selected="relOpSelected" v-on:rel-op-highlighted="relOpHighlighted"></show-plan-sunburst>
       </div>
     </div>
-    <div class="col-xs">
+    <div class="col-xs-4">
       <div class="box">
         <div v-if="displayedOp != null" class="opSummary">
           <operation-summary v-bind:statement="statement" v-bind:operation="displayedOp"></operation-summary>

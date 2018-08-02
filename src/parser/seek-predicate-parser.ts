@@ -58,10 +58,9 @@ export class SeekPredicateParser {
 
   private static ParseScanRangeType(element: Element): ShowPlan.ScanRange {
     const scanType = Convert.GetString(element, 'ScanType') as ShowPlan.CompareOp;
-    const rangeColumnElements = QueryHelper.GetImmediateChildNodesByTagName(element, 'RangeColumns');
     const rangeExpressionElements = QueryHelper.GetImmediateChildNodesByTagName(element, 'RangeExpressions');
 
-    const rangeColumns = rangeColumnElements.map((i) => ColumnReferenceParser.Parse(i));
+    const rangeColumns = ColumnReferenceParser.GetAllFromElement(element, 'RangeColumns');
     const rangeExpressions = rangeExpressionElements.map((i) => ScalarExpressionParser.Parse(i));
 
     return new ShowPlan.ScanRange(scanType, rangeColumns, rangeExpressions);

@@ -1,9 +1,10 @@
 body {
   font-family: 'Segoe Ui', Verdana, sans-serif;
+  color: rgba(0,0,0,.87);
   padding:1rem;
 }
 
-h1,h2,h3,h5,h6 {
+h1,h2,h3 {
   .subheading {
     font-size: .75em;
     font-weight: normal
@@ -12,6 +13,7 @@ h1,h2,h3,h5,h6 {
 
 .card {
   $border-radius: .28571429rem;
+  font-size: .8rem;
 
   border-radius: $border-radius;
   box-shadow: 0 1px 3px 0 #d4d4d5, 0 0 0 1px #d4d4d5;
@@ -26,19 +28,40 @@ h1,h2,h3,h5,h6 {
     border-top: 1px solid rgba(34,36,38,.1);
     margin: 0;
     padding: 1em 1em;
+
+    h4,h5 {
+      margin:0;
+
+      .subheading {font-weight: normal;}
+    }
+
+    ul.small {
+      padding: 0 0 0 1.5rem;
+      margin: .5rem 0 0 0;
+      font-size: .75rem;
+    }
+
+    div.small {
+      font-size: .75rem;
+    }
+  }
+
+  .content.header {
+    font-size:1rem;
   }
 
   .header {
     .meta {
       color: rgba(0,0,0,.4);
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      overflow: hidden;
     }
   }
 }
 
 
 ul.stats {
-  font-size: .8rem;
-  color: #555;
   padding:0;
   margin: 0;
 
