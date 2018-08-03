@@ -4,7 +4,7 @@
     <h4>Predicate</h4>
     <list-or-div v-bind:data="indexScan.Predicate">
       <template slot-scope="{ item }">
-        <span v-html="format(item.ScalarOperator.ScalarString)"></span>
+        <sql-string :sql="item.ScalarOperator.ScalarString"></sql-string>
       </template>
     </list-or-div>
   </div>
@@ -12,7 +12,7 @@
     <h4>Seek Predicates</h4>
     <list-or-div v-bind:data="indexScan.SeekPredicates.SeekPredicate">
       <template slot-scope="{ item }">
-        {{ item.toString() }}
+        <sql-string :sql="item.toString()"></sql-string>
       </template>
     </list-or-div>
   </div>
@@ -20,11 +20,11 @@
     <h4>Seek Predicates</h4>
     <list-or-div v-bind:data="indexScan.SeekPredicates.SeekPredicateNew">
       <template slot-scope="{ item }">
-      <list-or-div v-bind:data="item.SeekKeys">
-        <template slot-scope="{ item }">
-            <span v-html="format(item.toString())"></span>
+        <list-or-div v-bind:data="item.SeekKeys">
+          <template slot-scope="{ item }">
+            <sql-string :sql="item.toString"></sql-string>
           </template>
-      </list-or-div>
+        </list-or-div>
       </template>
     </list-or-div>
   </div>
@@ -34,30 +34,18 @@
 <script lang='ts'>
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator';
 import { RelOp, IndexScan as indexScan } from '@/parser/showplan';
-import { SqlFormatter } from '@/components/formatter';
 
+import SqlString from './SqlString.vue';
 import ListOrDiv from '../ListOrDiv.vue';
 
 @Component({
-    components: { ListOrDiv },
+    components: { ListOrDiv, SqlString },
 })
 export default class IndexScanView extends Vue {
   @Prop() public operation!: RelOp;
 
   private get indexScan(): indexScan {
     return this.operation.Action as indexScan;
-  }
-
-  private format(input: string): string {
-    let out = input.split('\n').join('\n<br />');
-    // some outputs don't have a space after a comma so add a zero width one
-    out = out.replaceAll(',', ',\u200B');
-    out = out.replaceAll('[', '');
-    out = out.replaceAll(']', '');
-    // add zero width space after . to keep long identifier from not wrapping
-    out = out.replaceAll(',', '.\u200B');
-    out = new SqlFormatter().formatSql(out);
-    return out;
   }
 }
 </script>
