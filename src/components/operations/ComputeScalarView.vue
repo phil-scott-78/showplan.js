@@ -2,7 +2,7 @@
   <div class="content">
     <h4>Scalar Operations</h4>
     <ul class="small">
-      <li v-for="(op, index) in computeScalar.DefinedValues" :key="index">SET {{ op.ColumnReference[0].toString() }} = <span v-html="formatSql(op.ScalarOperator.ScalarString)"></span> </li>
+      <li v-for="(op, index) in computeScalar.DefinedValues" :key="index"><span v-if="op.ColumnReference != null && op.ColumnReference.length == 1">SET {{ op.ColumnReference[0].toString() }} = </span><span v-html="formatSql(op.ScalarOperator.ScalarString)"></span> </li>
     </ul>
   </div>
 </template>
