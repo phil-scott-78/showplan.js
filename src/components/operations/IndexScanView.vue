@@ -41,7 +41,7 @@ import ListOrDiv from '../ListOrDiv.vue';
 @Component({
     components: { ListOrDiv },
 })
-export default class IndexScan extends Vue {
+export default class IndexScanView extends Vue {
   @Prop() public operation!: RelOp;
 
   private get indexScan(): indexScan {

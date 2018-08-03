@@ -19,11 +19,13 @@
     "d3-shape": "^1.2.0",
     "flexboxgrid": "^6.3.1",
     "guid-typescript": "^1.0.7",
+    "lodash": "^4.17.10",
     "normalize.css": "^8.0.0",
     "numeral": "^2.0.6",
     "prismjs": "^1.15.0",
     "vue": "^2.5.16",
     "vue-class-component": "^6.2.0",
+    "vue-json-tree": "^0.3.3",
     "vue-property-decorator": "^7.0.0",
     "vuex": "^3.0.1",
     "xmldom": "^0.1.27"

@@ -17,6 +17,7 @@ h1,h2,h3 {
 
   border-radius: $border-radius;
   box-shadow: 0 1px 3px 0 #d4d4d5, 0 0 0 1px #d4d4d5;
+  transition: all 1s;
 
   >:first-child {
     border-radius: $border-radius $border-radius 0 0!important;
@@ -29,8 +30,8 @@ h1,h2,h3 {
     margin: 0;
     padding: 1em 1em;
 
-    h4,h5 {
-      margin:0;
+    h3, h4, h5 {
+      margin: 0 0 .25rem 0;
 
       .subheading {font-weight: normal;}
     }
@@ -41,13 +42,55 @@ h1,h2,h3 {
       font-size: .75rem;
     }
 
+    ul.comma-list {
+      margin: .5rem 0;
+      padding-left: 1rem;
+
+      li {
+        display: inline;
+
+        &:after { content: ", ";}
+        &:last-child:after { content: ""; }
+      }
+    }
+
     div.small {
       font-size: .75rem;
     }
+
+  }
+
+  .content.max-height {
+    max-height:10rem;
+    overflow-y: auto;
   }
 
   .content.header {
     font-size:1rem;
+  }
+
+  .content.raw-data {
+    max-height: 25rem;
+    overflow:auto;
+
+  }
+
+  .footer {
+    border: none;
+    border-top: 1px solid rgba(34,36,38,.1);
+    margin: 0;
+
+    a {
+      display: inline-block;
+      padding: 1em 1em;
+      border-right: 1px solid rgba(34,36,38,.1);
+      text-decoration: none;
+      color: inherit;
+    }
+
+    a.selected {
+      background-color:rgba(34,36,38,.05);
+    }
   }
 
   .header {

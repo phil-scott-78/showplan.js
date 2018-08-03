@@ -14,7 +14,7 @@ import { Vue, Component, Prop, Watch } from 'vue-property-decorator';
 import { RelOp, Sort } from '@/parser/showplan';
 
 @Component({})
-export default class SortBy extends Vue {
+export default class SortByView extends Vue {
   @Prop() public operation!: RelOp;
 
   private get sort(): Sort {

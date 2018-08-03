@@ -1,6 +1,7 @@
 import { ShowPlanParser } from '@/parser/showplan-parser';
 import * as ShowPlan from '@/parser/showplan';
 import { expect } from 'chai';
+import { ColumnReferenceParser } from '@/parser/column-reference-parser';
 
 // tslint:disable-next-line:no-var-requires
 const fs = require('fs');
@@ -57,5 +58,13 @@ describe('multi-convert.sqlplan', () => {
     const statement = plan.Batches[0].Statements[0] as ShowPlan.StmtSimple;
     const finalOperation = statement.QueryPlan!.RelOp.Action.RelOp[0].Action.RelOp;
     expect(finalOperation[0].Action).to.be.instanceof(ShowPlan.IndexScan);
+  });
+
+  it('can group column references', function() {
+    const statement = plan.Batches[0].Statements[0] as ShowPlan.StmtSimple;
+    const columns = statement.QueryPlan!.RelOp.OutputList;
+    const grouping = ColumnReferenceParser.Group(columns);
+    expect(grouping).to.have.length(1);
+    expect(grouping[0].key).to.be.equal('');
   });
 });

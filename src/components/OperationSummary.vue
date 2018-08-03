@@ -7,52 +7,91 @@
       <h3>{{ headingText }}</h3>
       <div class="meta" v-if="getSubHeadingText != null" v-bind:title="getSubHeadingText | stripBrackets">{{ getSubHeadingText | stripBrackets }}</div>
     </div>
-    <sort-by v-if="instanceOf(operation.Action, ShowPlan.Sort)" v-bind:operation="operation"></sort-by>
-    <index-scan v-if="instanceOf(operation.Action, ShowPlan.IndexScan)" v-bind:operation="operation"></index-scan>
-    <div class="content">
-      <ul class="stats">
-        <li>Cost: <strong>{{ operation.EstimateTotalCost | filterSigfig}}</strong> (CPU: {{ operation.EstimateCPU | filterSigfig }}, IO: {{ operation.EstimateIO | filterSigfig }})</li>
+    <div v-if="selectedTab === 'overview'">
 
-        <li>Subtree: <strong>{{ operation.EstimatedTotalSubtreeCost | filterSigfig }}</strong></li>
-      </ul>
+      <sort-by v-if="instanceOf(operation.Action, ShowPlan.Sort)" v-bind:operation="operation"></sort-by>
+      <index-scan v-if="instanceOf(operation.Action, ShowPlan.IndexScan)" v-bind:operation="operation"></index-scan>
+      <filter-op v-if="instanceOf(operation.Action, ShowPlan.Filter)" v-bind:operation="operation"></filter-op>
+      <compute-scalar-op v-if="instanceOf(operation.Action, ShowPlan.ComputeScalar)" v-bind:operation="operation"></compute-scalar-op>
+
+      <div class="content">
+        <ul class="stats">
+          <li>Cost: <strong>{{ operation.EstimateTotalCost | filterSigfig}}</strong> (CPU: {{ operation.EstimateCPU | filterSigfig }}, IO: {{ operation.EstimateIO | filterSigfig }})</li>
+
+          <li>Subtree: <strong>{{ operation.EstimatedTotalSubtreeCost | filterSigfig }}</strong></li>
+        </ul>
+      </div>
+      <div class="content">
+        <ul class="stats">
+          <li>Est. Rows: <strong>{{ operation.EstimateRows | filterInteger }}</strong></li>
+          <li>Row Size: <strong>{{ operation.AvgRowSize | filterBytes }}</strong></li>
+        </ul>
+      </div>
+      <div class="content">
+        <ul class="stats">
+          <li>Est. Rebinds: <strong>{{ operation.EstimateRebinds | filterInteger }}</strong></li>
+          <li>Est. Rewinds: <strong>{{ operation.EstimateRewinds | filterInteger }}</strong></li>
+        </ul>
+      </div>
+      <div class="content max-height">
+        <h4>Output</h4>
+
+        <div class="small" v-for="(key, index) in groupedOutput" v-bind:key="index">
+          <span v-if="key.key !== ''">{{ key.key | stripBrackets }}</span><span v-else>Computed</span>
+          <ul class="comma-list">
+            <li v-for="(member, memberIndex) in key.members" v-bind:key="memberIndex">{{ member.Column }}</li>
+          </ul>
+        </div>
+      </div>
     </div>
-    <div class="content">
-      <ul class="stats">
-        <li>Est. Rows: <strong>{{ operation.EstimateRows | filterInteger }}</strong></li>
-        <li>Row Size: <strong>{{ operation.AvgRowSize | filterBytes }}</strong></li>
-      </ul>
+    <div v-else-if="selectedTab === 'advanced'">
+      <div class="content">
+        advanced
+        </div>
     </div>
-    <div class="content">
-      <ul class="stats">
-        <li>Est. Rebinds: <strong>{{ operation.EstimateRebinds | filterInteger }}</strong></li>
-        <li>Est. Rewinds: <strong>{{ operation.EstimateRewinds | filterInteger }}</strong></li>
-      </ul>
+    <div v-else>
+      <div class="content raw-data">
+        <tree-view :data="shallowOperation"></tree-view>
+      </div>
     </div>
-    <div class="content">
-      <h4>Output</h4>
-      <ul class="small">
-        <li v-for="(column, index) in operation.OutputList" v-bind:key="index">{{ column.Column }} </li>
-      </ul>
+    <div class="footer">
+      <div class="buttons">
+        <a href="#" v-on:click="selectedTab='overview'" v-bind:class="{ 'selected': selectedTab === 'overview' }">Overview</a><a href="#" v-on:click="selectedTab='advanced'" v-bind:class="{ 'selected': selectedTab === 'advanced' }">Advanced</a><a href="#" v-on:click="selectedTab = 'raw'" v-bind:class="{ 'selected': selectedTab === 'raw' }">Raw</a>
+      </div>
     </div>
   </div>
+
 </template>
 
 <script lang='ts'>
-import { Vue, Component, Prop, Watch } from 'vue-property-decorator';
+import { Vue, Component, Prop} from 'vue-property-decorator';
 import { BaseStmtInfo, RelOp, ObjectType } from '@/parser/showplan';
 import * as ShowPlan from '@/parser/showplan';
 
-import SortBy from './operations/SortBy.vue';
-import IndexScan from './operations/IndexScan.vue';
+import SortBy from './operations/SortByView.vue';
+import IndexScan from './operations/IndexScanView.vue';
+import FilterOp from './operations/FilterView.vue';
+import ComputeScalarOp from './operations/ComputeScalarView.vue';
+
+
+import { Group } from '@/parser/grouping';
+import { ColumnReferenceParser } from '@/parser/column-reference-parser';
+import TreeView from 'vue-json-tree';
 
 @Component({
   components: {
-    SortBy, IndexScan,
+    SortBy, IndexScan, FilterOp, ComputeScalarOp, TreeView,
   },
 })
 export default class OperationSummary extends Vue {
   @Prop() public statement!: BaseStmtInfo;
   @Prop() public operation!: RelOp;
+
+  public selectedTab: string = 'overview';
+
+  public get groupedOutput(): Array<Group<ShowPlan.ColumnReference>> {
+    return ColumnReferenceParser.Group(this.operation.OutputList);
+  }
 
   public get headingText(): string {
     switch (this.operation.PhysicalOp) {
@@ -62,6 +101,12 @@ export default class OperationSummary extends Vue {
       default:
         return this.operation.PhysicalOp;
     }
+  }
+
+  public get shallowOperation(): RelOp {
+    const shallow = (JSON.parse(JSON.stringify(this.operation)));
+    shallow.Action.RelOp = [];
+    return shallow;
   }
 
   public get progressPercent(): string {
@@ -116,11 +161,16 @@ export default class OperationSummary extends Vue {
 </script>
 
 <style lang="scss" scoped>
-  .opSummary {
-    h3, h4 {
-      margin:0;
-    }
 
+</style>
 
+<style>
+  .json-tree-root {
+    background-color: inherit !important;
+    padding:0 !important;
+  }
+
+  .json-tree {
+    font-size: .75rem !important;
   }
 </style>

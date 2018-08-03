@@ -3,7 +3,7 @@
     <g>
       <g :transform="'translate(' + width / 2 + ',' + width  /2 + ')'">
         <a xlink:href="#"  v-for="(line, index) in lines" v-bind:key="index" :title="line.operation.LogicalOp" v-on:mouseout="hover(null)" v-on:mouseover="hover(line.operation)" v-on:click="operationClicked(line.operation)">
-          <path :d="line.path" v-bind:fill="colors[getOperationType(line.operation.LogicalOp)]" />
+          <path :d="line.path" stroke="white" opacity="1" v-bind:fill="colors[getOperationType(line.operation.LogicalOp)]" />
         </a>
       </g>
     </g>
@@ -47,6 +47,7 @@ export default class ShowPlanSunburst extends Vue {
     language: '#6ab975',
     other: '#a173d1',
     end: '#0c0909',
+    generic: '#fff',
   };
 
   @Emit('rel-op-selected')
@@ -60,15 +61,25 @@ export default class ShowPlanSunburst extends Vue {
   }
 
   private hover(op: ShowPlan.RelOp | null) {
+    if (op != null && op.NodeId === -1) {
+      return;
+    }
+
     this.statementHighlighted(op);
   }
 
   private operationClicked(op: ShowPlan.RelOp) {
+    if (op != null && op.NodeId === -1) {
+      return;
+    }
+
     this.statementSelected(op);
   }
 
   private getOperationType(logicalOp: string) {
     switch (logicalOp) {
+      case 'Generic':
+        return 'generic';
       case 'Clustered Index Scan':
       case 'Clustered Index Seek':
       case 'Index Seek':
@@ -95,8 +106,16 @@ export default class ShowPlanSunburst extends Vue {
     const partitionFunc = partition<ShowPlan.RelOp>()
       .size([2 * Math.PI, this.radius]);
 
-    const hierarchyNodes = hierarchy<ShowPlan.RelOp>(vm.queryPlan.RelOp, (d) => d.Action.RelOp)
-      .sum((i) => i.EstimateCPU + i.EstimateIO);
+
+    // fudge a minimum size so that everything at least shows up as a sliver
+    const minSize = this.queryPlan!.RelOp.EstimatedTotalSubtreeCost / 360;
+
+    const noop: ShowPlan.RelOp = new ParentRelOp();
+    noop.Action.RelOp[0] = vm.queryPlan.RelOp;
+    noop.NodeId = -1;
+
+    const hierarchyNodes = hierarchy<ShowPlan.RelOp>(noop, (d) => d.Action.RelOp)
+      .sum((i) => Math.max(i.EstimateCPU + i.EstimateIO, minSize));
 
     return partitionFunc(hierarchyNodes);
   }
@@ -110,6 +129,16 @@ class ChartData {
     this.path = path;
     this.operation = operation;
   }
+}
+
+class ParentRelOp extends ShowPlan.RelOp {
+  constructor() {
+    super(new ParentRelOpAction(), 0, 0, 0, 0, 0, 0, 0, 'Generic', 0, false, 'Generic', []);
+    this.NodeId = -1;
+  }
+}
+
+class ParentRelOpAction extends ShowPlan.RelOpAction {
 }
 </script>
 
