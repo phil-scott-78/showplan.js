@@ -1,13 +1,6 @@
 <template>
   <div id="app">
-    <div v-if="showPlan === null">
-        <file-upload-drop v-on:showplan-changed="showPlanChanged" ></file-upload-drop>
-    </div>
-    <div v-else>
-      <div v-if="currentStatement !== null">
-        <statement v-bind:statement="currentStatement"></statement>
-      </div>
-    </div>
+    <component v-bind:is="currentComponent" :statement="currentStatement" @showplan-changed="showPlanChanged"></component>
   </div>
 </template>
 
@@ -25,6 +18,14 @@
   export default class App extends Vue {
     public showPlan: ShowPlan.ShowPlanXML | null = null;
     public selectedStatementGuid: string | null = null;
+
+    public get currentComponent(): string {
+      if (this.showPlan == null) {
+        return 'file-upload-drop';
+      }
+
+      return 'statement';
+    }
 
     public get currentStatement(): ShowPlan.BaseStmtInfo | null {
       if (this.showPlan == null) {

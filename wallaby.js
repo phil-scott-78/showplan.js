@@ -12,6 +12,12 @@ module.exports = function (w) {
         'tests/**/*.ts'
       ],
 
+      compilers: {
+        '**/*.ts': w.compilers.typeScript({
+          module: 'commonjs' // it is set to 'esnext' in tsconfig.json for dynamic components
+        })
+      },
+
       env: {
         type: 'node',
         runner: 'node'
@@ -33,6 +39,8 @@ module.exports = function (w) {
           baseUrl: tsconfig.compilerOptions.baseUrl,
           paths: tsconfig.compilerOptions.paths
         });
+
+
         global._tsconfigPathsRegistered = true;
       },
 
