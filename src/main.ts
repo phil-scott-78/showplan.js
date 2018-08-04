@@ -3,7 +3,7 @@ import App from './App.vue';
 
 import 'normalize.css';
 import './../styles/styles.scss';
-import * as numeral from 'numeral';
+import * as numbro from 'numbro';
 
 Vue.config.productionTip = false;
 
@@ -15,23 +15,23 @@ new Vue({
 
 function setFilters() {
   Vue.filter('filterBytes', function(value: number) {
-    return numeral(value).format('0 ib').replace('KiB', 'KB');
+    return numbro(value).format('0 ib').replace('KiB', 'KB');
   });
 
   Vue.filter('filterKiloBytes', function(value: number) {
-    return numeral(value * 1024).format('0.0 ib').replace('KiB', 'KB');
+    return numbro(value * 1024).format('0.0 ib').replace('KiB', 'KB');
   });
 
   Vue.filter('filterSigfig', function(value: number) {
-    return numeral(value).format('0[.]0000');
+    return numbro(value).format('0[.]0000');
   });
 
   Vue.filter('filterPercent', function(value: number) {
-    return numeral(value).format('0%');
+    return numbro(value).format({ output: 'percent', mantissa: 0 });
   });
 
   Vue.filter('filterInteger', function(value: number) {
-    return numeral(value).format('0,0');
+    return numbro(value).format('0,0');
   });
 
   Vue.filter('stripBrackets', function(value: string) {
