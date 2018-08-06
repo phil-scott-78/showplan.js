@@ -10,9 +10,12 @@
     <div v-if="selectedTab === 'overview'">
 
       <sort-by v-if="instanceOf(operation.Action, ShowPlan.Sort)" v-bind:operation="operation"></sort-by>
-      <index-scan v-if="instanceOf(operation.Action, ShowPlan.IndexScan)" v-bind:operation="operation"></index-scan>
-      <filter-op v-if="instanceOf(operation.Action, ShowPlan.Filter)" v-bind:operation="operation"></filter-op>
-      <compute-scalar-op v-if="instanceOf(operation.Action, ShowPlan.ComputeScalar)" v-bind:operation="operation"></compute-scalar-op>
+      <index-scan v-else-if="instanceOf(operation.Action, ShowPlan.IndexScan)" v-bind:operation="operation"></index-scan>
+      <filter-op v-else-if="instanceOf(operation.Action, ShowPlan.Filter)" v-bind:operation="operation"></filter-op>
+      <compute-scalar-op v-else-if="instanceOf(operation.Action, ShowPlan.ComputeScalar)" v-bind:operation="operation"></compute-scalar-op>
+      <stream-aggregate-op v-else-if="instanceOf(operation.Action, ShowPlan.StreamAggregate)" v-bind:operation="operation"></stream-aggregate-op>
+      <hash-op v-else-if="instanceOf(operation.Action, ShowPlan.Hash)" v-bind:operation="operation"></hash-op>
+      <batch-hash-table-build-op v-else-if="instanceOf(operation.Action, ShowPlan.BatchHashTableBuild)" v-bind:operation="operation"></batch-hash-table-build-op>
 
       <div class="content">
         <ul class="stats">
@@ -72,7 +75,9 @@ import SortBy from './operations/SortByView.vue';
 import IndexScan from './operations/IndexScanView.vue';
 import FilterOp from './operations/FilterView.vue';
 import ComputeScalarOp from './operations/ComputeScalarView.vue';
-
+import StreamAggregateOp from './operations/StreamAggregateView.vue';
+import HashOp from './operations/HashView.vue';
+import BatchHashTableBuildOp from './operations/BatchHashTableBuildView.vue';
 
 import { Group } from '@/parser/grouping';
 import { ColumnReferenceParser } from '@/parser/column-reference-parser';
@@ -80,7 +85,14 @@ import TreeView from 'vue-json-tree';
 
 @Component({
   components: {
-    SortBy, IndexScan, FilterOp, ComputeScalarOp, TreeView,
+    SortBy,
+    IndexScan,
+    FilterOp,
+    ComputeScalarOp,
+    StreamAggregateOp,
+    HashOp,
+    BatchHashTableBuildOp,
+    TreeView,
   },
 })
 export default class OperationSummary extends Vue {

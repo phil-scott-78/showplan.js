@@ -21,8 +21,12 @@
     <list-or-div v-bind:data="indexScan.SeekPredicates.SeekPredicateNew">
       <template slot-scope="{ item }">
         <list-or-div v-bind:data="item.SeekKeys">
-          <template slot-scope="{ item }">
-            <sql-string :sql="item.toString"></sql-string>
+          <template slot-scope="keyItem">
+            <list-or-div v-bind:data="keyItem.item.toStrings()">
+              <template slot-scope="keyString">
+                {{ keyString.item.key }} -as <sql-string :sql="keyString.item.value"></sql-string>
+              </template>
+            </list-or-div>
           </template>
         </list-or-div>
       </template>

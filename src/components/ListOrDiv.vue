@@ -1,9 +1,10 @@
 <template>
-  <div v-bind:class="divClass" v-if="data.length===1">
+
+  <div v-if="data.length === 1" v-bind:class="divClass">
     <slot v-bind:item="data[0]"></slot>
   </div>
 
-  <ul v-bind:class="listClass" v-else>
+  <ul v-else v-bind:class="listClass">
     <li v-for="(d, index) in data" v-bind:key="index">
       <slot v-bind:item="d"></slot>
     </li>

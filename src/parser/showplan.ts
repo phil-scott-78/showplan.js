@@ -1360,14 +1360,31 @@ export class SeekPredicate {
   public Prefix?: ScanRange;
   public StartRange?: ScanRange;
 
-  public toString(): string {
+  public toStrings(): Array<{key: string, value: string}> {
+    const result: Array<{key: string, value: string}> = [];
     if (this.Prefix != null) {
       if (this.Prefix.RangeColumns.length === 1 && this.Prefix.RangeExpressions.length === 1) {
-        return this.Prefix.RangeColumns[0].toString() + ' ' + this.Prefix.ScanTypeToString() + ' ' + this.Prefix.RangeExpressions[0].ScalarOperator.ScalarString;
+        result.push({ key: 'Prefix', value: this.Prefix.RangeColumns[0].toString() + ' ' + this.Prefix.ScanTypeToString() + ' ' + this.Prefix.RangeExpressions[0].ScalarOperator.ScalarString });
       }
     }
 
-    return 'seeek!';
+    if (this.StartRange != null) {
+      if (this.StartRange.RangeColumns.length === 1 && this.StartRange.RangeExpressions.length === 1) {
+        result.push({ key: 'Start', value: this.StartRange.RangeColumns[0].toString() + ' ' + this.StartRange.ScanTypeToString() + ' ' + this.StartRange.RangeExpressions[0].ScalarOperator.ScalarString });
+      }
+    }
+
+    if (this.EndRange != null) {
+      if (this.EndRange.RangeColumns.length === 1 && this.EndRange.RangeExpressions.length === 1) {
+        result.push({ key: 'End', value: this.EndRange.RangeColumns[0].toString() + ' ' + this.EndRange.ScanTypeToString() + ' ' + this.EndRange.RangeExpressions[0].ScalarOperator.ScalarString });
+      }
+    }
+
+    if (this.IsNotNull != null) {
+      result.push({ key: 'Is Not Null', value: this.IsNotNull!.toString() });
+    }
+
+    return result;
   }
 }
 
