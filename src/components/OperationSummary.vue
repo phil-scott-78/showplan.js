@@ -28,6 +28,7 @@
         <ul class="stats">
           <li>Est. Rows: <strong>{{ operation.EstimateRows | filterInteger }}</strong></li>
           <li>Row Size: <strong>{{ operation.AvgRowSize | filterBytes }}</strong></li>
+          <li>Est. Total Size: <strong>{{ operation.EstimateRows * operation.AvgRowSize | filterBytes }}</strong></li>
         </ul>
       </div>
       <div class="content">

@@ -15,7 +15,7 @@ new Vue({
 
 function setFilters() {
   Vue.filter('filterBytes', function(value: number) {
-    return numbro(value).format('0 ib').replace('KiB', 'KB');
+    return numbro(value).format('0.0 ib').replace('KiB', 'KB');
   });
 
   Vue.filter('filterKiloBytes', function(value: number) {
