@@ -108,14 +108,22 @@ export default class ShowPlanSunburst extends Vue {
 
 
     // fudge a minimum size so that everything at least shows up as a sliver
-    const minSize = this.queryPlan!.RelOp.EstimatedTotalSubtreeCost / 360;
+    const minSize = this.queryPlan!.RelOp.EstimatedTotalSubtreeCost / 180;
 
     const noop: ShowPlan.RelOp = new ParentRelOp();
     noop.Action.RelOp[0] = vm.queryPlan.RelOp;
     noop.NodeId = -1;
 
     const hierarchyNodes = hierarchy<ShowPlan.RelOp>(noop, (d) => d.Action.RelOp)
-      .sum((i) => Math.max(i.EstimateCPU + i.EstimateIO, minSize));
+      .sum((i) => {
+        if (i.Action.RelOp.length) {
+          return i.EstimateTotalCost;
+        }
+
+        // if we don't have any child nodes let's get a minimum size to at least
+        // make sure the end nodes are visible
+        return Math.max(i.EstimateTotalCost, minSize);
+      });
 
     return partitionFunc(hierarchyNodes);
   }

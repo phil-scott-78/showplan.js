@@ -1,26 +1,26 @@
 <template>
   <div>
-      <div class="content" v-if="hash.HashKeysBuild != null && hash.HashKeysBuild.length > 0">
+      <div v-if="hash.HashKeysBuild != null && hash.HashKeysBuild.length > 0" class="content">
         <h4>Hash Keys Build</h4>
         <ul class="small">
           <li v-for="(column, index) in hash.HashKeysBuild" :key="index"><sql-string :sql="column.toString()"></sql-string></li>
         </ul>
-        <div v-if="hash.BuildResidual != null">
-          <h4>Residual</h4>
-          <div><sql-string :sql="hash.BuildResidual.ScalarOperator.ScalarString"></sql-string></div>
-        </div>
+      </div>
+      <div v-if="hash.BuildResidual != null" class="content">
+        <h4>Build Residual</h4>
+        <div class="small"><sql-string :sql="hash.BuildResidual.ScalarOperator.ScalarString"></sql-string></div>
       </div>
       <div class="content" v-if="hash.HashKeysProbe != null && hash.HashKeysProbe.length > 0">
         <h4>Hash Keys Probe</h4>
         <ul class="small">
           <li v-for="(column, index) in hash.HashKeysProbe" :key="index"><sql-string :sql="column.toString()"></sql-string></li>
         </ul>
-        <div v-if="hash.ProbeResidual != null">
-          <h4>Residual</h4>
-          <div><sql-string :sql="hash.ProbeResidual.ScalarOperator.ScalarString"></sql-string></div>
-        </div>
       </div>
-      <div class="content" v-if="hash.BitmapCreator != null">
+      <div v-if="hash.ProbeResidual != null" class="content">
+        <h4>Probe Residual</h4>
+        <div class="small"><sql-string :sql="hash.ProbeResidual.ScalarOperator.ScalarString"></sql-string></div>
+      </div>
+      <div v-if="hash.BitmapCreator != null" class="content">
         Bitmap Creator: <strong>{{ hash.BitmapCreator }} </strong>
       </div>
       <defined-values v-if="hash.DefinedValues != null && hash.DefinedValues.length > 0" :definedValues="hash.DefinedValues"></defined-values>
