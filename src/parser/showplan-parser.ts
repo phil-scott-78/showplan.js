@@ -40,7 +40,7 @@ export class ShowPlanParser {
     return new ShowPlan.ShowPlanXML(build, false, version, batches);
   }
 
-  public GetBatchFromElement(batchElement: Element): ShowPlan.ShowPlanXMLTypeBatchSequenceTypeBatch {
+  public GetBatchFromElement(batchElement: Element): ShowPlan.BaseStmtInfo[] {
     const statementElements: NodeListOf<Element> = batchElement.getElementsByTagName('Statements');
 
     const results = ShowPlanParser.ForOnlyElementsInNodes(statementElements, (node) => {
@@ -106,19 +106,21 @@ export class ShowPlanParser {
       return statement;
     });
 
-    return new ShowPlan.ShowPlanXMLTypeBatchSequenceTypeBatch(results);
+    return results;
   }
 
   public Parse(s: string): ShowPlan.ShowPlanXML {
     const doc = new DOMParser().parseFromString(s, 'text/xml');
     const batchElements = doc.documentElement.getElementsByTagName('Batch');
 
-    const batches: ShowPlan.ShowPlanXMLTypeBatchSequenceTypeBatch[] = [];
+    const statements: ShowPlan.BaseStmtInfo[] = [];
     for (let count = 0; count < batchElements.length; count++) {
       const batchElement = batchElements.item(count);
-      batches[count] = this.GetBatchFromElement(batchElement);
+      const batchStatements = this.GetBatchFromElement(batchElement);
+      Array.prototype.push.apply(statements,batchStatements);
     }
 
-    return ShowPlanParser.BuildRoot(doc, batches);
+    const batch = new ShowPlan.ShowPlanXMLTypeBatchSequenceTypeBatch(statements);
+    return ShowPlanParser.BuildRoot(doc, [ batch ]);
   }
 }

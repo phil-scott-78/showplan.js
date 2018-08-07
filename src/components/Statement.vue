@@ -12,9 +12,10 @@
       <span v-if="statement.QueryPlan.CachedPlanSize != null">Cached Plan Size: <strong>{{ statement.QueryPlan.CachedPlanSize | filterKiloBytes }}</strong></span>
     </span>
   </h1>
+  <select-plan :show-plan="showPlan" @showplan-statement-changed="selectChanged"></select-plan>
 
   <div v-if="statement.StatementText != null">
-    <highlight-sql-statement v-bind:statementText="statement.StatementText"></highlight-sql-statement>
+    <highlight-sql-statement v-bind:statementText="statement.StatementText.trim()"></highlight-sql-statement>
   </div>
 
   <div v-if="statement.QueryPlan != null" class="row">
@@ -35,23 +36,39 @@
 </template>
 
 <script lang='ts'>
-import { Vue, Component, Prop, Watch } from 'vue-property-decorator';
-import { BaseStmtInfo, RelOp } from '@/parser/showplan';
+import { Vue, Component, Prop, Watch, Emit } from 'vue-property-decorator';
+import { BaseStmtInfo, RelOp, ShowPlanXML } from '@/parser/showplan';
 
 import ShowPlanSunburst from './ShowPlanSunburst.vue';
 import HighlightSqlStatement from './HighlightSqlStatement.vue';
 import OperationSummary from './OperationSummary.vue';
+import SelectPlan from './SelectPlan.vue';
 
 @Component({
   components: {
-    ShowPlanSunburst, HighlightSqlStatement, OperationSummary,
+    ShowPlanSunburst, HighlightSqlStatement, OperationSummary, SelectPlan,
   },
 })
 export default class Statement extends Vue {
   @Prop() public statement!: BaseStmtInfo;
+  @Prop() public showPlan!: ShowPlanXML;
 
   private selectedOp: RelOp | null = null;
   private highlightedOp: RelOp | null = null;
+
+  @Emit('showplan-statement-changed')
+  public statementSelected(statementGuid: string) {
+    //
+  }
+
+  public selectChanged(statementGuid: string) {
+    this.statementSelected(statementGuid);
+  }
+
+  @Watch('statement')
+  private OnStatementChanged(val: BaseStmtInfo, oldVal: BaseStmtInfo) {
+    this.selectedOp = null;
+  }
 
   private get displayedOp(): RelOp | null {
     if (this.highlightedOp != null) {

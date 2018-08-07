@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <component v-bind:is="currentComponent" :statement="currentStatement" @showplan-changed="showPlanChanged"></component>
+    <component v-bind:is="currentComponent" :statement="currentStatement" :showPlan="showPlan" @showplan-changed="showPlanChanged" @showplan-statement-changed="statementChanged"></component>
   </div>
 </template>
 

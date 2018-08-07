@@ -24,7 +24,7 @@
           <template slot-scope="keyItem">
             <list-or-div v-bind:data="keyItem.item.toStrings()">
               <template slot-scope="keyString">
-                {{ keyString.item.key }} -as <sql-string :sql="keyString.item.value"></sql-string>
+                {{ keyString.item.key }} - <sql-string :sql="keyString.item.value"></sql-string>
               </template>
             </list-or-div>
           </template>

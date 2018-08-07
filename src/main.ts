@@ -37,6 +37,10 @@ function setFilters() {
   Vue.filter('stripBrackets', function(value: string) {
     return value.split('[').join('').split(']').join('');
   });
+
+  Vue.filter('ordinal', function(value: number) {
+    return numbro(value).format({ output: 'ordinal' });
+  });
 }
 
 String.prototype.replaceAll = function(this: string, search: string, replace: string) {

@@ -16,9 +16,8 @@ describe('multi-batch-with-multi-statements.sqlplan', () => {
   });
 
   it('can parse', () => {
-    expect(plan.Batches.length).to.equal(2);
-    expect(plan.Batches[0].Statements).to.have.length(3);
-    expect(plan.Batches[1].Statements).to.have.length(2);
+    expect(plan.Batches.length).to.equal(1);
+    expect(plan.Batches[0].Statements).to.have.length(5);
     expect(plan.Batches[0].Statements[0]).instanceof(ShowPlan.StmtUseDb);
     expect(plan.Batches[0].Statements[1]).instanceof(ShowPlan.StmtSimple);
 
@@ -27,7 +26,7 @@ describe('multi-batch-with-multi-statements.sqlplan', () => {
 
     const statementSimple = (plan.Batches[0].Statements[1] as ShowPlan.StmtSimple);
     expect(statementSimple.QueryPlan!.CachedPlanSize).to.equal(24);
-    expect(statementSimple.CostPercentOfBatch()).to.equal(.5);
+    expect(statementSimple.CostPercentOfBatch()).to.equal(1 / 3);
     expect(statementSimple.QueryPlan!.RelOp.Action).instanceof(ShowPlan.Top);
   });
 });

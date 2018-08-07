@@ -22,7 +22,7 @@ describe('inserted-deleted.sqlplan', function() {
   });
 
   it('second statement can parse as inserted scan', function() {
-    const statement = plan.Batches[1].Statements[0] as ShowPlan.StmtSimple;
+    const statement = plan.Batches[0].Statements[1] as ShowPlan.StmtSimple;
     const op = statement.QueryPlan!
       .RelOp.Action // compute scalar
       .RelOp[0].Action // compute scalar
@@ -34,7 +34,7 @@ describe('inserted-deleted.sqlplan', function() {
   });
 
   it('third statement can parse as deleted scan', function() {
-    const statement = plan.Batches[2].Statements[0] as ShowPlan.StmtSimple;
+    const statement = plan.Batches[0].Statements[2] as ShowPlan.StmtSimple;
     const op = statement.QueryPlan!
       .RelOp.Action // compute scalar
       .RelOp[0].Action // compute scalar
