@@ -1,6 +1,11 @@
-# showplan-vue
+# ShowPlan.Js
 
-## Project setup
+Visualization of SQL Server XML SHOWPLAN
+
+
+
+
+## Development Setup
 ```
 npm install
 ```
