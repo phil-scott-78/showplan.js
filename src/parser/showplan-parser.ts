@@ -117,7 +117,7 @@ export class ShowPlanParser {
     for (let count = 0; count < batchElements.length; count++) {
       const batchElement = batchElements.item(count);
       const batchStatements = this.GetBatchFromElement(batchElement);
-      Array.prototype.push.apply(statements,batchStatements);
+      Array.prototype.push.apply(statements, batchStatements);
     }
 
     const batch = new ShowPlan.ShowPlanXMLTypeBatchSequenceTypeBatch(statements);
