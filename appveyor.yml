@@ -2,6 +2,9 @@
 environment:
   nodejs_version: "8"
 
+cache:
+  - node_modules                        # local npm modules
+
 # Install scripts. (runs after repo cloning)
 install:
   # Get the latest stable version of Node.js or io.js
@@ -19,3 +22,18 @@ test_script:
 
 build_script:
 - cmd: npm run build
+
+artifacts:
+- path: /dist
+
+deploy:
+- provider: AzureBlob
+  storage_account_name: showplanjs
+  storage_access_key:
+    secure: xHGZnjRVMp9Or2zJDTl0Pd01EoFU1umc7tIYfAqaEbX4iGnm5sOyNmeKLjSEVPvc64GyAmBu3/p05/mdpWl7nOENAJoIg6R1bjiJ1Zc90H4G8k8miWmeVmyrPoL0fXYy
+  container: $web
+  artifact: dist.zip
+  set_content_type: true
+  unzip: true
+  on:
+    branch: master
