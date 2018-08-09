@@ -2,8 +2,8 @@
     <svg :width="width" :height="width">
     <g>
       <g :transform="'translate(' + width / 2 + ',' + width  /2 + ')'">
-        <a xlink:href="#"  v-for="(line, index) in lines" v-bind:key="index" :title="line.operation.LogicalOp" v-on:mouseout="hover(null)" v-on:mouseover="hover(line.operation)" v-on:click="operationClicked(line.operation)">
-          <path :d="line.path" stroke="white" opacity="1" v-bind:fill="colors[getOperationType(line.operation.LogicalOp)]" />
+        <a v-for="(line, index) in lines" v-bind:key="index" :title="line.data.LogicalOp" v-on:mouseout="hover(null)" v-on:mouseover="hover(line)" v-on:click="operationClicked(line)">
+          <path :d="arc(line)" :stroke="getStroke(line)" :opacity="getOpacity(line)" v-bind:fill="colors[getOperationType(line.data.LogicalOp)]" />
         </a>
       </g>
     </g>
@@ -16,6 +16,7 @@ import { Vue, Component, Prop, Watch, Emit } from 'vue-property-decorator';
 import * as ShowPlan from '@/parser/showplan';
 import { hierarchy, partition, HierarchyRectangularNode } from 'd3-hierarchy';
 import { arc } from 'd3-shape';
+import { normalize } from 'path';
 
 @Component({
 })
@@ -23,13 +24,14 @@ export default class ShowPlanSunburst extends Vue {
   @Prop() public queryPlan!: ShowPlan.QueryPlan;
   @Prop({ default: 500 }) public width!: number;
 
+  private highlightedNode: HierarchyRectangularNode<ShowPlan.RelOp> | null = null;
+
   private get radius(): number  {
     return this.width / 2;
   }
 
-  private get lines(): ChartData[]  {
-    return this.root().descendants()
-      .map((i) => new ChartData(this.arc(i)!, i.data));
+  private get lines(): Array<HierarchyRectangularNode<ShowPlan.RelOp>> {
+    return this.root().descendants();
   }
 
   private arc = arc<HierarchyRectangularNode<ShowPlan.RelOp>>()
@@ -60,20 +62,53 @@ export default class ShowPlanSunburst extends Vue {
     //
   }
 
-  private hover(op: ShowPlan.RelOp | null) {
-    if (op != null && op.NodeId === -1) {
-      return;
+  private getOpacity(node: HierarchyRectangularNode<ShowPlan.RelOp>): number {
+    if (this.highlightedNode == null) {
+      return 1;
     }
 
-    this.statementHighlighted(op);
+    for (const childNode of this.highlightedNode.descendants()) {
+      if (node.data.NodeId === childNode.data.NodeId) {
+        return 1;
+      }
+    }
+
+/*
+    for (const parentNodes of this.highlightedNode.ancestors()) {
+      if (node.data.NodeId === parentNodes.data.NodeId) {
+        return .9;
+      }
+    }
+*/
+
+    return .7;
   }
 
-  private operationClicked(op: ShowPlan.RelOp) {
-    if (op != null && op.NodeId === -1) {
+  private getStroke(node: HierarchyRectangularNode<ShowPlan.RelOp>): string {
+    return 'white';
+  }
+
+  private hover(op: HierarchyRectangularNode<ShowPlan.RelOp> | null) {
+    this.highlightedNode = op;
+
+    if (op == null) {
+      this.statementHighlighted(null);
       return;
     }
 
-    this.statementSelected(op);
+    if (op.data.NodeId === -1) {
+      return;
+    }
+
+    this.statementHighlighted(op!.data);
+  }
+
+  private operationClicked(op: HierarchyRectangularNode<ShowPlan.RelOp>) {
+    if (op != null && op.data.NodeId === -1) {
+      return;
+    }
+
+    this.statementSelected(op.data);
   }
 
   private getOperationType(logicalOp: string) {
@@ -129,16 +164,6 @@ export default class ShowPlanSunburst extends Vue {
   }
 }
 
-class ChartData {
-  public path: string;
-  public operation: ShowPlan.RelOp;
-
-  constructor(path: string, operation: ShowPlan.RelOp) {
-    this.path = path;
-    this.operation = operation;
-  }
-}
-
 class ParentRelOp extends ShowPlan.RelOp {
   constructor() {
     super(new ParentRelOpAction(), 0, 0, 0, 0, 0, 0, 0, 'Generic', 0, false, 'Generic', []);
@@ -151,5 +176,7 @@ class ParentRelOpAction extends ShowPlan.RelOpAction {
 </script>
 
 <style lang="scss">
-
+  svg path {
+    transition: opacity .1s;
+  }
 </style>
