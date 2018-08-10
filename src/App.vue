@@ -10,8 +10,6 @@
   import FileUploadDrop from '@/components/FileUploadDrop.vue';
   import * as ShowPlan from '@/parser/showplan';
 
-  import 'flexboxgrid';
-
   @Component({
     components: { FileUploadDrop, Statement: () => import('@/components/Statement.vue')},
   })

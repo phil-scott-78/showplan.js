@@ -18,17 +18,13 @@
     <highlight-sql-statement v-bind:statementText="statement.StatementText.trim()"></highlight-sql-statement>
   </div>
 
-  <div v-if="statement.QueryPlan != null" class="row">
-    <div class="col-xs-8">
-      <div class="box">
-        <show-plan-sunburst width="600" v-bind:queryPlan="statement.QueryPlan" v-on:rel-op-selected="relOpSelected" v-on:rel-op-highlighted="relOpHighlighted"></show-plan-sunburst>
-      </div>
+  <div v-if="statement.QueryPlan != null" class="queryplan">
+    <div class="visualization">
+      <show-plan-sunburst width="600" v-bind:queryPlan="statement.QueryPlan" v-on:rel-op-selected="relOpSelected" v-on:rel-op-highlighted="relOpHighlighted"></show-plan-sunburst>
     </div>
-    <div class="col-xs-4">
-      <div class="box">
-        <div v-if="displayedOp != null" class="opSummary">
-          <operation-summary v-bind:statement="statement" v-bind:operation="displayedOp"></operation-summary>
-        </div>
+    <div class="details">
+      <div v-if="displayedOp != null" class="opSummary">
+        <operation-summary v-bind:statement="statement" v-bind:operation="displayedOp"></operation-summary>
       </div>
     </div>
   </div>
@@ -90,6 +86,20 @@ export default class Statement extends Vue {
 </script>
 
 <style lang="scss" scoped>
+  .queryplan {
+    display: flex;
+
+    .visualization {
+      flex: 2;
+    }
+
+    .details {
+      flex: 1;
+    }
+  }
+
+
+
   h1 {
     .stats {
       font-weight: normal;
