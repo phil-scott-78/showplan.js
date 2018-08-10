@@ -11,10 +11,10 @@ setFilters();
 
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { faGithub } from '@fortawesome/free-brands-svg-icons';
-import { faCoffee } from '@fortawesome/free-solid-svg-icons';
+import { faCloudUploadAlt } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
-library.add(faGithub, faCoffee);
+library.add(faGithub, faCloudUploadAlt);
 Vue.component('font-awesome-icon', FontAwesomeIcon);
 
 new Vue({

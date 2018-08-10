@@ -3,6 +3,10 @@
   <!--UPLOAD-->
   <form enctype="multipart/form-data" novalidate>
     <div class="dropbox">
+      <div>
+        <font-awesome-icon icon="cloud-upload-alt" size="6x"></font-awesome-icon>
+      </div>
+      <div>Click or Drop .SQLPLAN</div>
       <input type="file" @change="filesChange($event.target.files);" class="input-file">
     </div>
   </form>
@@ -42,25 +46,32 @@ export default class FileUploadDrop extends Vue {
 <style lang="scss" scoped>
   .dropbox {
     outline: 2px dashed grey; /* the dash box */
-    outline-offset: -10px;
-    background: lightcyan;
     color: dimgray;
     padding: 10px 10px;
     min-height: 200px; /* minimum height */
     position: relative;
     cursor: pointer;
+    display:flex;
+    align-items: center;
+    justify-content: center;
+    transition:background-color .25s ease;
+    flex-direction: column;
+
+    svg {
+      filter: drop-shadow(2px 2px 2px rgba(34,36,38,.9));
+    }
   }
 
   .input-file {
-    opacity: 0; /* invisible but it's there! */
+    opacity: 0;
     width: 100%;
-    height: 200px;
+    height: 100%;
     position: absolute;
     cursor: pointer;
   }
 
   .dropbox:hover {
-    background: lightblue; /* when mouse over to the drop zone, change color */
+    background-color: rgba(0,0,0,.03);
   }
 
   .dropbox p {
