@@ -1,5 +1,6 @@
 <template>
   <div id="app">
+    <header-menu @plan-changed="planChanged"></header-menu>
     <component v-bind:is="currentComponent" :statement="currentStatement" :showPlan="showPlan" @showplan-changed="showPlanChanged" @showplan-statement-changed="statementChanged"></component>
   </div>
 </template>
@@ -8,10 +9,11 @@
   import { Component, Prop, Vue } from 'vue-property-decorator';
 
   import FileUploadDrop from '@/components/FileUploadDrop.vue';
+  import HeaderMenu from '@/components/Header.vue';
   import * as ShowPlan from '@/parser/showplan';
 
   @Component({
-    components: { FileUploadDrop, Statement: () => import('@/components/Statement.vue')},
+    components: { HeaderMenu, FileUploadDrop, Statement: () => import('@/components/Statement.vue')},
   })
   export default class App extends Vue {
     public showPlan: ShowPlan.ShowPlanXML | null = null;
@@ -63,8 +65,8 @@
       this.selectedStatementGuid = statementGuid;
     }
 
-    public newPlan() {
-      this.showPlan = null;
+    public planChanged(plan: ShowPlan.ShowPlanXML | null) {
+      this.showPlan = plan;
     }
   }
 </script>
