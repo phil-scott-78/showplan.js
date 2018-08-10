@@ -49,7 +49,8 @@ export default class ShowPlanSunburst extends Vue {
     language: '#6ab975',
     other: '#a173d1',
     end: '#0c0909',
-    generic: '#fff',
+    generic: '#333',
+    root: '#fff',
   };
 
   @Emit('rel-op-selected')
@@ -85,7 +86,7 @@ export default class ShowPlanSunburst extends Vue {
   }
 
   private getStroke(node: HierarchyRectangularNode<ShowPlan.RelOp>): string {
-    return 'white';
+    return '#fff';
   }
 
   private hover(op: HierarchyRectangularNode<ShowPlan.RelOp> | null) {
@@ -120,7 +121,7 @@ export default class ShowPlanSunburst extends Vue {
       case 'Index Seek':
       case 'Index Scan':
       case 'Table Scan':
-          return 'data';
+        return 'data';
       case 'Cross Join':
       case 'Inner Join':
       case 'Left Anti Semi Join':
@@ -130,7 +131,9 @@ export default class ShowPlanSunburst extends Vue {
       case 'Right Outer Join':
       case 'Right Semi Join':
       case 'Merge':
-          return 'join';
+        return 'join';
+      case 'Root':
+        return 'root';
       default:
           return 'operation';
     }
@@ -166,7 +169,7 @@ export default class ShowPlanSunburst extends Vue {
 
 class ParentRelOp extends ShowPlan.RelOp {
   constructor() {
-    super(new ParentRelOpAction(), 0, 0, 0, 0, 0, 0, 0, 'Generic', 0, false, 'Generic', []);
+    super(new ParentRelOpAction(), 0, 0, 0, 0, 0, 0, 0, 'Root', 0, false, 'Root', []);
     this.NodeId = -1;
   }
 }
@@ -176,7 +179,11 @@ class ParentRelOpAction extends ShowPlan.RelOpAction {
 </script>
 
 <style lang="scss">
+  svg {
+    filter: drop-shadow(2px 2px 2px rgba(34,36,38,.15));
+  }
+
   svg path {
-    transition: opacity .25s ease;
+    transition: opacity .15s ease;
   }
 </style>

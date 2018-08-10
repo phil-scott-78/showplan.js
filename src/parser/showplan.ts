@@ -749,7 +749,9 @@ export type LogicalOpType =
   | 'Local Stats'
   | 'Window Spool'
   | 'Window Aggregate'
-  | 'Key Lookup';
+  | 'Key Lookup'
+  | 'Root'
+  ;
 
 export class Logical implements ScalarOp {
   public Operation: LogicalOperationType;
@@ -1074,7 +1076,9 @@ export type PhysicalOp =
   | 'UDX'
   | 'Window Aggregate'
   | 'Window Spool'
-  | 'Key Lookup';
+  | 'Key Lookup'
+  | 'Root'
+  ;
 
 /** Shows time statistics for single query execution.
  * CpuTime: CPU time in milliseconds
