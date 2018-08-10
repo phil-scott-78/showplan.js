@@ -4,8 +4,8 @@
       SQL Server SHOWPLAN
     </div>
     <div class="actions">
+      <a href="https://github.com/phil-scott-78/showplan.js" class="item"><font-awesome-icon :icon="['fab', 'github']" /></a>
       <a @click="planChanged(null)" class="item">New Plan</a>
-      </div>
     </div>
   </div>
 </template>
@@ -39,7 +39,8 @@ export default class Header extends Vue {
 
   .item {
     padding: .92857143em 1.14285714em;
-    display:inline-flex;
+    position: relative;
+    display:inline-block;
   }
 
   .header {
@@ -51,8 +52,11 @@ export default class Header extends Vue {
     flex:3;
     text-align: right;
 
+    a {color: inherit;}
+
     .item {
       border-left: 1px solid rgba(34,36,38,.15);
+      transition: background-color.25s ease;
     }
 
     .item:hover {

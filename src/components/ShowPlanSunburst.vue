@@ -177,6 +177,6 @@ class ParentRelOpAction extends ShowPlan.RelOpAction {
 
 <style lang="scss">
   svg path {
-    transition: opacity .1s;
+    transition: opacity .25s ease;
   }
 </style>

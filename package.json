@@ -13,6 +13,10 @@
     "singleQuote": true
   },
   "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^1.2.2",
+    "@fortawesome/free-brands-svg-icons": "^5.2.0",
+    "@fortawesome/free-solid-svg-icons": "^5.2.0",
+    "@fortawesome/vue-fontawesome": "^0.1.1",
     "d3-hierarchy": "^1.1.6",
     "d3-path": "~1.0.5",
     "d3-shape": "^1.2.0",
