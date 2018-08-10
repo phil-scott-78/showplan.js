@@ -1,6 +1,6 @@
 <template>
   <div style="position:relative">
-  <a href="#" @click="showDrop">Switch</a>
+  <a @click="showDrop">Switch</a>
   <dropdown ref="drop">
     <div class="selectPlan">
       <div v-for="(batch, batchIndex) in showPlan.Batches" v-bind:key="batchIndex" class="batch">
