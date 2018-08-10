@@ -1,7 +1,7 @@
 <template>
 <div>
   <h1>
-    <span class="statementType">{{ statement.StatementType }}</span>
+    <span class="statementType">{{ statement.StatementType }}</span> <select-plan :show-plan="showPlan" @showplan-statement-changed="selectChanged"></select-plan>
     <span v-if="statement.QueryPlan != null" class='stats'>
       <span v-if="statement.StatementSubTreeCost != null">Sub Tree Cost: <strong>{{ statement.StatementSubTreeCost }}</strong></span>
       <span v-if="statement.StatementEstRows != null">Estimated Number of Rows : <strong>{{ statement.StatementEstRows }}</strong></span>
@@ -12,7 +12,6 @@
       <span v-if="statement.QueryPlan.CachedPlanSize != null">Cached Plan Size: <strong>{{ statement.QueryPlan.CachedPlanSize | filterKiloBytes }}</strong></span>
     </span>
   </h1>
-  <select-plan :show-plan="showPlan" @showplan-statement-changed="selectChanged"></select-plan>
 
   <div v-if="statement.StatementText != null">
     <highlight-sql-statement v-bind:statementText="statement.StatementText.trim()"></highlight-sql-statement>

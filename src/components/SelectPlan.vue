@@ -1,14 +1,16 @@
 <template>
-  <div style="position:relative">
-  <a @click="showDrop">Switch</a>
+  <span v-if="showPlan.Batches[0].Statements.length > 1" style="margin-left:.5rem;position:relative;font-size:1.3rem;verticle-align:middle">
+  <a class="icon" @click="showDrop"><font-awesome-icon icon="chevron-circle-down" title="Switch Plans"></font-awesome-icon></a>
   <dropdown ref="drop">
     <div class="selectPlan">
       <div v-for="(batch, batchIndex) in showPlan.Batches" v-bind:key="batchIndex" class="batch">
-        <h4>{{ batchIndex + 1 | ordinal }} Batch</h4>
+        <h4 v-if="showPlan.Batches.length > 1">{{ batchIndex + 1 | ordinal }} Batch</h4>
+        <h4 v-else>Switch Plan</h4>
         <ul>
           <li v-for="(statement) in batch.Statements" v-bind:key="statement.Guid" v-on:click="selectChanged(statement.Guid)">
               <div class="text">
-                <sql-string :sql="statement.StatementText.trim().substring(0,100)"></sql-string>
+                <sql-string v-if="statement.StatementText != null" :sql="statement.StatementText.trim().substring(0,100)"></sql-string>
+                <span v-else>(unknown query statement text)</span>
               </div>
               <div class="stats">
                 <span v-if="statement.QueryPlan != null" class='stats'><span v-if="statement.StatementSubTreeCost != null">Sub Tree Cost: <strong>{{ statement.StatementSubTreeCost }}</strong> ({{ statement.CostPercentOfBatch() | filterPercent }}) </span></span>
@@ -18,7 +20,7 @@
       </div>
     </div>
   </dropdown>
-  </div>
+  </span>
 </template>
 
 <script lang="ts">
@@ -87,6 +89,10 @@ export default class SelectPlan extends Vue {
 </script>
 
 <style lang="scss">
+  a.icon {
+    cursor: pointer;
+  }
+
   .query-plan {width:100%;}
 
   .selectPlan {
@@ -107,7 +113,6 @@ export default class SelectPlan extends Vue {
       margin: 0;
       padding:0;
       font-size:.8rem;
-
 
       li {
         display:flex;
