@@ -8,6 +8,7 @@
       <div class="meta" v-if="getSubHeadingText != null" v-bind:title="getSubHeadingText | stripBrackets">{{ getSubHeadingText | stripBrackets }}</div>
     </div>
     <div v-if="selectedTab === 'overview'">
+      <warnings v-if="operation.Warnings != null" :warnings="operation.Warnings"></warnings>
 
       <sort-by v-if="instanceOf(operation.Action, ShowPlan.Sort)" v-bind:operation="operation"></sort-by>
       <index-scan v-else-if="instanceOf(operation.Action, ShowPlan.IndexScan)" v-bind:operation="operation"></index-scan>
@@ -37,6 +38,8 @@
           <li>Est. Rewinds: <strong>{{ operation.EstimateRewinds | filterInteger }}</strong></li>
         </ul>
       </div>
+
+
       <div class="content max-height">
         <h4>Output</h4>
 
@@ -80,6 +83,8 @@ import StreamAggregateOp from './operations/StreamAggregateView.vue';
 import HashOp from './operations/HashView.vue';
 import BatchHashTableBuildOp from './operations/BatchHashTableBuildView.vue';
 
+import Warnings from './operations/Warnings.vue';
+
 import { Group } from '@/parser/grouping';
 import { ColumnReferenceParser } from '@/parser/column-reference-parser';
 import TreeView from 'vue-json-tree';
@@ -93,6 +98,7 @@ import TreeView from 'vue-json-tree';
     StreamAggregateOp,
     HashOp,
     BatchHashTableBuildOp,
+    Warnings,
     TreeView,
   },
 })

@@ -1,0 +1,205 @@
+﻿<?xml version="1.0" ?>
+<ShowPlanXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Version="1.6" Build="14.0.1000.169" xmlns="http://schemas.microsoft.com/sqlserver/2004/07/showplan">
+  <BatchSequence>
+    <Batch>
+      <Statements>
+        <StmtSimple StatementCompId="0" StatementEstRows="7368560" StatementId="1" StatementOptmLevel="FULL" CardinalityEstimationModelVersion="140" StatementSubTreeCost="2299.4" StatementText="insert [dbo].[FactInternetSales_Spill] select * from [dbo].[FactInternetSales_Spill]" StatementType="INSERT" QueryHash="0x1EB2A16BE3A3A5FE" QueryPlanHash="0xCC417B4029367117" RetrievedFromCache="false" SecurityPolicyApplied="false">
+          <StatementSetOptions ANSI_NULLS="true" ANSI_PADDING="true" ANSI_WARNINGS="true" ARITHABORT="true" CONCAT_NULL_YIELDS_NULL="true" NUMERIC_ROUNDABORT="false" QUOTED_IDENTIFIER="true" />
+          <QueryPlan DegreeOfParallelism="4" MemoryGrant="413792" CachedPlanSize="48" CompileTime="358" CompileCPU="331" CompileMemory="224">
+            <ThreadStat Branches="1" UsedThreads="4">
+              <ThreadReservation NodeId="0" ReservedThreads="4" />
+            </ThreadStat>
+            <MemoryGrantInfo SerialRequiredMemory="2048" SerialDesiredMemory="2342128" RequiredMemory="8264" DesiredMemory="2348360" RequestedMemory="413792" GrantWaitTime="0" GrantedMemory="413792" MaxUsedMemory="412160" MaxQueryMemory="413792" />
+            <OptimizerHardwareDependentProperties EstimatedAvailableMemoryGrant="206720" EstimatedPagesCached="51680" EstimatedAvailableDegreeOfParallelism="2" MaxCompileMemory="1486264" />
+            <WaitStats>
+              <Wait WaitType="CMEMTHREAD" WaitTimeMs="1" WaitCount="9" />
+              <Wait WaitType="SLEEP_BUFFERPOOL_HELPLW" WaitTimeMs="1" WaitCount="1" />
+              <Wait WaitType="PAGELATCH_SH" WaitTimeMs="866" WaitCount="48" />
+              <Wait WaitType="LATCH_EX" WaitTimeMs="1072" WaitCount="6" />
+              <Wait WaitType="QUERY_EXECUTION_INDEX_SORT_EVENT_OPEN" WaitTimeMs="3063" WaitCount="3" />
+              <Wait WaitType="PAGELATCH_UP" WaitTimeMs="4395" WaitCount="2231" />
+              <Wait WaitType="LATCH_SH" WaitTimeMs="20473" WaitCount="49" />
+            </WaitStats>
+            <QueryTimeStats CpuTime="36177" ElapsedTime="47245" />
+            <RelOp AvgRowSize="9" EstimateCPU="4.64306" EstimateIO="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row" EstimateRows="7368560" LogicalOp="Gather Streams" NodeId="0" Parallel="true" PhysicalOp="Parallelism" EstimatedTotalSubtreeCost="2299.4">
+              <OutputList />
+              <RunTimeInformation>
+                <RunTimeCountersPerThread Thread="0" ActualRows="0" Batches="0" ActualEndOfScans="1" ActualExecutions="1" ActualExecutionMode="Row" ActualElapsedms="47245" ActualCPUms="0" />
+              </RunTimeInformation>
+              <Parallelism>
+                <RelOp AvgRowSize="9" EstimateCPU="3.68428" EstimateIO="668.535" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row" EstimateRows="7368560" LogicalOp="Insert" NodeId="1" Parallel="true" PhysicalOp="Index Insert" EstimatedTotalSubtreeCost="2294.76">
+                  <OutputList />
+                  <RunTimeInformation>
+                    <RunTimeCountersPerThread Thread="4" ActualRows="0" Batches="0" ActualEndOfScans="1" ActualExecutions="1" ActualExecutionMode="Row" ActualElapsedms="46970" ActualCPUms="12948" ActualScans="0" ActualLogicalReads="0" ActualPhysicalReads="0" ActualReadAheads="0" ActualLobLogicalReads="0" ActualLobPhysicalReads="0" ActualLobReadAheads="0" />
+                    <RunTimeCountersPerThread Thread="3" ActualRows="0" Batches="0" ActualEndOfScans="1" ActualExecutions="1" ActualExecutionMode="Row" ActualElapsedms="47029" ActualCPUms="13278" ActualScans="0" ActualLogicalReads="0" ActualPhysicalReads="0" ActualReadAheads="0" ActualLobLogicalReads="0" ActualLobPhysicalReads="0" ActualLobReadAheads="0" />
+                    <RunTimeCountersPerThread Thread="2" ActualRows="0" Batches="0" ActualEndOfScans="1" ActualExecutions="1" ActualExecutionMode="Row" ActualElapsedms="46976" ActualCPUms="11851" ActualScans="0" ActualLogicalReads="0" ActualPhysicalReads="0" ActualReadAheads="0" ActualLobLogicalReads="0" ActualLobPhysicalReads="0" ActualLobReadAheads="0" />
+                    <RunTimeCountersPerThread Thread="1" ActualRows="0" Batches="0" ActualEndOfScans="1" ActualExecutions="1" ActualExecutionMode="Row" ActualElapsedms="47243" ActualCPUms="14490" ActualScans="0" ActualLogicalReads="0" ActualPhysicalReads="0" ActualReadAheads="0" ActualLobLogicalReads="0" ActualLobPhysicalReads="0" ActualLobReadAheads="0" />
+                    <RunTimeCountersPerThread Thread="0" ActualRows="0" Batches="0" ActualEndOfScans="0" ActualExecutions="0" ActualExecutionMode="Row" ActualElapsedms="0" ActualCPUms="0" ActualScans="0" ActualLogicalReads="0" ActualPhysicalReads="0" ActualReadAheads="0" ActualLobLogicalReads="0" ActualLobPhysicalReads="0" ActualLobReadAheads="0" />
+                  </RunTimeInformation>
+                  <CreateIndex>
+                    <Object Database="[AdventureWorksDW2017]" Schema="[dbo]" Table="[FactInternetSales_Spill]" Index="[PK_FactInternetSales_SalesOrderNumber_SalesOrderLineNumber_Spill]" IndexKind="Clustered" Storage="RowStore" />
+                    <RelOp AvgRowSize="220" EstimateCPU="137.919" EstimateIO="1296.55" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row" EstimateRows="7368560" LogicalOp="Sort" NodeId="2" Parallel="true" PhysicalOp="Sort" EstimatedTotalSubtreeCost="1622.54">
+                      <OutputList>
+                        <ColumnReference Column="RowRefSrc1006" />
+                      </OutputList>
+                      <Warnings>
+                        <SpillToTempDb SpillLevel="2" SpilledThreadCount="4" />
+                        <SortSpillDetails GrantedMemoryKb="413696" UsedMemoryKb="410624" WritesToTempDb="12" ReadsFromTempDb="175292" />
+                      </Warnings>
+                      <MemoryFractions Input="1" Output="1" />
+                      <RunTimeInformation>
+                        <RunTimeCountersPerThread Thread="4" ActualRebinds="1" ActualRewinds="0" ActualRows="1373595" Batches="0" ActualEndOfScans="1" ActualExecutions="1" ActualExecutionMode="Row" ActualElapsedms="44324" ActualCPUms="11232" ActualScans="0" ActualLogicalReads="0" ActualPhysicalReads="0" ActualReadAheads="42721" ActualLobLogicalReads="0" ActualLobPhysicalReads="0" ActualLobReadAheads="0" InputMemoryGrant="102656" OutputMemoryGrant="103424" UsedMemoryGrant="102656" />
+                        <RunTimeCountersPerThread Thread="3" ActualRebinds="1" ActualRewinds="0" ActualRows="1782472" Batches="0" ActualEndOfScans="1" ActualExecutions="1" ActualExecutionMode="Row" ActualElapsedms="44487" ActualCPUms="11056" ActualScans="0" ActualLogicalReads="0" ActualPhysicalReads="0" ActualReadAheads="46704" ActualLobLogicalReads="0" ActualLobPhysicalReads="0" ActualLobReadAheads="0" InputMemoryGrant="102656" OutputMemoryGrant="103424" UsedMemoryGrant="102840" />
+                        <RunTimeCountersPerThread Thread="2" ActualRebinds="1" ActualRewinds="0" ActualRows="1887462" Batches="0" ActualEndOfScans="1" ActualExecutions="1" ActualExecutionMode="Row" ActualElapsedms="43572" ActualCPUms="9350" ActualScans="0" ActualLogicalReads="0" ActualPhysicalReads="0" ActualReadAheads="43249" ActualLobLogicalReads="0" ActualLobPhysicalReads="0" ActualLobReadAheads="0" InputMemoryGrant="102656" OutputMemoryGrant="103424" UsedMemoryGrant="102656" />
+                        <RunTimeCountersPerThread Thread="1" ActualRebinds="1" ActualRewinds="0" ActualRows="2325027" Batches="0" ActualEndOfScans="1" ActualExecutions="1" ActualExecutionMode="Row" ActualElapsedms="43530" ActualCPUms="11610" ActualScans="0" ActualLogicalReads="0" ActualPhysicalReads="0" ActualReadAheads="42602" ActualLobLogicalReads="0" ActualLobPhysicalReads="0" ActualLobReadAheads="0" InputMemoryGrant="102656" OutputMemoryGrant="103424" UsedMemoryGrant="102848" />
+                        <RunTimeCountersPerThread Thread="0" ActualRebinds="0" ActualRewinds="0" ActualRows="0" Batches="0" ActualEndOfScans="0" ActualExecutions="0" ActualExecutionMode="Row" ActualElapsedms="0" ActualCPUms="0" ActualScans="0" ActualLogicalReads="0" ActualPhysicalReads="0" ActualReadAheads="0" ActualLobLogicalReads="0" ActualLobPhysicalReads="0" ActualLobReadAheads="0" InputMemoryGrant="0" OutputMemoryGrant="0" UsedMemoryGrant="0" />
+                      </RunTimeInformation>
+                      <Sort Distinct="false">
+                        <OrderBy>
+                          <OrderByColumn Ascending="true">
+                            <ColumnReference Database="[AdventureWorksDW2017]" Schema="[dbo]" Table="[FactInternetSales_Spill]" Column="SalesOrderNumber" />
+                          </OrderByColumn>
+                          <OrderByColumn Ascending="true">
+                            <ColumnReference Database="[AdventureWorksDW2017]" Schema="[dbo]" Table="[FactInternetSales_Spill]" Column="SalesOrderLineNumber" />
+                          </OrderByColumn>
+                        </OrderBy>
+                        <PartitionId>
+                          <ColumnReference Database="[AdventureWorksDW2017]" Schema="[dbo]" Table="[FactInternetSales_Spill]" Column="SalesOrderNumber" />
+                        </PartitionId>
+                        <RelOp AvgRowSize="220" EstimateCPU="4.05275" EstimateIO="184.017" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row" EstimateRows="7368560" EstimatedRowsRead="7368560" LogicalOp="Table Scan" NodeId="3" Parallel="true" PhysicalOp="Table Scan" EstimatedTotalSubtreeCost="188.069" TableCardinality="7368560">
+                          <OutputList>
+                            <ColumnReference Database="[AdventureWorksDW2017]" Schema="[dbo]" Table="[FactInternetSales_Spill]" Column="ProductKey" />
+                            <ColumnReference Database="[AdventureWorksDW2017]" Schema="[dbo]" Table="[FactInternetSales_Spill]" Column="OrderDateKey" />
+                            <ColumnReference Database="[AdventureWorksDW2017]" Schema="[dbo]" Table="[FactInternetSales_Spill]" Column="DueDateKey" />
+                            <ColumnReference Database="[AdventureWorksDW2017]" Schema="[dbo]" Table="[FactInternetSales_Spill]" Column="ShipDateKey" />
+                            <ColumnReference Database="[AdventureWorksDW2017]" Schema="[dbo]" Table="[FactInternetSales_Spill]" Column="CustomerKey" />
+                            <ColumnReference Database="[AdventureWorksDW2017]" Schema="[dbo]" Table="[FactInternetSales_Spill]" Column="PromotionKey" />
+                            <ColumnReference Database="[AdventureWorksDW2017]" Schema="[dbo]" Table="[FactInternetSales_Spill]" Column="CurrencyKey" />
+                            <ColumnReference Database="[AdventureWorksDW2017]" Schema="[dbo]" Table="[FactInternetSales_Spill]" Column="SalesTerritoryKey" />
+                            <ColumnReference Database="[AdventureWorksDW2017]" Schema="[dbo]" Table="[FactInternetSales_Spill]" Column="SalesOrderNumber" />
+                            <ColumnReference Database="[AdventureWorksDW2017]" Schema="[dbo]" Table="[FactInternetSales_Spill]" Column="SalesOrderLineNumber" />
+                            <ColumnReference Database="[AdventureWorksDW2017]" Schema="[dbo]" Table="[FactInternetSales_Spill]" Column="RevisionNumber" />
+                            <ColumnReference Database="[AdventureWorksDW2017]" Schema="[dbo]" Table="[FactInternetSales_Spill]" Column="OrderQuantity" />
+                            <ColumnReference Database="[AdventureWorksDW2017]" Schema="[dbo]" Table="[FactInternetSales_Spill]" Column="UnitPrice" />
+                            <ColumnReference Database="[AdventureWorksDW2017]" Schema="[dbo]" Table="[FactInternetSales_Spill]" Column="ExtendedAmount" />
+                            <ColumnReference Database="[AdventureWorksDW2017]" Schema="[dbo]" Table="[FactInternetSales_Spill]" Column="UnitPriceDiscountPct" />
+                            <ColumnReference Database="[AdventureWorksDW2017]" Schema="[dbo]" Table="[FactInternetSales_Spill]" Column="DiscountAmount" />
+                            <ColumnReference Database="[AdventureWorksDW2017]" Schema="[dbo]" Table="[FactInternetSales_Spill]" Column="ProductStandardCost" />
+                            <ColumnReference Database="[AdventureWorksDW2017]" Schema="[dbo]" Table="[FactInternetSales_Spill]" Column="TotalProductCost" />
+                            <ColumnReference Database="[AdventureWorksDW2017]" Schema="[dbo]" Table="[FactInternetSales_Spill]" Column="SalesAmount" />
+                            <ColumnReference Database="[AdventureWorksDW2017]" Schema="[dbo]" Table="[FactInternetSales_Spill]" Column="TaxAmt" />
+                            <ColumnReference Database="[AdventureWorksDW2017]" Schema="[dbo]" Table="[FactInternetSales_Spill]" Column="Freight" />
+                            <ColumnReference Database="[AdventureWorksDW2017]" Schema="[dbo]" Table="[FactInternetSales_Spill]" Column="CarrierTrackingNumber" />
+                            <ColumnReference Database="[AdventureWorksDW2017]" Schema="[dbo]" Table="[FactInternetSales_Spill]" Column="CustomerPONumber" />
+                            <ColumnReference Database="[AdventureWorksDW2017]" Schema="[dbo]" Table="[FactInternetSales_Spill]" Column="OrderDate" />
+                            <ColumnReference Database="[AdventureWorksDW2017]" Schema="[dbo]" Table="[FactInternetSales_Spill]" Column="DueDate" />
+                            <ColumnReference Database="[AdventureWorksDW2017]" Schema="[dbo]" Table="[FactInternetSales_Spill]" Column="ShipDate" />
+                          </OutputList>
+                          <Warnings>
+                            <ColumnsWithNoStatistics>
+                              <ColumnReference Database="[AdventureWorksDW2017]" Schema="[dbo]" Table="[FactInternetSales_Spill]" Column="SalesOrderNumber" />
+                            </ColumnsWithNoStatistics>
+                          </Warnings>
+                          <RunTimeInformation>
+                            <RunTimeCountersPerThread Thread="4" ActualRows="1796044" ActualRowsRead="1796044" Batches="0" ActualEndOfScans="1" ActualExecutions="1" ActualExecutionMode="Row" ActualElapsedms="14110" ActualCPUms="1562" ActualScans="1" ActualLogicalReads="60928" ActualPhysicalReads="6" ActualReadAheads="59835" ActualLobLogicalReads="0" ActualLobPhysicalReads="0" ActualLobReadAheads="0" />
+                            <RunTimeCountersPerThread Thread="3" ActualRows="1963693" ActualRowsRead="1963693" Batches="0" ActualEndOfScans="1" ActualExecutions="1" ActualExecutionMode="Row" ActualElapsedms="16261" ActualCPUms="1701" ActualScans="1" ActualLogicalReads="66304" ActualPhysicalReads="4" ActualReadAheads="65081" ActualLobLogicalReads="0" ActualLobPhysicalReads="0" ActualLobReadAheads="0" />
+                            <RunTimeCountersPerThread Thread="2" ActualRows="1818282" ActualRowsRead="1818282" Batches="0" ActualEndOfScans="1" ActualExecutions="1" ActualExecutionMode="Row" ActualElapsedms="14731" ActualCPUms="1614" ActualScans="1" ActualLogicalReads="60643" ActualPhysicalReads="16" ActualReadAheads="59249" ActualLobLogicalReads="0" ActualLobPhysicalReads="0" ActualLobReadAheads="0" />
+                            <RunTimeCountersPerThread Thread="1" ActualRows="1790537" ActualRowsRead="1790537" Batches="0" ActualEndOfScans="1" ActualExecutions="1" ActualExecutionMode="Row" ActualElapsedms="14203" ActualCPUms="1490" ActualScans="1" ActualLogicalReads="60544" ActualPhysicalReads="16" ActualReadAheads="59279" ActualLobLogicalReads="0" ActualLobPhysicalReads="0" ActualLobReadAheads="0" />
+                            <RunTimeCountersPerThread Thread="0" ActualRows="0" Batches="0" ActualEndOfScans="0" ActualExecutions="0" ActualExecutionMode="Row" ActualElapsedms="0" ActualCPUms="0" ActualScans="1" ActualLogicalReads="0" ActualPhysicalReads="0" ActualReadAheads="0" ActualLobLogicalReads="0" ActualLobPhysicalReads="0" ActualLobReadAheads="0" />
+                          </RunTimeInformation>
+                          <TableScan Ordered="false" ForcedIndex="false" ForceScan="false" NoExpandHint="false" Storage="RowStore">
+                            <DefinedValues>
+                              <DefinedValue>
+                                <ColumnReference Database="[AdventureWorksDW2017]" Schema="[dbo]" Table="[FactInternetSales_Spill]" Column="ProductKey" />
+                              </DefinedValue>
+                              <DefinedValue>
+                                <ColumnReference Database="[AdventureWorksDW2017]" Schema="[dbo]" Table="[FactInternetSales_Spill]" Column="OrderDateKey" />
+                              </DefinedValue>
+                              <DefinedValue>
+                                <ColumnReference Database="[AdventureWorksDW2017]" Schema="[dbo]" Table="[FactInternetSales_Spill]" Column="DueDateKey" />
+                              </DefinedValue>
+                              <DefinedValue>
+                                <ColumnReference Database="[AdventureWorksDW2017]" Schema="[dbo]" Table="[FactInternetSales_Spill]" Column="ShipDateKey" />
+                              </DefinedValue>
+                              <DefinedValue>
+                                <ColumnReference Database="[AdventureWorksDW2017]" Schema="[dbo]" Table="[FactInternetSales_Spill]" Column="CustomerKey" />
+                              </DefinedValue>
+                              <DefinedValue>
+                                <ColumnReference Database="[AdventureWorksDW2017]" Schema="[dbo]" Table="[FactInternetSales_Spill]" Column="PromotionKey" />
+                              </DefinedValue>
+                              <DefinedValue>
+                                <ColumnReference Database="[AdventureWorksDW2017]" Schema="[dbo]" Table="[FactInternetSales_Spill]" Column="CurrencyKey" />
+                              </DefinedValue>
+                              <DefinedValue>
+                                <ColumnReference Database="[AdventureWorksDW2017]" Schema="[dbo]" Table="[FactInternetSales_Spill]" Column="SalesTerritoryKey" />
+                              </DefinedValue>
+                              <DefinedValue>
+                                <ColumnReference Database="[AdventureWorksDW2017]" Schema="[dbo]" Table="[FactInternetSales_Spill]" Column="SalesOrderNumber" />
+                              </DefinedValue>
+                              <DefinedValue>
+                                <ColumnReference Database="[AdventureWorksDW2017]" Schema="[dbo]" Table="[FactInternetSales_Spill]" Column="SalesOrderLineNumber" />
+                              </DefinedValue>
+                              <DefinedValue>
+                                <ColumnReference Database="[AdventureWorksDW2017]" Schema="[dbo]" Table="[FactInternetSales_Spill]" Column="RevisionNumber" />
+                              </DefinedValue>
+                              <DefinedValue>
+                                <ColumnReference Database="[AdventureWorksDW2017]" Schema="[dbo]" Table="[FactInternetSales_Spill]" Column="OrderQuantity" />
+                              </DefinedValue>
+                              <DefinedValue>
+                                <ColumnReference Database="[AdventureWorksDW2017]" Schema="[dbo]" Table="[FactInternetSales_Spill]" Column="UnitPrice" />
+                              </DefinedValue>
+                              <DefinedValue>
+                                <ColumnReference Database="[AdventureWorksDW2017]" Schema="[dbo]" Table="[FactInternetSales_Spill]" Column="ExtendedAmount" />
+                              </DefinedValue>
+                              <DefinedValue>
+                                <ColumnReference Database="[AdventureWorksDW2017]" Schema="[dbo]" Table="[FactInternetSales_Spill]" Column="UnitPriceDiscountPct" />
+                              </DefinedValue>
+                              <DefinedValue>
+                                <ColumnReference Database="[AdventureWorksDW2017]" Schema="[dbo]" Table="[FactInternetSales_Spill]" Column="DiscountAmount" />
+                              </DefinedValue>
+                              <DefinedValue>
+                                <ColumnReference Database="[AdventureWorksDW2017]" Schema="[dbo]" Table="[FactInternetSales_Spill]" Column="ProductStandardCost" />
+                              </DefinedValue>
+                              <DefinedValue>
+                                <ColumnReference Database="[AdventureWorksDW2017]" Schema="[dbo]" Table="[FactInternetSales_Spill]" Column="TotalProductCost" />
+                              </DefinedValue>
+                              <DefinedValue>
+                                <ColumnReference Database="[AdventureWorksDW2017]" Schema="[dbo]" Table="[FactInternetSales_Spill]" Column="SalesAmount" />
+                              </DefinedValue>
+                              <DefinedValue>
+                                <ColumnReference Database="[AdventureWorksDW2017]" Schema="[dbo]" Table="[FactInternetSales_Spill]" Column="TaxAmt" />
+                              </DefinedValue>
+                              <DefinedValue>
+                                <ColumnReference Database="[AdventureWorksDW2017]" Schema="[dbo]" Table="[FactInternetSales_Spill]" Column="Freight" />
+                              </DefinedValue>
+                              <DefinedValue>
+                                <ColumnReference Database="[AdventureWorksDW2017]" Schema="[dbo]" Table="[FactInternetSales_Spill]" Column="CarrierTrackingNumber" />
+                              </DefinedValue>
+                              <DefinedValue>
+                                <ColumnReference Database="[AdventureWorksDW2017]" Schema="[dbo]" Table="[FactInternetSales_Spill]" Column="CustomerPONumber" />
+                              </DefinedValue>
+                              <DefinedValue>
+                                <ColumnReference Database="[AdventureWorksDW2017]" Schema="[dbo]" Table="[FactInternetSales_Spill]" Column="OrderDate" />
+                              </DefinedValue>
+                              <DefinedValue>
+                                <ColumnReference Database="[AdventureWorksDW2017]" Schema="[dbo]" Table="[FactInternetSales_Spill]" Column="DueDate" />
+                              </DefinedValue>
+                              <DefinedValue>
+                                <ColumnReference Database="[AdventureWorksDW2017]" Schema="[dbo]" Table="[FactInternetSales_Spill]" Column="ShipDate" />
+                              </DefinedValue>
+                            </DefinedValues>
+                            <Object Database="[AdventureWorksDW2017]" Schema="[dbo]" Table="[FactInternetSales_Spill]" IndexKind="Heap" Storage="RowStore" />
+                          </TableScan>
+                        </RelOp>
+                      </Sort>
+                    </RelOp>
+                  </CreateIndex>
+                </RelOp>
+              </Parallelism>
+            </RelOp>
+          </QueryPlan>
+        </StmtSimple>
+      </Statements>
+    </Batch>
+  </BatchSequence>
+</ShowPlanXML>

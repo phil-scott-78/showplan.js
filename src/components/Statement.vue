@@ -17,6 +17,15 @@
     <highlight-sql-statement v-bind:statementText="statement.StatementText.trim()"></highlight-sql-statement>
   </div>
 
+  <div v-if="statement.QueryPlan.MissingIndexes != null">
+    <div class="message warning">
+      <h4>Missing Indexes</h4>
+      <ul v-for="(indexGroup, indexGroupIndex) in statement.QueryPlan.MissingIndexes.MissingIndexGroup" :key="indexGroupIndex">
+        <li v-for="(index, indexIndex) in indexGroup.MissingIndex" :key="indexIndex">Impact: {{ indexGroup.Impact  | filterSigfig }}: <sql-string :sql="index.toCreateIndexString()"></sql-string></li>
+      </ul>
+    </div>
+  </div>
+
   <div v-if="statement.QueryPlan != null" class="queryplan">
     <div class="visualization">
       <show-plan-sunburst width="600" v-bind:queryPlan="statement.QueryPlan" v-on:rel-op-selected="relOpSelected" v-on:rel-op-highlighted="relOpHighlighted"></show-plan-sunburst>
@@ -90,10 +99,12 @@ export default class Statement extends Vue {
 
     .visualization {
       flex: 2;
+      max-width:66%;
     }
 
     .details {
       flex: 1;
+      max-width:33%;
     }
   }
 

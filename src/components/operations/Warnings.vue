@@ -1,0 +1,86 @@
+<template>
+  <div>
+    <div v-if="warnings.NoJoinPredicate === true" class="content warning">
+      <h4>No Join Predicate Warning</h4>
+    </div>
+    <div v-if="warnings.SpatialGuess === true" class="content warning">
+      <h4>Spacial Guess Warning</h4>
+    </div>
+    <div v-if="warnings.FullUpdateForOnlineIndexBuild === true" class="content warning">
+      <h4>Full Update For Online Index Build Warning</h4>
+    </div>
+    <div v-if="warnings.UnmatchedIndexes === true" class="content warning">
+      <h4>Unmatched Indexes Warning</h4>
+    </div>
+    <div v-if="warnings.ColumnsWithNoStatistics != null && warnings.ColumnsWithNoStatistics.length > 0" class="content warning">
+      <h4>Columns With No Statistics</h4>
+      <ul class="small">
+        <li v-for="(col, index) in warnings.ColumnsWithNoStatistics" :key="index">
+          {{ col.toString() }}
+        </li>
+      </ul>
+    </div>
+    <div v-if="warnings.HashSpillDetails != null && warnings.HashSpillDetails.length > 0" class="content warning">
+      <h4>Hash Spills Warning</h4>
+      <ul>
+        <li v-if="warnings.SpillToTempDb.length === 1">
+          <ul class="stats">
+            <li>Spill Level <strong>{{ warnings.SpillToTempDb[0].SpillLevel }}</strong></li>
+            <li>Spilled ThreadCount <strong>{{ warnings.SpillToTempDb[0].SpilledThreadCount }}</strong></li>
+          </ul>
+        </li>
+        <li>
+          <ul class="stats">
+            <li v-if="warnings.HashSpillDetails[0].GrantedMemoryKb != null">Granted Memory <strong> {{ warnings.HashSpillDetails[0].GrantedMemoryKb | filterKiloBytes }} </strong></li>
+            <li v-if="warnings.HashSpillDetails[0].UsedMemoryKb != null">Used Memory <strong> {{ warnings.HashSpillDetails[0].UsedMemoryKb | filterKiloBytes }} </strong></li>
+          </ul>
+        </li>
+        <li>
+          <ul class="stats">
+            <li v-if="warnings.HashSpillDetails[0].ReadsFromTempDb != null">Reads from TempDB <strong> {{ warnings.HashSpillDetails[0].ReadsFromTempDb | filterInteger }} </strong></li>
+            <li v-if="warnings.HashSpillDetails[0].WritesToTempDb != null">Writes to TempDB <strong> {{ warnings.HashSpillDetails[0].WritesToTempDb | filterInteger }} </strong></li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+    <div v-if="warnings.SortSpillDetails != null && warnings.SortSpillDetails.length > 0" class="content warning">
+      <h4>Sort Spill Warning</h4>
+      <p>Operator used TempDB to spill during operation</p>
+      <ul>
+        <li v-if="warnings.SpillToTempDb.length === 1">
+          <ul class="stats">
+            <li>Spill Level <strong>{{ warnings.SpillToTempDb[0].SpillLevel }}</strong></li>
+            <li>Spilled ThreadCount <strong>{{ warnings.SpillToTempDb[0].SpilledThreadCount }}</strong></li>
+          </ul>
+        </li>
+        <li>
+          <ul class="stats">
+            <li v-if="warnings.SortSpillDetails[0].GrantedMemoryKb != null">Granted Memory <strong> {{ warnings.SortSpillDetails[0].GrantedMemoryKb | filterKiloBytes }} </strong></li>
+            <li v-if="warnings.SortSpillDetails[0].UsedMemoryKb != null">Used Memory <strong> {{ warnings.SortSpillDetails[0].UsedMemoryKb | filterKiloBytes }} </strong></li>
+          </ul>
+        </li>
+        <li>
+          <ul class="stats">
+            <li v-if="warnings.SortSpillDetails[0].ReadsFromTempDb != null">Reads from TempDB <strong> {{ warnings.SortSpillDetails[0].ReadsFromTempDb | filterInteger }} </strong></li>
+            <li v-if="warnings.SortSpillDetails[0].WritesToTempDb != null">Writes to TempDB <strong> {{ warnings.SortSpillDetails[0].WritesToTempDb | filterInteger }} </strong></li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </div>
+</template>
+
+<script lang='ts'>
+import { Vue, Component, Prop, Watch } from 'vue-property-decorator';
+import { Warnings } from '@/parser/showplan';
+
+@Component({
+})
+export default class Warning extends Vue {
+  @Prop() public warnings!: Warnings;
+}
+</script>
+
+<style lang="scss" scoped>
+
+</style>

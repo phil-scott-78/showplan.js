@@ -859,6 +859,25 @@ export class MissingIndex {
     this.Table = table;
     this.ColumnGroup = columnGroup;
   }
+
+  public toCreateIndexString(): string {   ;
+    const equalityColumnNames = this.ColumnGroup.filter((i) => i.Usage === 'EQUALITY')[0].Column.map((col) => col.Name);
+
+    const includeColumns = this.ColumnGroup.filter((i) => i.Usage === 'INCLUDE')[0];
+    let includeColumnNames: string[] | null = null;
+    if (includeColumns != null) {
+      includeColumnNames = includeColumns.Column.map((col) => col.Name);
+    }
+
+    const indexName = `IX_${this.Table}_${equalityColumnNames.join('_')}`;
+    let sql = `CREATE NONCLUSTERED INDEX ${indexName} ON ${this.Schema}.${this.Table} (${equalityColumnNames.join(', ')})`
+
+    if (includeColumnNames != null) {
+      sql = sql += ` INCLUDE (${includeColumnNames.join(', ')})`;
+    }
+
+    return sql;
+  }
 }
 
 export class MultiAssign implements ScalarOp {
