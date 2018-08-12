@@ -17,7 +17,6 @@
 <script lang="ts">
 import { Component, Prop, Vue, Emit } from 'vue-property-decorator';
 import * as ShowPlan from '@/parser/showplan';
-import { ShowPlanParser } from '@/parser/showplan-parser';
 
 @Component({
   components: { },
@@ -29,12 +28,10 @@ export default class FileUploadDrop extends Vue {
   };
 
   public filesChange(fileList: FileList) {
-    const parser = new ShowPlanParser();
     const reader = new FileReader();
     reader.onload = (e) => {
       const text = reader.result;
-      const showPlan = parser.Parse(text);
-      this.emitShowPlanChanged(showPlan);
+      this.setPlan(text);
     };
 
     reader.readAsText(fileList[0]);
@@ -46,13 +43,7 @@ export default class FileUploadDrop extends Vue {
       return;
     }
 
-    const parser = new ShowPlanParser();
-    const showPlan = parser.Parse(clipboardContents);
-    if (showPlan == null) {
-      return;
-    }
-
-    this.emitShowPlanChanged(showPlan);
+    this.setPlan(clipboardContents);
   }
 
   @Emit('showplan-changed')
@@ -63,6 +54,16 @@ export default class FileUploadDrop extends Vue {
   public mounted() {
     this.$refs.planTextBox.focus();
   }
+
+  private setPlan(planXml: string) {
+    const vm = this;
+    import('@/parser/showplan-parser').then((showPlanParser) => {
+      const parser = new showPlanParser.ShowPlanParser();
+      const showPlan = parser.Parse(planXml);
+      vm.emitShowPlanChanged(showPlan);
+    });
+  }
+
 }
 </script>
 
