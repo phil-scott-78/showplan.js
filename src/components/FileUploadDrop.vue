@@ -8,6 +8,7 @@
       </div>
       <div>Click or Drop .SQLPLAN</div>
       <input type="file" @change="filesChange($event.target.files);" class="input-file">
+      <textarea id="planTextBox" ref="planTextBox" name="planTextBox" style="opacity:0" autofocus @paste="onPaste"></textarea>
     </div>
   </form>
 </div>
@@ -23,6 +24,10 @@ import { ShowPlanParser } from '@/parser/showplan-parser';
 })
 export default class FileUploadDrop extends Vue {
 
+  public $refs!: {
+    planTextBox: HTMLFormElement,
+  };
+
   public filesChange(fileList: FileList) {
     const parser = new ShowPlanParser();
     const reader = new FileReader();
@@ -35,11 +40,29 @@ export default class FileUploadDrop extends Vue {
     reader.readAsText(fileList[0]);
   }
 
+  public onPaste(e: ClipboardEvent) {
+    const clipboardContents = e.clipboardData.getData('text');
+    if (clipboardContents == null) {
+      return;
+    }
+
+    const parser = new ShowPlanParser();
+    const showPlan = parser.Parse(clipboardContents);
+    if (showPlan == null) {
+      return;
+    }
+
+    this.emitShowPlanChanged(showPlan);
+  }
+
   @Emit('showplan-changed')
   public emitShowPlanChanged(showPlan: ShowPlan.ShowPlanXML) {
     //
   }
 
+  public mounted() {
+    this.$refs.planTextBox.focus();
+  }
 }
 </script>
 

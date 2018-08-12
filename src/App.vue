@@ -71,14 +71,6 @@
   }
 </script>
 
-<style lang="scss">
-  .upload-demo {
-    .el-upload, .el-upload-dragger {
-      width:100%;
-    }
-  }
-</style>
-
 <style lang="scss" scoped>
   #app {
     position: relative;

@@ -860,7 +860,7 @@ export class MissingIndex {
     this.ColumnGroup = columnGroup;
   }
 
-  public toCreateIndexString(): string {   ;
+  public toCreateIndexString(): string {
     const equalityColumnNames = this.ColumnGroup.filter((i) => i.Usage === 'EQUALITY')[0].Column.map((col) => col.Name);
 
     const includeColumns = this.ColumnGroup.filter((i) => i.Usage === 'INCLUDE')[0];
@@ -870,7 +870,7 @@ export class MissingIndex {
     }
 
     const indexName = `IX_${this.Table}_${equalityColumnNames.join('_')}`;
-    let sql = `CREATE NONCLUSTERED INDEX ${indexName} ON ${this.Schema}.${this.Table} (${equalityColumnNames.join(', ')})`
+    let sql = `CREATE NONCLUSTERED INDEX ${indexName} ON ${this.Schema}.${this.Table} (${equalityColumnNames.join(', ')})`;
 
     if (includeColumnNames != null) {
       sql = sql += ` INCLUDE (${includeColumnNames.join(', ')})`;
