@@ -19,11 +19,13 @@ export default class HighlightSqlStatement extends Vue {
 
 <style lang="scss" scoped>
   pre {
-    border: 1px solid #ccc;
-    background: #eee;
+    border: 1px solid var(--alt-border);
+    border-radius:.3rem;
+    background: var(--alt-background);;
     padding:.5rem;
     max-height:8rem;
     overflow-y: auto;
     white-space: pre-wrap;
+    font-size:.8rem;
   }
 </style>

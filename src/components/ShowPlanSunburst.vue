@@ -43,14 +43,14 @@ export default class ShowPlanSunburst extends Vue {
     .outerRadius((d) => d.y1 - 1);
 
   private colors: { [id: string]: string; } = {
-    operation: '#5687d1',
-    data: '#7b615c',
-    join: '#de783b',
-    language: '#6ab975',
-    other: '#a173d1',
-    end: '#0c0909',
-    generic: '#333',
-    root: '#fff',
+    operation: 'var(--green)',
+    data: 'var(--red)',
+    join: 'var(--blue)',
+    language: 'var(--orange)',
+    other: 'var(--purple)',
+    end: 'var(--grey)',
+    generic: 'var(--grey)',
+    root: 'var(--background)',
   };
 
   @Emit('rel-op-selected')
@@ -86,7 +86,7 @@ export default class ShowPlanSunburst extends Vue {
   }
 
   private getStroke(node: HierarchyRectangularNode<ShowPlan.RelOp>): string {
-    return '#fff';
+    return 'var(--background)';
   }
 
   private hover(op: HierarchyRectangularNode<ShowPlan.RelOp> | null) {

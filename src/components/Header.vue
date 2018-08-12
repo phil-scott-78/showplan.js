@@ -32,9 +32,10 @@ export default class Header extends Vue {
   .menu {
     display: flex;
     margin-bottom: 1rem;
-    border: 1px solid rgba(34,36,38,.15);
+    border: 1px solid var(--alt-border);
     box-shadow:0 1px 2px 0 rgba(34,36,38,.15);
     border-radius: .28571429rem;
+    background-color: var(--alt-background);
   }
 
   .item {
@@ -55,14 +56,14 @@ export default class Header extends Vue {
     a {color: inherit;}
 
     .item {
-      border-left: 1px solid rgba(34,36,38,.15);
+      border-left: 1px solid var(--alt-border);
       transition: background-color.25s ease;
     }
 
     .item:hover {
       cursor: pointer;
-      background: rgba(0,0,0,.03);
-      color: rgba(0,0,0,.95);
+      background-color: var(--background);;
+      color: var(--foreground);;
     }
   }
 </style>

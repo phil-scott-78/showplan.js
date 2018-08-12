@@ -1,4 +1,3 @@
-import 'prismjs/themes/prism.css';
 import * as prism from 'prismjs';
 
 prism.languages.sql = {

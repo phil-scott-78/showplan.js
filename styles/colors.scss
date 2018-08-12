@@ -1,0 +1,35 @@
+%theme {
+  background-color: var(--background);
+  color: var(--foreground);
+}
+
+.theme--light {
+  @extend %theme;
+  --background: #fff;
+  --foreground: #333;
+  --border: #ccc;
+  --alt-background: rgba(0,0,0,.03);
+  --alt-border: #ccc;
+  --red: #A71D5D;
+  --blue: #183691;
+  --green: #63a35c;
+  --grey: #969896;
+  --orange: #df5000;
+  --purple: #795da3;
+  --light-blue: #445588;
+}
+.theme--dark {
+  @extend %theme;
+  --background: #282c34;
+  --alt-background: #2f333d;
+  --alt-border: #383e4a;
+  --border: #3B3F46;
+  --foreground: #abb2bf;
+  --red: #e06c75;
+  --green: #98c379;
+  --blue: #61afef;
+  --grey: #5c6370;
+  --light-blue: #56b6c2;
+  --purple: #c678dd;
+  --orange: #d19a66;
+}

@@ -114,11 +114,10 @@ export default class Statement extends Vue {
     .stats {
       font-weight: normal;
       font-size: .8rem;
-      color: #555;
 
       span {
         margin-left: .5rem;
-        border-right: 1px solid #ccc;
+        border-right: 1px solid var(--grey);
         padding-right: .5rem;
       }
 

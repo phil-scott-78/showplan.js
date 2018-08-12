@@ -6,9 +6,9 @@
       <div>
         <font-awesome-icon icon="cloud-upload-alt" size="6x"></font-awesome-icon>
       </div>
-      <div>Click or Drop .SQLPLAN</div>
+      <h4>Click or Drop .SQLPLAN</h4>
       <input type="file" @change="filesChange($event.target.files);" class="input-file">
-      <textarea id="planTextBox" ref="planTextBox" name="planTextBox" style="opacity:0" autofocus @paste="onPaste"></textarea>
+      <textarea id="planTextBox" ref="planTextBox" name="planTextBox" style="opacity:0;position:fixed;left:-1000px" autofocus @paste="onPaste"></textarea>
     </div>
   </form>
 </div>
@@ -69,8 +69,8 @@ export default class FileUploadDrop extends Vue {
 
 <style lang="scss" scoped>
   .dropbox {
-    outline: 2px dashed grey; /* the dash box */
-    color: dimgray;
+    outline: 2px dashed var(--grey); /* the dash box */
+    color: var(--foreground);
     padding: 10px 10px;
     min-height: 200px; /* minimum height */
     position: relative;
@@ -82,6 +82,7 @@ export default class FileUploadDrop extends Vue {
     flex-direction: column;
 
     svg {
+      color: var(--blue);
       filter: drop-shadow(2px 2px 2px rgba(34,36,38,.9));
     }
   }
