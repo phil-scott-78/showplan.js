@@ -30,7 +30,7 @@ export default class FileUploadDrop extends Vue {
   public filesChange(fileList: FileList) {
     const reader = new FileReader();
     reader.onload = (e) => {
-      const text = reader.result;
+      const text = reader.result as string;
       this.setPlan(text);
     };
 
