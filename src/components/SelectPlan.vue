@@ -95,6 +95,11 @@ export default class SelectPlan extends Vue {
 
   .query-plan {width:100%;}
 
+  .v-dropdown-container {
+    background-color: var(--alt-background) !important;
+    border-color: var(--alt-border) !important;
+  }
+
   .selectPlan {
     padding: 1rem;
     margin-bottom: .5rem;
@@ -120,7 +125,7 @@ export default class SelectPlan extends Vue {
         padding:.25rem 0;
 
         &:hover{
-          background-color: rgba(34,36,38,.05);
+          background-color: var(--background);;
           cursor: pointer;
         }
 
