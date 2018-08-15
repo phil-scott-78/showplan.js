@@ -28,7 +28,7 @@
 
   <div v-if="statement.QueryPlan != null" class="queryplan">
     <div class="visualization">
-      <show-plan-sunburst width="600" v-bind:queryPlan="statement.QueryPlan" v-on:rel-op-selected="relOpSelected" v-on:rel-op-highlighted="relOpHighlighted"></show-plan-sunburst>
+      <show-plan-sunburst width="600" v-bind:queryPlan="statement.QueryPlan" :selectedNode="displayedOp" v-on:rel-op-selected="relOpSelected" v-on:rel-op-highlighted="relOpHighlighted"></show-plan-sunburst>
     </div>
     <div class="details">
       <div v-if="displayedOp != null" class="opSummary">

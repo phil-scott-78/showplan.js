@@ -23,8 +23,15 @@ import { normalize } from 'path';
 export default class ShowPlanSunburst extends Vue {
   @Prop() public queryPlan!: ShowPlan.QueryPlan;
   @Prop({ default: 500 }) public width!: number;
+  @Prop({ default: null }) public selectedNode!: ShowPlan.RelOp | null;
 
-  private highlightedNode: HierarchyRectangularNode<ShowPlan.RelOp> | null = null;
+  private get highlightedNode(): HierarchyRectangularNode<ShowPlan.RelOp> | null {
+    if (this.selectedNode == null) {
+      return null;
+    }
+
+    return this.root().descendants().filter((i) => i.data.NodeId === this.selectedNode!.NodeId)[0];
+  }
 
   private get radius(): number  {
     return this.width / 2;
@@ -90,8 +97,6 @@ export default class ShowPlanSunburst extends Vue {
   }
 
   private hover(op: HierarchyRectangularNode<ShowPlan.RelOp> | null) {
-    this.highlightedNode = op;
-
     if (op == null) {
       this.statementHighlighted(null);
       return;
