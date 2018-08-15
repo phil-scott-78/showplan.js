@@ -961,6 +961,14 @@ export class OrderByTypeOrderByColumn {
     this.Ascending = ascending;
     this.ColumnReference = columnReference;
   }
+
+  public toString(): string {
+    if (this.Ascending) {
+      return this.ColumnReference.toString() + ' ASC';
+    }
+
+    return this.ColumnReference.toString() + 'DESC';
+  }
 }
 
 export type OrderType = 'BACKWARD' | 'FORWARD';

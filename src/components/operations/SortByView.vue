@@ -3,7 +3,7 @@
     <h4>Order By <span v-if="sort.Distinct" class="subheading">Distinct</span></h4>
     <ul class="small">
       <li v-for="(column, index) in sort.OrderBy.OrderByColumn" v-bind:key="index">
-        <sql-string :sql="column.ColumnReference.toString()"></sql-string> <span v-if="column.Ascending"> ASC</span><span v-else> DESC</span>
+        <sql-string :sql="column.toString()"></sql-string>
       </li>
     </ul>
   </div>
