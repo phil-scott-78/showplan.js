@@ -1,7 +1,7 @@
 <template>
   <div id="app">
-    <header-menu @plan-changed="planChanged"></header-menu>
-    <component v-bind:is="currentComponent" :statement="currentStatement" :showPlan="showPlan" @showplan-changed="showPlanChanged" @showplan-statement-changed="statementChanged"></component>
+    <header-menu @plan-changed="planXmlChanged" :currentPlan="showPlan"></header-menu>
+    <component v-bind:is="currentComponent" :statement="currentStatement" :showPlan="showPlan" @showplan-changed="planXmlChanged" @showplan-statement-changed="statementChanged"></component>
   </div>
 </template>
 
@@ -65,8 +65,17 @@
       this.selectedStatementGuid = statementGuid;
     }
 
-    public planChanged(plan: ShowPlan.ShowPlanXML | null) {
-      this.showPlan = plan;
+    public planXmlChanged(plan: string | null) {
+      if (plan === null) {
+        this.showPlan = null;
+        return;
+      }
+
+      const vm = this;
+      import('@/parser/showplan-parser').then((showPlanParser) => {
+        const parser = new showPlanParser.ShowPlanParser();
+        this.showPlanChanged(parser.Parse(plan!));
+      });
     }
   }
 </script>

@@ -4,8 +4,10 @@
       SQL Server SHOWPLAN
     </div>
     <div class="actions">
+
       <a href="https://github.com/phil-scott-78/showplan.js" class="item"><font-awesome-icon :icon="['fab', 'github']" /></a>
-      <a @click="planChanged(null)" class="item">New Plan</a>
+      <a v-if="currentPlan === null" @click="loadSample" class="item">Load Sample</a>
+      <a v-else @click="planChanged(null)" class="item">New Plan</a>
     </div>
   </div>
 </template>
@@ -14,15 +16,27 @@
 import { Vue, Component, Prop, Watch, Emit } from 'vue-property-decorator';
 import { ShowPlanXML } from '@/parser/showplan';
 
-
 @Component({
 })
 export default class Header extends Vue {
+  @Prop() public currentPlan!: ShowPlanXML | null;
+
   public NewPlanClick() {
     this.planChanged(null);
   }
 
-  @Emit('plan-changed') public planChanged(plan: ShowPlanXML | null) {
+  public loadSample() {
+    const request = new XMLHttpRequest();
+    request.onload = (ev) => {
+      if (request.status === 200) {
+        this.planChanged(request.responseText);
+      }
+    };
+    request.open('GET', 'users-with-post-count-and-comment-count.sqlplan');
+    request.send();
+  }
+
+  @Emit('plan-changed') public planChanged(plan: string | null) {
     //
   }
 }
