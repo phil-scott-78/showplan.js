@@ -75,6 +75,8 @@ import ComputeScalarOp from './operations/ComputeScalarView.vue';
 import StreamAggregateOp from './operations/StreamAggregateView.vue';
 import HashOp from './operations/HashView.vue';
 import BatchHashTableBuildOp from './operations/BatchHashTableBuildView.vue';
+import ConcatOp from './operations/ConcatView.vue';
+
 
 import Warnings from './operations/Warnings.vue';
 
@@ -91,6 +93,7 @@ import TreeView from 'vue-json-tree';
     StreamAggregateOp,
     HashOp,
     BatchHashTableBuildOp,
+    ConcatOp,
     Warnings,
     TreeView,
   },
@@ -140,6 +143,8 @@ export default class OperationSummary extends Vue {
       return 'hash-op';
     } else if (this.operation.Action instanceof ShowPlan.BatchHashTableBuild) {
       return 'batch-hash-table-build-op';
+    } else if (this.operation.Action instanceof ShowPlan.Concat) {
+      return 'concat-op';
     }
 
     return null;
