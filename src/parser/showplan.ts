@@ -861,7 +861,7 @@ export class MissingIndex {
   }
 
   public toCreateIndexString(): string {
-    const equalityColumnNames = this.ColumnGroup.filter((i) => i.Usage === 'EQUALITY')[0].Column.map((col) => col.Name);
+    const equalityColumnNames = this.ColumnGroup.filter((i) => i.Usage === 'EQUALITY' || i.Usage === 'INEQUALITY' )[0].Column.map((col) => col.Name);
 
     const includeColumns = this.ColumnGroup.filter((i) => i.Usage === 'INCLUDE')[0];
     let includeColumnNames: string[] | null = null;
