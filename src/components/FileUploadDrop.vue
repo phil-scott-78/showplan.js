@@ -2,14 +2,18 @@
 <div class="container">
   <!--UPLOAD-->
   <form enctype="multipart/form-data" novalidate>
-    <div class="dropbox">
+    <div v-if="showPasteTextBox === false" class="dropbox">
       <div>
         <font-awesome-icon icon="cloud-upload-alt" size="6x"></font-awesome-icon>
       </div>
       <h4>Click or Drop .SQLPLAN</h4>
       <input type="file" @change="filesChange($event.target.files);" class="input-file">
-      <textarea id="planTextBox" ref="planTextBox" name="planTextBox" style="opacity:0;position:fixed;left:-1000px" autofocus @paste="onPaste"></textarea>
     </div>
+    <div v-else class="dropbox">
+      <textarea placeholder="Paste your plan" rows="10" id="planTextBox" ref="planTextBox" name="planTextBox" autofocus @paste="onPaste"></textarea>
+    </div>
+    <p v-if="showPasteTextBox === false" style="text-align:center">Or <a @click="togglePaste(true)">paste</a> a plan</p>
+    <p v-else style="text-align:center">Or <a @click="togglePaste(false)">upload</a> a plan</p>
   </form>
 </div>
 </template>
@@ -26,6 +30,8 @@ export default class FileUploadDrop extends Vue {
     planTextBox: HTMLFormElement,
   };
 
+  private showPasteTextBox: boolean = false;
+
   public filesChange(fileList: FileList) {
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -34,6 +40,10 @@ export default class FileUploadDrop extends Vue {
     };
 
     reader.readAsText(fileList[0]);
+  }
+
+  public togglePaste(showPaste: boolean) {
+    this.showPasteTextBox = showPaste;
   }
 
   public onPaste(e: ClipboardEvent) {
@@ -74,6 +84,20 @@ export default class FileUploadDrop extends Vue {
       color: var(--blue);
       filter: drop-shadow(2px 2px 2px rgba(34,36,38,.9));
     }
+
+    textarea {
+      height: 80%;
+      width: 80%;
+      padding: .5rem;
+      background-color: var(--alt-background);
+      // border: 1px solid var(--alt-border);
+      outline-color: var(--alt-border);
+      font-family: 'Consolas', 'Courier New', Courier, monospace;
+
+      &:focus {
+        outline-color: var(--border);
+      }
+    }
   }
 
   .input-file {
@@ -93,4 +117,20 @@ export default class FileUploadDrop extends Vue {
     text-align: center;
     padding: 50px 0;
   }
+
+  a {
+    cursor: pointer;
+    background-color: var(--alt-background);
+    padding: 0px 6px 2px 6px;
+    margin: 0 4px;
+    border: 1px solid var(--alt-border);
+    border-radius:3px;
+    transition: all .3s ease;
+    &:hover {
+      background-color: var(--background);
+      border: 1px solid var(--border);
+    }
+  }
+
+
 </style>
