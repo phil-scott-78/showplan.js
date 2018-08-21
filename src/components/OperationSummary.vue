@@ -10,13 +10,7 @@
     <div v-if="selectedTab === 'overview'">
       <warnings v-if="operation.Warnings != null" :warnings="operation.Warnings"></warnings>
 
-      <sort-by v-if="instanceOf(operation.Action, ShowPlan.Sort)" v-bind:operation="operation"></sort-by>
-      <index-scan v-else-if="instanceOf(operation.Action, ShowPlan.IndexScan)" v-bind:operation="operation"></index-scan>
-      <filter-op v-else-if="instanceOf(operation.Action, ShowPlan.Filter)" v-bind:operation="operation"></filter-op>
-      <compute-scalar-op v-else-if="instanceOf(operation.Action, ShowPlan.ComputeScalar)" v-bind:operation="operation"></compute-scalar-op>
-      <stream-aggregate-op v-else-if="instanceOf(operation.Action, ShowPlan.StreamAggregate)" v-bind:operation="operation"></stream-aggregate-op>
-      <hash-op v-else-if="instanceOf(operation.Action, ShowPlan.Hash)" v-bind:operation="operation"></hash-op>
-      <batch-hash-table-build-op v-else-if="instanceOf(operation.Action, ShowPlan.BatchHashTableBuild)" v-bind:operation="operation"></batch-hash-table-build-op>
+      <component v-if="additionalInfoComponent !== null" v-bind:is="additionalInfoComponent" :operation="operation"></component>
 
       <div class="content">
         <ul class="stats">
@@ -38,7 +32,6 @@
           <li>Est. Rewinds: <strong>{{ operation.EstimateRewinds | filterInteger }}</strong></li>
         </ul>
       </div>
-
 
       <div class="content max-height">
         <h4>Output</h4>
@@ -120,6 +113,36 @@ export default class OperationSummary extends Vue {
       default:
         return this.operation.PhysicalOp;
     }
+  }
+
+  public get additionalInfoComponent(): string | null {
+    /*
+      <sort-by v-if="instanceOf(operation.Action, ShowPlan.Sort)" v-bind:operation="operation"></sort-by>
+      <index-scan v-else-if="instanceOf(operation.Action, ShowPlan.IndexScan)" v-bind:operation="operation"></index-scan>
+      <filter-op v-else-if="instanceOf(operation.Action, ShowPlan.Filter)" v-bind:operation="operation"></filter-op>
+      <compute-scalar-op v-else-if="instanceOf(operation.Action, ShowPlan.ComputeScalar)" v-bind:operation="operation"></compute-scalar-op>
+      <stream-aggregate-op v-else-if="instanceOf(operation.Action, ShowPlan.StreamAggregate)" v-bind:operation="operation"></stream-aggregate-op>
+      <hash-op v-else-if="instanceOf(operation.Action, ShowPlan.Hash)" v-bind:operation="operation"></hash-op>
+      <batch-hash-table-build-op v-else-if="instanceOf(operation.Action, ShowPlan.BatchHashTableBuild)" v-bind:operation="operation"></batch-hash-table-build-op>
+    */
+
+    if (this.operation.Action instanceof ShowPlan.Sort) {
+      return 'sort-by';
+    } else if (this.operation.Action instanceof ShowPlan.IndexScan) {
+      return 'index-scan';
+    } else if (this.operation.Action instanceof ShowPlan.Filter) {
+      return 'filter-op';
+    } else if (this.operation.Action instanceof ShowPlan.ComputeScalar) {
+      return 'compute-scalar-op';
+    } else if (this.operation.Action instanceof ShowPlan.StreamAggregate) {
+      return 'stream-aggregate-op';
+    } else if (this.operation.Action instanceof ShowPlan.Hash) {
+      return 'hash-op';
+    } else if (this.operation.Action instanceof ShowPlan.BatchHashTableBuild) {
+      return 'batch-hash-table-build-op';
+    }
+
+    return null;
   }
 
   public get shallowOperation(): RelOp {
