@@ -103,6 +103,25 @@ export class MetaInfoParser {
       const actualExecutions = Convert.GetInt(threadElement, 'ActualExecutions')!;
 
       const perThread = new ShowPlan.RunTimeInformationTypeRunTimeCountersPerThread(actualEndOfScans, actualRows, threadId, actualExecutions);
+
+      perThread.ActualCPUms = Convert.GetInt(threadElement, 'ActualCPUms');
+      perThread.ActualElapsedms = Convert.GetInt(threadElement, 'ActualElapsedms');
+      perThread.ActualLobLogicalReads = Convert.GetInt(threadElement, 'ActualLobLogicalReads');
+      perThread.ActualLobPhysicalReads = Convert.GetInt(threadElement, 'ActualLobPhysicalReads');
+      perThread.ActualLobReadAheads = Convert.GetInt(threadElement, 'ActualLobReadAheads');
+      perThread.ActualLocallyAggregatedRows = Convert.GetInt(threadElement, 'ActualLocallyAggregatedRows');
+      perThread.ActualLogicalReads = Convert.GetInt(threadElement, 'ActualLogicalReads');
+      perThread.ActualLogicalReads = Convert.GetInt(threadElement, 'ActualLogicalReads');
+      perThread.ActualPhysicalReads = Convert.GetInt(threadElement, 'ActualPhysicalReads');
+
+      perThread.ActualReadAheads = Convert.GetInt(threadElement, 'ActualReadAheads');
+      perThread.ActualRebinds = Convert.GetInt(threadElement, 'ActualRebinds');
+      perThread.ActualRewinds = Convert.GetInt(threadElement, 'ActualRewinds');
+      perThread.ActualRowsRead = Convert.GetInt(threadElement, 'ActualRowsRead');
+      perThread.ActualScans = Convert.GetInt(threadElement, 'ActualScans');
+
+
+
       return perThread;
     };
 

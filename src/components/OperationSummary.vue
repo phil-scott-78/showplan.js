@@ -15,8 +15,14 @@
       <div class="content">
         <ul class="stats">
           <li>Cost: <strong>{{ operation.EstimateTotalCost | filterSigfig}}</strong> (CPU: {{ operation.EstimateCPU | filterSigfig }}, IO: {{ operation.EstimateIO | filterSigfig }})</li>
-
           <li>Subtree: <strong>{{ operation.EstimatedTotalSubtreeCost | filterSigfig }}</strong></li>
+        </ul>
+      </div>
+      <div v-if="runtimeCountersSummary != null && runtimeCountersSummary.ActualRows != null" class="content">
+        <ul class="stats">
+          <li>Actual Rows: <strong>{{ runtimeCountersSummary.ActualRows | filterInteger }}</strong></li>
+          <li>Row Size: <strong>{{ operation.AvgRowSize | filterBytes }}</strong></li>
+          <li>Actual Total Size: <strong>{{ runtimeCountersSummary.ActualRows * operation.AvgRowSize | filterBytes }}</strong></li>
         </ul>
       </div>
       <div class="content">
@@ -26,16 +32,47 @@
           <li>Est. Total Size: <strong>{{ operation.EstimateRows * operation.AvgRowSize | filterBytes }}</strong></li>
         </ul>
       </div>
+    </div>
+
+    <div v-else-if="selectedTab === 'advanced'">
       <div class="content">
         <ul class="stats">
           <li>Est. Rebinds: <strong>{{ operation.EstimateRebinds | filterInteger }}</strong></li>
           <li>Est. Rewinds: <strong>{{ operation.EstimateRewinds | filterInteger }}</strong></li>
         </ul>
       </div>
-
+      <div v-if="runtimeCountersSummary != null">
+        <div v-if="runtimeCountersSummary.ActualRebinds != null" class="content">
+          <ul class="stats">
+            <li>Actual Rebinds: <strong>{{ runtimeCountersSummary.ActualRebinds | filterInteger }}</strong></li>
+            <li>Actual Rewinds: <strong>{{ runtimeCountersSummary.ActualRewinds | filterInteger }}</strong></li>
+          </ul>
+        </div>
+        <div v-if="runtimeCountersSummary.ActualElapsedms != null" class="content">
+          <ul class="stats">
+            <li>Elapsed: <strong>{{ runtimeCountersSummary.ActualElapsedms | filterInteger }}</strong>ms</li>
+            <li v-if="runtimeCountersSummary.ActualCPUms != undefined">CPU: <strong>{{ runtimeCountersSummary.ActualCPUms | filterInteger }}</strong>ms</li>
+          </ul>
+        </div>
+        <div v-if="runtimeCountersSummary.ActualLogicalReads != null" class="content">
+          <h4>Reads</h4>
+          <ul class="stats">
+            <li v-if="runtimeCountersSummary.ActualLogicalReads != undefined">Logical: <strong>{{ runtimeCountersSummary.ActualLogicalReads | filterInteger }}</strong></li>
+            <li v-if="runtimeCountersSummary.ActualPhysicalReads != undefined">Physical: <strong>{{ runtimeCountersSummary.ActualPhysicalReads | filterInteger }}</strong></li>
+            <li v-if="runtimeCountersSummary.ActualReadAheads != undefined">Read Aheads: <strong>{{ runtimeCountersSummary.ActualReadAheads | filterInteger }}</strong></li>
+          </ul>
+        </div>
+        <div v-if="runtimeCountersSummary.ActualLobLogicalReads != null" class="content">
+          <h4>Large Object Reads</h4>
+          <ul class="stats">
+            <li v-if="runtimeCountersSummary.ActualLobLogicalReads != undefined">Logical: <strong>{{ runtimeCountersSummary.ActualLobLogicalReads | filterInteger }}</strong></li>
+            <li v-if="runtimeCountersSummary.ActualLobPhysicalReads != undefined">Physical: <strong>{{ runtimeCountersSummary.ActualLobPhysicalReads | filterInteger }}</strong></li>
+            <li v-if="runtimeCountersSummary.ActualLobReadAheads != undefined">Read Aheads: <strong>{{ runtimeCountersSummary.ActualLobReadAheads | filterInteger }}</strong></li>
+          </ul>
+        </div>
+      </div>
       <div class="content max-height">
         <h4>Output</h4>
-
         <div class="small" v-for="(key, index) in groupedOutput" v-bind:key="index">
           <span v-if="key.key !== ''">{{ key.key | stripBrackets }}</span><span v-else>Computed</span>
           <ul class="comma-list">
@@ -43,11 +80,6 @@
           </ul>
         </div>
       </div>
-    </div>
-    <div v-else-if="selectedTab === 'advanced'">
-      <div class="content">
-        advanced
-        </div>
     </div>
     <div v-else>
       <div class="content raw-data">
@@ -120,16 +152,6 @@ export default class OperationSummary extends Vue {
   }
 
   public get additionalInfoComponent(): string | null {
-    /*
-      <sort-by v-if="instanceOf(operation.Action, ShowPlan.Sort)" v-bind:operation="operation"></sort-by>
-      <index-scan v-else-if="instanceOf(operation.Action, ShowPlan.IndexScan)" v-bind:operation="operation"></index-scan>
-      <filter-op v-else-if="instanceOf(operation.Action, ShowPlan.Filter)" v-bind:operation="operation"></filter-op>
-      <compute-scalar-op v-else-if="instanceOf(operation.Action, ShowPlan.ComputeScalar)" v-bind:operation="operation"></compute-scalar-op>
-      <stream-aggregate-op v-else-if="instanceOf(operation.Action, ShowPlan.StreamAggregate)" v-bind:operation="operation"></stream-aggregate-op>
-      <hash-op v-else-if="instanceOf(operation.Action, ShowPlan.Hash)" v-bind:operation="operation"></hash-op>
-      <batch-hash-table-build-op v-else-if="instanceOf(operation.Action, ShowPlan.BatchHashTableBuild)" v-bind:operation="operation"></batch-hash-table-build-op>
-    */
-
     if (this.operation.Action instanceof ShowPlan.Sort) {
       return 'sort-by';
     } else if (this.operation.Action instanceof ShowPlan.IndexScan) {
@@ -154,6 +176,8 @@ export default class OperationSummary extends Vue {
   }
 
   public get shallowOperation(): RelOp {
+    // clone the operation but remove the child relop collection
+    // for displaying in the 'raw' display
     const shallow = (JSON.parse(JSON.stringify(this.operation)));
     shallow.Action.RelOp = [];
     return shallow;
@@ -188,6 +212,27 @@ export default class OperationSummary extends Vue {
     return this.operation.LogicalOp;
   }
 
+  public get runtimeCountersSummary(): ShowPlan.RunTimeInformationTypeRunTimeCountersPerThread | null {
+    if (this.operation.RunTimeInformation == null || this.operation.RunTimeInformation.RunTimeCountersPerThread.length === 0) {
+      return null;
+    }
+
+    const summary = this.operation.RunTimeInformation.GetRunTimeCountersSummary();
+    if (summary == null) {
+      return summary;
+    }
+
+    // in the absense of these values SSMS shows 0
+    if (summary.ActualRebinds === undefined) {
+      summary.ActualRebinds = 0;
+    }
+
+    if (summary.ActualRewinds === undefined) {
+      summary.ActualRewinds = 0;
+    }
+
+    return summary;
+  }
 
   private getShortName(o: ObjectType) {
     const table = o.Table + '.' + o.Index;
@@ -196,15 +241,6 @@ export default class OperationSummary extends Vue {
     }
 
     return table + ' ' + o.Alias;
-  }
-
-  // forcing things to be exposed to hack in instanceof
-  // probably a better way...
-  private get ShowPlan(): any {
-    return ShowPlan;
-  }
-  private instanceOf(o: any, type: any) {
-    return o instanceof type;
   }
 }
 

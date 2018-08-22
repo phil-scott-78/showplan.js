@@ -569,7 +569,7 @@ export class ForeignKeyReferencesCheck extends RelOpAction {
 }
 
 /** Shows the plan for the UDF or stored procedure */
-interface FunctionPlan {
+export interface FunctionPlan {
   IsNativelyCompiled?: boolean;
   ProcName: string;
   Statements: BaseStmtInfo;
@@ -1238,6 +1238,52 @@ export class RunTimeInformation {
 
   constructor(runTimeCountersPerThread: RunTimeInformationTypeRunTimeCountersPerThread[]) {
     this.RunTimeCountersPerThread = runTimeCountersPerThread;
+  }
+
+  public GetRunTimeCountersSummary(): RunTimeInformationTypeRunTimeCountersPerThread | null {
+    if (this.RunTimeCountersPerThread.length === 0) {
+      return null;
+    }
+
+    function undefinedAdd(a: number | undefined, b: number | undefined): number | undefined {
+      if (a === undefined && b === undefined) {
+        return undefined;
+      }
+
+      if (a === undefined && b !== undefined) {
+        return b;
+      }
+
+      if (a !== undefined && b === undefined) {
+        return a;
+      }
+
+      return a! + b!;
+    }
+
+    return this.RunTimeCountersPerThread.reduce((a, b) => {
+      const i = new RunTimeInformationTypeRunTimeCountersPerThread(
+        a.ActualEndOfScans + b.ActualEndOfScans,
+        a.ActualRows + b.ActualRows,
+        0,
+        a.ActualExecutions + b.ActualExecutions);
+
+      i.ActualCPUms = undefinedAdd(a.ActualCPUms, b.ActualCPUms);
+      i.ActualElapsedms = undefinedAdd(a.ActualElapsedms, b.ActualElapsedms);
+      i.ActualLobLogicalReads = undefinedAdd(a.ActualLobLogicalReads, b.ActualLobLogicalReads);
+      i.ActualLobPhysicalReads = undefinedAdd(a.ActualLobPhysicalReads, b.ActualLobPhysicalReads);
+      i.ActualLobReadAheads = undefinedAdd(a.ActualLobReadAheads, b.ActualLobReadAheads);
+      i.ActualLocallyAggregatedRows = undefinedAdd(a.ActualLocallyAggregatedRows, b.ActualLocallyAggregatedRows);
+      i.ActualLogicalReads = undefinedAdd(a.ActualLogicalReads, b.ActualLogicalReads);
+      i.ActualPhysicalReads = undefinedAdd(a.ActualPhysicalReads, b.ActualPhysicalReads);
+      i.ActualReadAheads = undefinedAdd(a.ActualReadAheads, b.ActualReadAheads);
+      i.ActualRebinds = undefinedAdd(a.ActualRebinds, b.ActualRebinds);
+      i.ActualRewinds = undefinedAdd(a.ActualRewinds, b.ActualRewinds);
+      i.ActualRowsRead = undefinedAdd(a.ActualRowsRead, b.ActualRowsRead);
+      i.ActualScans = undefinedAdd(a.ActualScans, b.ActualScans);
+
+      return i;
+    });
   }
 }
 
