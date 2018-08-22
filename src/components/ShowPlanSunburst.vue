@@ -139,6 +139,10 @@ export default class ShowPlanSunburst extends Vue {
         return 'join';
       case 'Root':
         return 'root';
+      case 'Repartition Streams':
+      case 'Gather Streams':
+      case 'Distribute Streams':
+        return 'other';
       default:
           return 'operation';
     }
