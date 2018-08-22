@@ -29,8 +29,10 @@ export class QueryPlanParser {
     queryplan.WaitStats = QueryHelper.ParseSingleItem(queryPlanElement, 'WaitStats', (i) => MetaInfoParser.ParseWaitStats(i));
     queryplan.QueryTimeStats = QueryHelper.ParseSingleItem(queryPlanElement, 'QueryTimeStats', (i) => MetaInfoParser.ParseQueryTimeStats(i));
     queryplan.Warnings = QueryHelper.ParseSingleItem(queryPlanElement, 'Warnings', (i) => WarningsParser.ParseWarnings(i));
-
     queryplan.CachedPlanSize = Convert.GetInt(queryPlanElement, 'CachedPlanSize');
+
+    queryplan.ParameterList = ColumnReferenceParser.GetAllFromElement(queryPlanElement, 'ParameterList');
+
     return queryplan;
   }
 

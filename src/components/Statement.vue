@@ -13,8 +13,8 @@
     </span>
   </h1>
 
-  <div v-if="statement.StatementText != null">
-    <highlight-sql-statement v-bind:statementText="statement.StatementText.trim()"></highlight-sql-statement>
+  <div v-if="fullStatementText !== undefined">
+    <highlight-sql-statement :statementText="fullStatementText"></highlight-sql-statement>
   </div>
 
   <div v-if="statement.QueryPlan.MissingIndexes != null">
@@ -41,7 +41,7 @@
 
 <script lang='ts'>
 import { Vue, Component, Prop, Watch, Emit } from 'vue-property-decorator';
-import { BaseStmtInfo, RelOp, ShowPlanXML } from '@/parser/showplan';
+import { BaseStmtInfo, RelOp, StmtSimple, ShowPlanXML } from '@/parser/showplan';
 
 import ShowPlanSunburst from './ShowPlanSunburst.vue';
 import HighlightSqlStatement from './HighlightSqlStatement.vue';
@@ -67,6 +67,39 @@ export default class Statement extends Vue {
 
   public selectChanged(statementGuid: string) {
     this.statementSelected(statementGuid);
+  }
+
+  public get fullStatementText(): string | undefined {
+    let variableDeclarations = '';
+
+    if (this.statement.StatementText === undefined) {
+      return undefined;
+    }
+
+    if (this.statement instanceof StmtSimple) {
+      const statement = this.statement as StmtSimple;
+      if (statement.QueryPlan === undefined) {
+        return this.statement.StatementText;
+      }
+
+      if (statement.QueryPlan!.ParameterList !== undefined && statement.QueryPlan!.ParameterList!.length > 0) {
+        for (const param of statement.QueryPlan!.ParameterList!) {
+          if (param.ParameterRuntimeValue !== undefined) {
+            if (param.ParameterDataType !== undefined) {
+              variableDeclarations += `DECLARE ${param.Column} ${param.ParameterDataType}\n`;
+            }
+            variableDeclarations += `SET ${param.Column} = ${param.ParameterRuntimeValue}\n`;
+          }
+        }
+      }
+
+      if (variableDeclarations === '') {
+        return this.statement.StatementText!.trim();
+      }
+
+      return ('// runtime parameter declarations \n' + variableDeclarations + '\n' + this.statement.StatementText).trim();
+    }
+
   }
 
   @Watch('statement')
