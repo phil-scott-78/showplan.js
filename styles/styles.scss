@@ -141,8 +141,8 @@ ul.stats {
 
   li {
     display: inline;
-    padding: 0 .25rem;
-    border-right: 1px solid var(--grey);
+    padding: 0 .5rem;
+    border-right: 1px solid var(--foreground);
   }
 
   li:first-child {
