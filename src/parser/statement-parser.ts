@@ -21,11 +21,11 @@ export class StatementParser {
     return statement;
   }
 
-  private static ParseUDF(udf: NodeListOf<Element>) {
+  private static ParseUDF(udf: NodeListOf<Element>): ShowPlan.FunctionPlan[] {
     return [];
   }
 
-  private static ParseStoredProc(storedProcElement: Node) {
+  private static ParseStoredProc(storedProcElement: Node): ShowPlan.FunctionPlan | undefined {
     return undefined;
   }
 }
