@@ -106,6 +106,12 @@ div.message {
       border-right: 1px solid var(--border);
       text-decoration: none;
       color: inherit;
+      cursor: pointer;
+      transition: background-color .3s ease;
+
+      &:hover {
+        background-color: var(--alt-background);
+      }
     }
 
     a.selected {

@@ -88,7 +88,7 @@
     </div>
     <div class="footer">
       <div class="buttons">
-        <a href="#" v-on:click="selectedTab='overview'" v-bind:class="{ 'selected': selectedTab === 'overview' }">Overview</a><a href="#" v-on:click="selectedTab='advanced'" v-bind:class="{ 'selected': selectedTab === 'advanced' }">Advanced</a><a href="#" v-on:click="selectedTab = 'raw'" v-bind:class="{ 'selected': selectedTab === 'raw' }">Raw</a>
+        <a @click="selectedTab='overview'" :class="{ 'selected': selectedTab === 'overview' }">Overview</a><a @click="selectedTab='advanced'" :class="{ 'selected': selectedTab === 'advanced' }">Advanced</a><a @click="selectedTab = 'raw'" :class="{ 'selected': selectedTab === 'raw' }">Raw</a>
       </div>
     </div>
   </div>
