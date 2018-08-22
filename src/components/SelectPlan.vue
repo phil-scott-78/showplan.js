@@ -9,11 +9,11 @@
         <ul>
           <li v-for="(statement) in batch.Statements" v-bind:key="statement.Guid" v-on:click="selectChanged(statement.Guid)">
               <div class="text">
-                <sql-string v-if="statement.StatementText != null" :sql="statement.StatementText.trim().substring(0,100)"></sql-string>
+                <sql-string v-if="statement.StatementText !== undefined" :sql="statement.StatementText.trim().substring(0,100)"></sql-string>
                 <span v-else>(unknown query statement text)</span>
               </div>
               <div class="stats">
-                <span v-if="statement.QueryPlan != null" class='stats'><span v-if="statement.StatementSubTreeCost != null">Sub Tree Cost: <strong>{{ statement.StatementSubTreeCost }}</strong> ({{ statement.CostPercentOfBatch() | filterPercent }}) </span></span>
+                <span v-if="statement.QueryPlan !== undefined" class='stats'><span v-if="statement.StatementSubTreeCost !== undefined">Sub Tree Cost: <strong>{{ statement.StatementSubTreeCost }}</strong> ({{ statement.CostPercentOfBatch() | filterPercent }}) </span></span>
               </div>
           </li>
         </ul>
@@ -39,7 +39,7 @@ import * as ShowPlan from '@/parser/showplan';
 })
 export default class SelectPlan extends Vue {
   @Prop() public showPlan!: ShowPlan.ShowPlanXML;
-  public selectedStatement: string | null = null;
+  public selectedStatement: string | undefined;
 
   public $refs!: {
     drop: any,
@@ -68,10 +68,10 @@ export default class SelectPlan extends Vue {
 
   @Watch('showPlan', { immediate: true, deep: false })
   public onShowPlanChange(val: ShowPlan.ShowPlanXML, oldVal: ShowPlan.ShowPlanXML) {
-    let firstItem: string | null = null;
+    let firstItem: string | undefined;
     for (const batch of val.Batches) {
       for (const statement of batch.Statements) {
-        if (firstItem == null) {
+        if (firstItem === undefined) {
           firstItem = statement.Guid;
         }
 

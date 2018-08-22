@@ -5,12 +5,12 @@
         <div class="progress-number">{{ operation.EstimateTotalCost / statement.StatementSubTreeCost | filterPercent }}</div>
       </div>
       <h3>{{ headingText }}</h3>
-      <div class="meta" v-if="getSubHeadingText != null" v-bind:title="getSubHeadingText | stripBrackets">{{ getSubHeadingText | stripBrackets }}</div>
+      <div class="meta" v-if="getSubHeadingText !== undefined" v-bind:title="getSubHeadingText | stripBrackets">{{ getSubHeadingText | stripBrackets }}</div>
     </div>
     <div v-if="selectedTab === 'overview'">
-      <warnings v-if="operation.Warnings != null" :warnings="operation.Warnings"></warnings>
+      <warnings v-if="operation.Warnings !== undefined" :warnings="operation.Warnings"></warnings>
 
-      <component v-if="additionalInfoComponent !== null" v-bind:is="additionalInfoComponent" :operation="operation"></component>
+      <component v-if="additionalInfoComponent !== undefined" v-bind:is="additionalInfoComponent" :operation="operation"></component>
 
       <div class="content">
         <ul class="stats">
@@ -18,7 +18,7 @@
           <li>Subtree: <strong>{{ operation.EstimatedTotalSubtreeCost | filterSigfig }}</strong></li>
         </ul>
       </div>
-      <div v-if="runtimeCountersSummary != null && runtimeCountersSummary.ActualRows != null" class="content">
+      <div v-if="runtimeCountersSummary !== undefined && runtimeCountersSummary.ActualRows !== undefined" class="content">
         <ul class="stats">
           <li>Actual Rows: <strong>{{ runtimeCountersSummary.ActualRows | filterInteger }}</strong></li>
           <li>Row Size: <strong>{{ operation.AvgRowSize | filterBytes }}</strong></li>
@@ -41,33 +41,33 @@
           <li>Est. Rewinds: <strong>{{ operation.EstimateRewinds | filterInteger }}</strong></li>
         </ul>
       </div>
-      <div v-if="runtimeCountersSummary != null">
-        <div v-if="runtimeCountersSummary.ActualRebinds != null" class="content">
+      <div v-if="runtimeCountersSummary !== undefined">
+        <div v-if="runtimeCountersSummary.ActualRebinds !== undefined" class="content">
           <ul class="stats">
             <li>Actual Rebinds: <strong>{{ runtimeCountersSummary.ActualRebinds | filterInteger }}</strong></li>
             <li>Actual Rewinds: <strong>{{ runtimeCountersSummary.ActualRewinds | filterInteger }}</strong></li>
           </ul>
         </div>
-        <div v-if="runtimeCountersSummary.ActualElapsedms != null" class="content">
+        <div v-if="runtimeCountersSummary.ActualElapsedms !== undefined" class="content">
           <ul class="stats">
             <li>Elapsed: <strong>{{ runtimeCountersSummary.ActualElapsedms | filterInteger }}</strong>ms</li>
-            <li v-if="runtimeCountersSummary.ActualCPUms != undefined">CPU: <strong>{{ runtimeCountersSummary.ActualCPUms | filterInteger }}</strong>ms</li>
+            <li v-if="runtimeCountersSummary.ActualCPUms !== undefined">CPU: <strong>{{ runtimeCountersSummary.ActualCPUms | filterInteger }}</strong>ms</li>
           </ul>
         </div>
-        <div v-if="runtimeCountersSummary.ActualLogicalReads != null" class="content">
+        <div v-if="runtimeCountersSummary.ActualLogicalReads !== undefined" class="content">
           <h4>Reads</h4>
           <ul class="stats">
-            <li v-if="runtimeCountersSummary.ActualLogicalReads != undefined">Logical: <strong>{{ runtimeCountersSummary.ActualLogicalReads | filterInteger }}</strong></li>
-            <li v-if="runtimeCountersSummary.ActualPhysicalReads != undefined">Physical: <strong>{{ runtimeCountersSummary.ActualPhysicalReads | filterInteger }}</strong></li>
-            <li v-if="runtimeCountersSummary.ActualReadAheads != undefined">Read Aheads: <strong>{{ runtimeCountersSummary.ActualReadAheads | filterInteger }}</strong></li>
+            <li v-if="runtimeCountersSummary.ActualLogicalReads !== undefined">Logical: <strong>{{ runtimeCountersSummary.ActualLogicalReads | filterInteger }}</strong></li>
+            <li v-if="runtimeCountersSummary.ActualPhysicalReads !== undefined">Physical: <strong>{{ runtimeCountersSummary.ActualPhysicalReads | filterInteger }}</strong></li>
+            <li v-if="runtimeCountersSummary.ActualReadAheads !== undefined">Read Aheads: <strong>{{ runtimeCountersSummary.ActualReadAheads | filterInteger }}</strong></li>
           </ul>
         </div>
-        <div v-if="runtimeCountersSummary.ActualLobLogicalReads != null" class="content">
+        <div v-if="runtimeCountersSummary.ActualLobLogicalReads !== undefined" class="content">
           <h4>Large Object Reads</h4>
           <ul class="stats">
-            <li v-if="runtimeCountersSummary.ActualLobLogicalReads != undefined">Logical: <strong>{{ runtimeCountersSummary.ActualLobLogicalReads | filterInteger }}</strong></li>
-            <li v-if="runtimeCountersSummary.ActualLobPhysicalReads != undefined">Physical: <strong>{{ runtimeCountersSummary.ActualLobPhysicalReads | filterInteger }}</strong></li>
-            <li v-if="runtimeCountersSummary.ActualLobReadAheads != undefined">Read Aheads: <strong>{{ runtimeCountersSummary.ActualLobReadAheads | filterInteger }}</strong></li>
+            <li v-if="runtimeCountersSummary.ActualLobLogicalReads !== undefined">Logical: <strong>{{ runtimeCountersSummary.ActualLobLogicalReads | filterInteger }}</strong></li>
+            <li v-if="runtimeCountersSummary.ActualLobPhysicalReads !== undefined">Physical: <strong>{{ runtimeCountersSummary.ActualLobPhysicalReads | filterInteger }}</strong></li>
+            <li v-if="runtimeCountersSummary.ActualLobReadAheads !== undefined">Read Aheads: <strong>{{ runtimeCountersSummary.ActualLobReadAheads | filterInteger }}</strong></li>
           </ul>
         </div>
       </div>
@@ -151,7 +151,7 @@ export default class OperationSummary extends Vue {
     }
   }
 
-  public get additionalInfoComponent(): string | null {
+  public get additionalInfoComponent(): string | undefined {
     if (this.operation.Action instanceof ShowPlan.Sort) {
       return 'sort-by';
     } else if (this.operation.Action instanceof ShowPlan.IndexScan) {
@@ -172,7 +172,7 @@ export default class OperationSummary extends Vue {
       return 'top-op';
     }
 
-    return null;
+    return undefined;
   }
 
   public get shallowOperation(): RelOp {
@@ -184,7 +184,7 @@ export default class OperationSummary extends Vue {
   }
 
   public get progressPercent(): string {
-    if (this.statement == null || this.statement!.StatementSubTreeCost == null) {
+    if (this.statement === undefined || this.statement!.StatementSubTreeCost === undefined) {
      return 'progress-0';
     }
 
@@ -212,13 +212,13 @@ export default class OperationSummary extends Vue {
     return this.operation.LogicalOp;
   }
 
-  public get runtimeCountersSummary(): ShowPlan.RunTimeInformationTypeRunTimeCountersPerThread | null {
-    if (this.operation.RunTimeInformation == null || this.operation.RunTimeInformation.RunTimeCountersPerThread.length === 0) {
-      return null;
+  public get runtimeCountersSummary(): ShowPlan.RunTimeInformationTypeRunTimeCountersPerThread | undefined {
+    if (this.operation.RunTimeInformation === undefined || this.operation.RunTimeInformation.RunTimeCountersPerThread.length === 0) {
+      return undefined;
     }
 
     const summary = this.operation.RunTimeInformation.GetRunTimeCountersSummary();
-    if (summary == null) {
+    if (summary === undefined) {
       return summary;
     }
 
@@ -236,14 +236,13 @@ export default class OperationSummary extends Vue {
 
   private getShortName(o: ObjectType) {
     const table = o.Table + '.' + o.Index;
-    if (o.Alias == null) {
+    if (o.Alias === undefined) {
       return table;
     }
 
     return table + ' ' + o.Alias;
   }
 }
-
 </script>
 
 <style lang="scss" scoped>

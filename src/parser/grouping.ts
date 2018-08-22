@@ -9,11 +9,11 @@ export class Group<T> {
 export class Grouper  {
   public static groupBy<T>(list: T[], func: (x: T) => string): Array<Group<T>> {
     const res: Array<Group<T>> = [];
-    let group: Group<T> | null = null;
+    let group: Group<T> | undefined;
 
     list.forEach((o) => {
       const groupName = func(o);
-      if (group === null) {
+      if (group === undefined) {
         group = new Group<T>(groupName);
       }
       if (groupName !== group.key) {
@@ -22,7 +22,8 @@ export class Grouper  {
       }
       group.members.push(o);
     });
-    if (group != null) {
+
+    if (group !== undefined) {
       res.push(group);
     }
     return res;

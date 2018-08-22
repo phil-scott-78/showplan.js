@@ -2,7 +2,7 @@
     <svg :width="width" :height="width">
     <g>
       <g :transform="'translate(' + width / 2 + ',' + width  /2 + ')'">
-        <a v-for="(line, index) in lines" v-bind:key="index" :title="line.data.LogicalOp" v-on:mouseout="hover(null)" v-on:mouseover="hover(line)" v-on:click="operationClicked(line)">
+        <a v-for="(line, index) in lines" v-bind:key="index" :title="line.data.LogicalOp" v-on:mouseout="hover(undefined)" v-on:mouseover="hover(line)" v-on:click="operationClicked(line)">
           <path :d="arc(line)" :stroke="getStroke(line)" :opacity="getOpacity(line)" v-bind:fill="colors[getOperationType(line.data.LogicalOp)]" />
         </a>
       </g>
@@ -23,11 +23,11 @@ import { normalize } from 'path';
 export default class ShowPlanSunburst extends Vue {
   @Prop() public queryPlan!: ShowPlan.QueryPlan;
   @Prop({ default: 500 }) public width!: number;
-  @Prop({ default: null }) public selectedNode!: ShowPlan.RelOp | null;
+  @Prop({ default: undefined }) public selectedNode!: ShowPlan.RelOp | undefined;
 
-  private get highlightedNode(): HierarchyRectangularNode<ShowPlan.RelOp> | null {
-    if (this.selectedNode == null) {
-      return null;
+  private get highlightedNode(): HierarchyRectangularNode<ShowPlan.RelOp> | undefined {
+    if (this.selectedNode === undefined) {
+      return undefined;
     }
 
     return this.root().descendants().filter((i) => i.data.NodeId === this.selectedNode!.NodeId)[0];
@@ -66,12 +66,12 @@ export default class ShowPlanSunburst extends Vue {
   }
 
   @Emit('rel-op-highlighted')
-  public statementHighlighted(op: ShowPlan.RelOp | null) {
+  public statementHighlighted(op: ShowPlan.RelOp | undefined) {
     //
   }
 
   private getOpacity(node: HierarchyRectangularNode<ShowPlan.RelOp>): number {
-    if (this.highlightedNode == null) {
+    if (this.highlightedNode === undefined) {
       return 1;
     }
 
@@ -96,9 +96,9 @@ export default class ShowPlanSunburst extends Vue {
     return 'var(--background)';
   }
 
-  private hover(op: HierarchyRectangularNode<ShowPlan.RelOp> | null) {
-    if (op == null) {
-      this.statementHighlighted(null);
+  private hover(op: HierarchyRectangularNode<ShowPlan.RelOp> | undefined) {
+    if (op === undefined) {
+      this.statementHighlighted(undefined);
       return;
     }
 
@@ -110,7 +110,7 @@ export default class ShowPlanSunburst extends Vue {
   }
 
   private operationClicked(op: HierarchyRectangularNode<ShowPlan.RelOp>) {
-    if (op != null && op.data.NodeId === -1) {
+    if (op !== undefined && op.data.NodeId === -1) {
       return;
     }
 

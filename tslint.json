@@ -20,6 +20,7 @@
     "max-line-length": {
       "options": [240]
     },
-    "only-arrow-functions": false
+    "only-arrow-functions": false,
+    "no-null-keyword": true
   }
 }

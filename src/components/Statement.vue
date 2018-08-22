@@ -2,14 +2,14 @@
 <div>
   <h1>
     <span class="statementType">{{ statement.StatementType }}</span> <select-plan :show-plan="showPlan" @showplan-statement-changed="selectChanged"></select-plan>
-    <span v-if="statement.QueryPlan != null" class='stats'>
-      <span v-if="statement.StatementSubTreeCost != null">Sub Tree Cost: <strong>{{ statement.StatementSubTreeCost }}</strong></span>
-      <span v-if="statement.StatementEstRows != null">Estimated Number of Rows : <strong>{{ statement.StatementEstRows }}</strong></span>
+    <span v-if="statement.QueryPlan !== undefined" class='stats'>
+      <span v-if="statement.StatementSubTreeCost !== undefined">Sub Tree Cost: <strong>{{ statement.StatementSubTreeCost }}</strong></span>
+      <span v-if="statement.StatementEstRows !== undefined">Estimated Number of Rows : <strong>{{ statement.StatementEstRows }}</strong></span>
       <span>Degree of Parallelism:
-          <strong v-if="statement.QueryPlan.DegreeOfParallelism != null">{{ statement.statement.QueryPlan.DegreeOfParallelism }}</strong>
+          <strong v-if="statement.QueryPlan.DegreeOfParallelism !== undefined">{{ statement.statement.QueryPlan.DegreeOfParallelism }}</strong>
           <strong v-else>1</strong>
       </span>
-      <span v-if="statement.QueryPlan.CachedPlanSize != null">Cached Plan Size: <strong>{{ statement.QueryPlan.CachedPlanSize | filterKiloBytes }}</strong></span>
+      <span v-if="statement.QueryPlan.CachedPlanSize !== undefined">Cached Plan Size: <strong>{{ statement.QueryPlan.CachedPlanSize | filterKiloBytes }}</strong></span>
     </span>
   </h1>
 
@@ -17,7 +17,7 @@
     <highlight-sql-statement :statementText="fullStatementText"></highlight-sql-statement>
   </div>
 
-  <div v-if="statement.QueryPlan.MissingIndexes != null">
+  <div v-if="statement.QueryPlan.MissingIndexes !== undefined">
     <div class="message warning">
       <h4>Missing Indexes</h4>
       <ul v-for="(indexGroup, indexGroupIndex) in statement.QueryPlan.MissingIndexes.MissingIndexGroup" :key="indexGroupIndex">
@@ -26,12 +26,12 @@
     </div>
   </div>
 
-  <div v-if="statement.QueryPlan != null" class="queryplan">
+  <div v-if="statement.QueryPlan !== undefined" class="queryplan">
     <div class="visualization">
       <show-plan-sunburst width="600" v-bind:queryPlan="statement.QueryPlan" :selectedNode="displayedOp" v-on:rel-op-selected="relOpSelected" v-on:rel-op-highlighted="relOpHighlighted"></show-plan-sunburst>
     </div>
     <div class="details">
-      <div v-if="displayedOp != null" class="opSummary">
+      <div v-if="displayedOp !== undefined" class="opSummary">
         <operation-summary v-bind:statement="statement" v-bind:operation="displayedOp"></operation-summary>
       </div>
     </div>
@@ -52,13 +52,19 @@ import SelectPlan from './SelectPlan.vue';
   components: {
     ShowPlanSunburst, HighlightSqlStatement, OperationSummary, SelectPlan,
   },
+  data() {
+    return {
+      selectedOp: undefined,
+      highlightedOp: undefined,
+    };
+  },
 })
 export default class Statement extends Vue {
   @Prop() public statement!: BaseStmtInfo;
   @Prop() public showPlan!: ShowPlanXML;
 
-  private selectedOp: RelOp | null = null;
-  private highlightedOp: RelOp | null = null;
+  private selectedOp: RelOp | undefined;
+  private highlightedOp: RelOp | undefined;
 
   @Emit('showplan-statement-changed')
   public statementSelected(statementGuid: string) {
@@ -104,11 +110,11 @@ export default class Statement extends Vue {
 
   @Watch('statement')
   private OnStatementChanged(val: BaseStmtInfo, oldVal: BaseStmtInfo) {
-    this.selectedOp = null;
+    this.selectedOp = undefined;
   }
 
-  private get displayedOp(): RelOp | null {
-    if (this.highlightedOp != null) {
+  private get displayedOp(): RelOp | undefined {
+    if (this.highlightedOp !== undefined) {
       return this.highlightedOp;
     }
 
@@ -123,7 +129,6 @@ export default class Statement extends Vue {
     this.highlightedOp = op;
   }
 }
-
 </script>
 
 <style lang="scss" scoped>

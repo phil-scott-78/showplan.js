@@ -6,8 +6,8 @@
     <div class="actions">
 
       <a href="https://github.com/phil-scott-78/showplan.js" class="item"><font-awesome-icon :icon="['fab', 'github']" /></a>
-      <a v-if="currentPlan === null" @click="loadSample" class="item">Load Sample</a>
-      <a v-else @click="planChanged(null)" class="item">New Plan</a>
+      <a v-if="currentPlan === undefined" @click="loadSample" class="item">Load Sample</a>
+      <a v-else @click="planChanged(undefined)" class="item">New Plan</a>
     </div>
   </div>
 </template>
@@ -19,11 +19,7 @@ import { ShowPlanXML } from '@/parser/showplan';
 @Component({
 })
 export default class Header extends Vue {
-  @Prop() public currentPlan!: ShowPlanXML | null;
-
-  public NewPlanClick() {
-    this.planChanged(null);
-  }
+  @Prop() public currentPlan!: ShowPlanXML | undefined;
 
   public loadSample() {
     const request = new XMLHttpRequest();
@@ -36,7 +32,7 @@ export default class Header extends Vue {
     request.send();
   }
 
-  @Emit('plan-changed') public planChanged(plan: string | null) {
+  @Emit('plan-changed') public planChanged(plan: string | undefined) {
     //
   }
 }

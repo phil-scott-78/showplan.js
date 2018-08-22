@@ -39,7 +39,7 @@ export class ColumnReferenceParser {
     return Grouper.groupBy<ColumnReference>(columns, (a: ShowPlan.ColumnReference) => {
       if (a.Database !== undefined && a.Schema !== undefined && a.Table !== undefined) {
         let key = a.Database + '.' + a.Schema + '.' + a.Table;
-        if (a.Alias != null) {
+        if (a.Alias !== undefined) {
           key += ' as ' + a.Alias;
         }
 

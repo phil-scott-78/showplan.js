@@ -21,14 +21,14 @@ export default class DefinedValueView extends Vue {
 
   private getSqlString(definedValue: DefinedValue): string {
     // if we have a column reference but no scalar operator just return the column
-    if (definedValue.ColumnReference != null && definedValue.ColumnReference.length === 1 && definedValue.ScalarOperator == null) {
+    if (definedValue.ColumnReference !== undefined && definedValue.ColumnReference.length === 1 && definedValue.ScalarOperator === undefined) {
       return definedValue.ColumnReference[0].toString();
     }
 
     // if we have a column and a scalar then it's an assignment so include a
     // SET statement
     let sql = '';
-    if (definedValue.ColumnReference != null && definedValue.ColumnReference.length === 1) {
+    if (definedValue.ColumnReference !== undefined && definedValue.ColumnReference.length === 1) {
       sql = 'SET ' + definedValue.ColumnReference[0].toString() + ' = ';
     }
 

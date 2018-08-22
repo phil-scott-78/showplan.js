@@ -19,7 +19,7 @@ export class ShowPlanXML {
     this.Batches = Batches;
   }
 
-  public GetStatementByGuid(guid: string): BaseStmtInfo | null {
+  public GetStatementByGuid(guid: string): BaseStmtInfo | undefined {
     for (const batch of this.Batches) {
       for (const statement of batch.Statements) {
         if (statement.Guid === guid) {
@@ -28,7 +28,7 @@ export class ShowPlanXML {
       }
     }
 
-    return null;
+    return undefined;
   }
 
   public IsEstimatedPlan(): boolean {
@@ -309,17 +309,17 @@ export class BaseStmtInfo {
   public StatementSetOptions?: SetOptions;
   public Guid: string = Guid.create().toString();
 
-  public CostPercentOfBatch(): number | null {
-    if (this.Batch === null) {
-      return null;
+  public CostPercentOfBatch(): number | undefined {
+    if (this.Batch === undefined) {
+      return undefined;
     }
 
-    if (this.StatementSubTreeCost === null) {
-      return null;
+    if (this.StatementSubTreeCost === undefined) {
+      return undefined;
     }
 
     const total =  this.Batch!.Statements
-      .filter((i) => i.StatementSubTreeCost != null)
+      .filter((i) => i.StatementSubTreeCost !== undefined)
       .map((i) => i.StatementSubTreeCost!)
       .reduce((sum, current) => sum + current);
 
@@ -864,16 +864,16 @@ export class MissingIndex {
     const equalityColumnNames = this.ColumnGroup.filter((i) => i.Usage === 'EQUALITY' || i.Usage === 'INEQUALITY' )[0].Column.map((col) => col.Name);
 
     const includeColumns = this.ColumnGroup.filter((i) => i.Usage === 'INCLUDE')[0];
-    let includeColumnNames: string[] | null = null;
-    if (includeColumns != null) {
+    let includeColumnNames: string[] | undefined;
+    if (includeColumns !== undefined) {
       includeColumnNames = includeColumns.Column.map((col) => col.Name);
     }
 
     const indexName = `IX_${this.Table}_${equalityColumnNames.join('_')}`;
     let sql = `CREATE NONCLUSTERED INDEX ${indexName} ON ${this.Schema}.${this.Table} (${equalityColumnNames.join(', ')})`;
 
-    if (includeColumnNames != null) {
-      sql = sql += ` INCLUDE (${includeColumnNames.join(', ')})`;
+    if (includeColumnNames !== undefined) {
+      sql += ` INCLUDE (${includeColumnNames.join(', ')})`;
     }
 
     return sql;
@@ -1240,9 +1240,9 @@ export class RunTimeInformation {
     this.RunTimeCountersPerThread = runTimeCountersPerThread;
   }
 
-  public GetRunTimeCountersSummary(): RunTimeInformationTypeRunTimeCountersPerThread | null {
+  public GetRunTimeCountersSummary(): RunTimeInformationTypeRunTimeCountersPerThread | undefined {
     if (this.RunTimeCountersPerThread.length === 0) {
-      return null;
+      return undefined;
     }
 
     function undefinedAdd(a: number | undefined, b: number | undefined): number | undefined {
@@ -1457,25 +1457,25 @@ export class SeekPredicate {
 
   public toStrings(): Array<{key: string, value: string}> {
     const result: Array<{key: string, value: string}> = [];
-    if (this.Prefix != null) {
+    if (this.Prefix !== undefined) {
       if (this.Prefix.RangeColumns.length === 1 && this.Prefix.RangeExpressions.length === 1) {
         result.push({ key: 'Prefix', value: this.Prefix.RangeColumns[0].toString() + ' ' + this.Prefix.ScanTypeToString() + ' ' + this.Prefix.RangeExpressions[0].ScalarOperator.ScalarString });
       }
     }
 
-    if (this.StartRange != null) {
+    if (this.StartRange !== undefined) {
       if (this.StartRange.RangeColumns.length === 1 && this.StartRange.RangeExpressions.length === 1) {
         result.push({ key: 'Start', value: this.StartRange.RangeColumns[0].toString() + ' ' + this.StartRange.ScanTypeToString() + ' ' + this.StartRange.RangeExpressions[0].ScalarOperator.ScalarString });
       }
     }
 
-    if (this.EndRange != null) {
+    if (this.EndRange !== undefined) {
       if (this.EndRange.RangeColumns.length === 1 && this.EndRange.RangeExpressions.length === 1) {
         result.push({ key: 'End', value: this.EndRange.RangeColumns[0].toString() + ' ' + this.EndRange.ScanTypeToString() + ' ' + this.EndRange.RangeExpressions[0].ScalarOperator.ScalarString });
       }
     }
 
-    if (this.IsNotNull != null) {
+    if (this.IsNotNull !== undefined) {
       result.push({ key: 'Is Not Null', value: this.IsNotNull!.toString() });
     }
 

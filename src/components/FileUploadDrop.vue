@@ -44,7 +44,7 @@ export default class FileUploadDrop extends Vue {
 
   public onPaste(e: ClipboardEvent) {
     const clipboardContents = e.clipboardData.getData('text');
-    if (clipboardContents == null) {
+    if (clipboardContents === undefined) {
       return;
     }
 

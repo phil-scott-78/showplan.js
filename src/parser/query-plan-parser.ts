@@ -544,8 +544,7 @@ export class QueryPlanParser {
   }
 
   private static ParseCollapse(element: Element): ShowPlan.Collapse {
-    const collapse = new ShowPlan.Collapse(ColumnReferenceParser.GetAllFromElement(element, 'GroupBy'));
-    return collapse;
+    return new ShowPlan.Collapse(ColumnReferenceParser.GetAllFromElement(element, 'GroupBy'));
   }
 
   private static ParseHash(element: Element): ShowPlan.Hash {
@@ -584,9 +583,7 @@ export class QueryPlanParser {
   }
 
   private static ParseParallelism(element: Element): ShowPlan.Parallelism {
-    const op = new ShowPlan.Parallelism();
-
-    return op;
+    return new ShowPlan.Parallelism();
   }
 
   private static ParseTopElement(topElement: Element): ShowPlan.Top {

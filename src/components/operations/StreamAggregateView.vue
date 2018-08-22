@@ -1,12 +1,12 @@
 <template>
   <div>
-      <div class="content" v-if="stremAggregate.GroupBy != null && stremAggregate.GroupBy.length > 0">
+      <div class="content" v-if="stremAggregate.GroupBy !== undefined && stremAggregate.GroupBy.length > 0">
         <h4>Group By</h4>
         <ul class="small">
           <li v-for="(column, index) in stremAggregate.GroupBy" :key="index"><sql-string :sql="column.toString()"></sql-string></li>
         </ul>
       </div>
-      <defined-values v-if="stremAggregate.DefinedValues != null && stremAggregate.DefinedValues.length > 0" :definedValues="stremAggregate.DefinedValues"></defined-values>
+      <defined-values v-if="stremAggregate.DefinedValues !== undefined && stremAggregate.DefinedValues.length > 0" :definedValues="stremAggregate.DefinedValues"></defined-values>
     </div>
 </template>
 

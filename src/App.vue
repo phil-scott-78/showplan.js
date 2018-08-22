@@ -6,78 +6,84 @@
 </template>
 
 <script lang="ts">
-  import { Component, Prop, Vue } from 'vue-property-decorator';
+import { Component, Prop, Vue } from 'vue-property-decorator';
 
-  import FileUploadDrop from '@/components/FileUploadDrop.vue';
-  import HeaderMenu from '@/components/Header.vue';
-  import * as ShowPlan from '@/parser/showplan';
+import FileUploadDrop from '@/components/FileUploadDrop.vue';
+import HeaderMenu from '@/components/Header.vue';
+import * as ShowPlan from '@/parser/showplan';
 
-  @Component({
-    components: { HeaderMenu, FileUploadDrop, Statement: () => import('@/components/Statement.vue')},
-  })
-  export default class App extends Vue {
-    public showPlan: ShowPlan.ShowPlanXML | null = null;
-    public selectedStatementGuid: string | null = null;
+@Component({
+  components: { HeaderMenu, FileUploadDrop, Statement: () => import('@/components/Statement.vue')},
+  data() {
+    return {
+      showPlan: undefined,
+      selectedStatementGuid: undefined,
+    };
+  },
+})
+export default class App extends Vue {
+  public showPlan: ShowPlan.ShowPlanXML | undefined;
+  public selectedStatementGuid: string | undefined;
 
-    public get currentComponent(): string {
-      if (this.showPlan == null) {
-        return 'file-upload-drop';
-      }
-
-      return 'statement';
+  public get currentComponent(): string {
+    if (this.showPlan === undefined) {
+      return 'file-upload-drop';
     }
 
-    public get currentStatement(): ShowPlan.BaseStmtInfo | null {
-      if (this.showPlan == null) {
-        return null;
-      }
+    return 'statement';
+  }
 
-      if (this.selectedStatementGuid != null) {
-        return this.showPlan.GetStatementByGuid(this.selectedStatementGuid);
-      }
-
-      return null;
+  public get currentStatement(): ShowPlan.BaseStmtInfo | undefined {
+    if (this.showPlan === undefined) {
+      return undefined;
     }
 
-    public showPlanChanged(showPlan: ShowPlan.ShowPlanXML | null) {
-      this.showPlan = showPlan;
+    if (this.selectedStatementGuid !== undefined) {
+      return this.showPlan.GetStatementByGuid(this.selectedStatementGuid);
+    }
 
-      if (showPlan == null) {
-        return;
-      }
+    return undefined;
+  }
 
-      // select a logical first item
-      let firstItem: string | null = null;
-      for (const batch of this.showPlan!.Batches) {
-        for (const statement of batch.Statements) {
-          if (firstItem == null) {
-            firstItem = statement.Guid;
-          }
+  public showPlanChanged(showPlan: ShowPlan.ShowPlanXML | undefined) {
+    this.showPlan = showPlan;
 
-          if (statement.StatementType !== 'USE DATABASE') {
-            this.selectedStatementGuid = statement.Guid;
-          }
+    if (showPlan === undefined) {
+      return;
+    }
+
+    // select a logical first item
+    let firstItem: string | undefined;
+    for (const batch of this.showPlan!.Batches) {
+      for (const statement of batch.Statements) {
+        if (firstItem === undefined) {
+          firstItem = statement.Guid;
+        }
+
+        if (statement.StatementType !== 'USE DATABASE') {
+          this.selectedStatementGuid = statement.Guid;
         }
       }
     }
-
-    public statementChanged(statementGuid: string) {
-      this.selectedStatementGuid = statementGuid;
-    }
-
-    public planXmlChanged(plan: string | null) {
-      if (plan === null) {
-        this.showPlan = null;
-        return;
-      }
-
-      const vm = this;
-      import('@/parser/showplan-parser').then((showPlanParser) => {
-        const parser = new showPlanParser.ShowPlanParser();
-        this.showPlanChanged(parser.Parse(plan!));
-      });
-    }
   }
+
+  public statementChanged(statementGuid: string) {
+    this.selectedStatementGuid = statementGuid;
+  }
+
+  public planXmlChanged(plan: string | undefined) {
+    if (plan === undefined) {
+      this.showPlan = undefined;
+      return;
+    }
+
+    const vm = this;
+    import('@/parser/showplan-parser').then((showPlanParser) => {
+      const parser = new showPlanParser.ShowPlanParser();
+      this.showPlanChanged(parser.Parse(plan!));
+    });
+  }
+}
 </script>
 
 <style lang="scss" scoped>
