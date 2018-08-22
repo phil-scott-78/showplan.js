@@ -26,10 +26,6 @@ import { Component, Prop, Vue, Emit } from 'vue-property-decorator';
 })
 export default class FileUploadDrop extends Vue {
 
-  public $refs!: {
-    planTextBox: HTMLFormElement,
-  };
-
   private showPasteTextBox: boolean = false;
 
   public filesChange(fileList: FileList) {
@@ -58,10 +54,6 @@ export default class FileUploadDrop extends Vue {
   @Emit('showplan-changed')
   public emitShowPlanChanged(showPlan: string) {
     //
-  }
-
-  public mounted() {
-    this.$refs.planTextBox.focus();
   }
 }
 </script>
