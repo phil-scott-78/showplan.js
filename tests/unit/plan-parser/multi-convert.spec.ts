@@ -3,8 +3,8 @@ import * as ShowPlan from '@/parser/showplan';
 import { expect } from 'chai';
 import { ColumnReferenceParser } from '@/parser/column-reference-parser';
 
-// tslint:disable-next-line:no-var-requires
-const fs = require('fs');
+
+import * as fs from 'fs';
 
 describe('multi-convert.sqlplan', () => {
   const file = 'tests/unit/plan-parser/plans/multi-convert.sqlplan';

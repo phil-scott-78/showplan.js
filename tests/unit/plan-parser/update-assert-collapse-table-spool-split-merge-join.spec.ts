@@ -2,8 +2,8 @@ import { ShowPlanParser } from '@/parser/showplan-parser';
 import * as ShowPlan from '@/parser/showplan';
 import { expect } from 'chai';
 
-// tslint:disable-next-line:no-var-requires
-const fs = require('fs');
+
+import * as fs from 'fs';
 
 describe('update-assert-collapse-table-spool-split-merge-join.sqlplan', function() {
   let showplan: ShowPlan.StmtSimple;

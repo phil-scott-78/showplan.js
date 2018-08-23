@@ -2,8 +2,8 @@ import { ShowPlanParser } from '@/parser/showplan-parser';
 import * as ShowPlan from '@/parser/showplan';
 import { expect } from 'chai';
 
-// tslint:disable-next-line:no-var-requires
-const fs = require('fs');
+
+import * as fs from 'fs';
 
 describe('viewclustered-index-seek.sqlplan', function() {
   const file = 'tests/unit/plan-parser/plans/viewclustered-index-seek.sqlplan';
