@@ -3,7 +3,10 @@
     <g>
       <g :transform="'translate(' + width / 2 + ',' + width  /2 + ')'">
         <a v-for="(line, index) in lines" v-bind:key="index" :title="line.data.LogicalOp" v-on:mouseout="hover(undefined)" v-on:mouseover="hover(line)" v-on:click="operationClicked(line)">
-          <path :d="arc(line)" :stroke="getStroke(line)" :opacity="getOpacity(line)" v-bind:fill="colors[getOperationType(line.data.LogicalOp)]" />
+          <g>
+            <path :d="arc(line)" :stroke="getStroke(line)" :opacity="getOpacity(line)" :fill="getFill(line)" />
+            <polygon v-if="line.data.Warnings !== undefined" :transform="getIconLocation(line)"  fill="var(--orange)" stroke="var(--alt-background)" points="0,-5 -5,5 5,5"/>
+          </g>
         </a>
       </g>
     </g>
@@ -94,6 +97,17 @@ export default class ShowPlanSunburst extends Vue {
 
   private getStroke(node: HierarchyRectangularNode<ShowPlan.RelOp>): string {
     return 'var(--background)';
+  }
+
+  private getFill(node: HierarchyRectangularNode<ShowPlan.RelOp>): string {
+    const operationType = this.getOperationType(node.data.LogicalOp);
+    return this.colors[operationType];
+  }
+
+  private getIconLocation(node: HierarchyRectangularNode<ShowPlan.RelOp>): string {
+    const centroid = this.arc.centroid(node);
+    const angle = (node.x0 + node.x1) / Math.PI * 90;
+    return `translate(${centroid[0]}, ${centroid[1]}) rotate(${angle})`;
   }
 
   private hover(op: HierarchyRectangularNode<ShowPlan.RelOp> | undefined) {
