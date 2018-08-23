@@ -109,6 +109,7 @@ import HashOp from './operations/HashView.vue';
 import BatchHashTableBuildOp from './operations/BatchHashTableBuildView.vue';
 import ConcatOp from './operations/ConcatView.vue';
 import TopOp from './operations/TopView.vue';
+import NestedLoop from './operations/NestedLoopView.vue';
 
 import Warnings from './operations/Warnings.vue';
 
@@ -127,6 +128,7 @@ import TreeView from 'vue-json-tree';
     BatchHashTableBuildOp,
     ConcatOp,
     TopOp,
+    NestedLoop,
     Warnings,
     TreeView,
   },
@@ -170,6 +172,8 @@ export default class OperationSummary extends Vue {
       return 'concat-op';
     } else if (this.operation.Action instanceof ShowPlan.Top) {
       return 'top-op';
+    } else if (this.operation.Action instanceof ShowPlan.NestedLoops) {
+      return 'nested-loop';
     }
 
     return undefined;

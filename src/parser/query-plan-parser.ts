@@ -246,6 +246,8 @@ export class QueryPlanParser {
     const optimized = Convert.GetBoolean(element, 'Optimized')!;
     const nestedLoop = new ShowPlan.NestedLoops(optimized);
 
+    nestedLoop.Predicate = QueryHelper.ParseSingleItem(element, 'Predicate', (i) => ScalarExpressionParser.Parse(i));
+    nestedLoop.PassThru = QueryHelper.ParseSingleItem(element, 'PassThru', (i) => ScalarExpressionParser.Parse(i));
     nestedLoop.WithOrderedPrefetch = Convert.GetBoolean(element, 'WithOrderedPrefetch');
     nestedLoop.WithUnorderedPrefetch = Convert.GetBoolean(element, 'WithUnorderedPrefetch');
 
