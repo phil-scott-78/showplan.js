@@ -58,6 +58,7 @@ export default class ShowPlanSunburst extends Vue {
     join: 'var(--blue)',
     language: 'var(--orange)',
     other: 'var(--purple)',
+    update: 'var(--purple)',
     end: 'var(--grey)',
     generic: 'var(--grey)',
     root: 'var(--background)',
@@ -157,6 +158,8 @@ export default class ShowPlanSunburst extends Vue {
       case 'Gather Streams':
       case 'Distribute Streams':
         return 'other';
+      case 'Update':
+        return 'update';
       default:
           return 'operation';
     }

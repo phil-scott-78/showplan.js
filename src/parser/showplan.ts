@@ -411,7 +411,7 @@ export class ColumnReference {
     out += this.Column;
 
     if (this.Alias !== undefined) {
-      out += 'out as ' + this.Alias;
+      out += ' as ' + this.Alias;
     }
     return out;
   }
@@ -918,6 +918,25 @@ export class ObjectType {
   public Storage?: StorageType;
   public Table?: string;
   public TableReferenceId?: number;
+
+  public getFullTableName(): string {
+    let out = '';
+    if (this.Database !== undefined) {
+      out += this.Database + '.';
+    }
+
+    if (this.Schema !== undefined) {
+      out += this.Schema + '.';
+    }
+    if (this.Table !== undefined) {
+      out += this.Table;
+    }
+
+    if (this.Alias !== undefined) {
+      out += ' as ' + this.Alias;
+    }
+    return out;
+  }
 }
 /** Provide hardware-dependent properties that affect cost estimate (and hence, query plan choice), as seen by the Query Optimizer.
  * EstimatedAvailableMemoryGrant is an estimate of what amount of memory (KB) will be available for this query at the execution time to request a memory grant from.

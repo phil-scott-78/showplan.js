@@ -59,6 +59,10 @@ div.message {
       padding: 0 0 0 1.5rem;
       margin: .5rem 0 0 0;
       font-size: .75rem;
+
+      li {
+        margin-bottom:.2rem;
+      }
     }
 
     ul.comma-list {

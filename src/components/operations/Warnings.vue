@@ -1,28 +1,28 @@
 <template>
   <div>
     <div v-if="warnings.NoJoinPredicate === true" class="content warning">
-      <h4>No Join Predicate Warning</h4>
+      <h4>No Join Predicate</h4>
     </div>
     <div v-if="warnings.SpatialGuess === true" class="content warning">
-      <h4>Spacial Guess Warning</h4>
+      <h4>Spacial Guess</h4>
     </div>
     <div v-if="warnings.FullUpdateForOnlineIndexBuild === true" class="content warning">
-      <h4>Full Update For Online Index Build Warning</h4>
+      <h4>Full Update For Online Index Build</h4>
     </div>
     <div v-if="warnings.UnmatchedIndexes === true" class="content warning">
-      <h4>Unmatched Indexes Warning</h4>
+      <h4>Unmatched Indexes</h4>
     </div>
     <div v-if="warnings.ColumnsWithNoStatistics !== undefined && warnings.ColumnsWithNoStatistics.length > 0" class="content warning">
       <h4>Columns With No Statistics</h4>
       <ul class="small">
         <li v-for="(col, index) in warnings.ColumnsWithNoStatistics" :key="index">
-          {{ col.toString() }}
+          <sql-string :sql="col.toString()"></sql-string>
         </li>
       </ul>
     </div>
     <div v-if="warnings.HashSpillDetails !== undefined && warnings.HashSpillDetails.length > 0" class="content warning">
       <h4>Hash Spills Warning</h4>
-      <ul>
+      <ul class="small">
         <li v-if="warnings.SpillToTempDb.length === 1">
           <ul class="stats">
             <li>Spill Level <strong>{{ warnings.SpillToTempDb[0].SpillLevel }}</strong></li>
@@ -46,7 +46,7 @@
     <div v-if="warnings.SortSpillDetails !== undefined && warnings.SortSpillDetails.length > 0" class="content warning">
       <h4>Sort Spill Warning</h4>
       <p>Operator used TempDB to spill during operation</p>
-      <ul>
+      <ul class="small">
         <li v-if="warnings.SpillToTempDb.length === 1">
           <ul class="stats">
             <li>Spill Level <strong>{{ warnings.SpillToTempDb[0].SpillLevel }}</strong></li>
