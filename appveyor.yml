@@ -46,4 +46,4 @@ deploy:
     branch: master
 
 after_deploy:
-- cmd: curl -X DELETE https://api.cloudflare.com/client/v4/zones/%ZONEID%/purge_cache -H "Content-Type:application/json" -H "X-Auth-Key:%CLOUDFLARE%" -H "X-Auth-Email:%CLOUDFLARE_EMAIL%"
+- cmd: curl -X DELETE https://api.cloudflare.com/client/v4/zones/%ZONEID%/purge_cache -H "Content-Type:application/json" -H "X-Auth-Key:%CLOUDFLARE%" -H "X-Auth-Email:%CLOUDFLARE_EMAIL%" --data '{"purge_everything":true}'
