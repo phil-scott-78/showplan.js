@@ -1,6 +1,13 @@
 # Test against the latest version of this Node.js version
 environment:
   nodejs_version: "8"
+  CLOUDFLARE:
+    secure: 0msRlB8YGI+tUE/uMaUw+8RMDS01seer4qvpokQVaxF47Rqs1BKPCnVJXPHZIhvd
+  ZONEID:
+    secure: UyEU5lguH4k9wbXvh/+KpVYAL5XiA5uAv0uCjZjl7Jh3u51SXFKHCDUBRHKA+WQ9
+  CLOUDFLARE_EMAIL:
+    secure: fwbhpJU6sYLj9/44hGZNEhsRv9Sc9QUUVC8N4S0W1O8=
+
 
 cache:
   - node_modules                        # local npm modules
@@ -37,3 +44,6 @@ deploy:
   unzip: true
   on:
     branch: master
+
+after_deploy:
+- cmd: curl -X DELETE https://api.cloudflare.com/client/v4/zones/%ZONEID%/purge_cache -H "Content-Type:application/json" -H "X-Auth-Key:%CLOUDFLARE%" -H "X-Auth-Email:%CLOUDFLARE_EMAIL%"
