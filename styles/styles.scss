@@ -12,6 +12,11 @@ h1,h2,h3 {
   }
 }
 
+p.footer {
+  color: var(--grey);
+  text-align: center;
+}
+
 div.message {
   padding: 1em 1em;
   border-radius: .28571429rem;
