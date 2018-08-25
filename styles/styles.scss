@@ -17,13 +17,21 @@ p.footer {
   text-align: center;
 }
 
+pre code {
+  font-family: 'Consolas', 'Courier New', Courier, monospace
+}
+
 div.message {
   padding: 1em 1em;
   border-radius: .28571429rem;
   border: 1px solid var(--alt-border);
   margin-bottom: 1rem;
   h4 {margin: 0;}
-  ul {margin: .5rem;}
+  ul {
+    margin: .5rem;
+    padding: 0 1rem;
+    font-size: .8rem;
+  }
 
   &.warning {
     background-color: var(--alt-background);
