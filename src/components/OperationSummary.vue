@@ -32,6 +32,16 @@
           <li>Est. Total Size: <strong>{{ operation.EstimateRows * operation.AvgRowSize | filterBytes }}</strong></li>
         </ul>
       </div>
+      <div class="content max-height">
+        <h4>Output</h4>
+        <div class="small" v-for="(key, index) in groupedOutput" v-bind:key="index">
+          <span v-if="key.key !== ''"><sql-string :sql="key.key"></sql-string></span>
+          <span v-else>Computed</span>
+          <ul class="comma-list">
+            <li v-for="(member, memberIndex) in key.members" v-bind:key="memberIndex"><sql-string :sql="member.Column" :expandedColumns="expandedColumns"></sql-string></li>
+          </ul>
+        </div>
+      </div>
     </div>
 
     <div v-else-if="selectedTab === 'advanced'">
@@ -68,16 +78,6 @@
             <li v-if="runtimeCountersSummary.ActualLobLogicalReads !== undefined">Logical: <strong>{{ runtimeCountersSummary.ActualLobLogicalReads | filterInteger }}</strong></li>
             <li v-if="runtimeCountersSummary.ActualLobPhysicalReads !== undefined">Physical: <strong>{{ runtimeCountersSummary.ActualLobPhysicalReads | filterInteger }}</strong></li>
             <li v-if="runtimeCountersSummary.ActualLobReadAheads !== undefined">Read Aheads: <strong>{{ runtimeCountersSummary.ActualLobReadAheads | filterInteger }}</strong></li>
-          </ul>
-        </div>
-      </div>
-      <div class="content max-height">
-        <h4>Output</h4>
-        <div class="small" v-for="(key, index) in groupedOutput" v-bind:key="index">
-          <span v-if="key.key !== ''"><sql-string :sql="key.key"></sql-string></span>
-          <span v-else>Computed</span>
-          <ul class="comma-list">
-            <li v-for="(member, memberIndex) in key.members" v-bind:key="memberIndex"><sql-string :sql="member.Column" :expandedColumns="expandedColumns"></sql-string></li>
           </ul>
         </div>
       </div>
