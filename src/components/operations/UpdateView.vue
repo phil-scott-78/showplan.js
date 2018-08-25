@@ -12,7 +12,7 @@
     <h4>Set Predicate</h4>
     <list-or-div v-bind:data="update.SetPredicate">
       <template slot-scope="{ item }">
-        <sql-string :sql="'SET ' +  item.ScalarOperator.ScalarString"></sql-string>
+        <sql-string :sql="'SET ' +  item.ScalarOperator.ScalarString" :expandedColumns="expandedChildColumns"></sql-string>
       </template>
     </list-or-div>
   </div>
@@ -21,7 +21,7 @@
 
 <script lang='ts'>
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator';
-import { RelOp, Update } from '@/parser/showplan';
+import { RelOp, Update, ExpandedComputedColumn } from '@/parser/showplan';
 
 import SqlString from './SqlString.vue';
 import ListOrDiv from '../ListOrDiv.vue';
@@ -34,6 +34,10 @@ export default class UpdateView extends Vue {
 
   private get update(): Update {
     return this.operation.Action as Update;
+  }
+
+  private get expandedChildColumns(): ExpandedComputedColumn[] {
+    return this.operation.GetChildExpandedComputedColumns();
   }
 }
 </script>

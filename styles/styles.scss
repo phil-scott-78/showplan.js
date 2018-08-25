@@ -55,6 +55,28 @@ div.message {
       .subheading {font-weight: normal;}
     }
 
+    abbr[data-title] {
+      border-bottom: 1px dotted var(--orange);
+      text-decoration: none;
+      cursor: help;
+
+      &:hover {
+        border-bottom-style: solid;
+      }
+
+      &:hover::after {
+        position: absolute;
+        width: 300px;
+        display: block;
+        padding: 1em;
+        background: var(--alt-background);
+        border: 1px solid var(--alt-border);
+        border-radius: 3px;
+        content: attr(data-title);
+        box-shadow: 0 4px 2px -2px rgba(0,0,0,0.3);
+      }
+  }
+
     ul.small {
       padding: 0 0 0 1.5rem;
       margin: .5rem 0 0 0;

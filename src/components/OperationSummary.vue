@@ -74,9 +74,10 @@
       <div class="content max-height">
         <h4>Output</h4>
         <div class="small" v-for="(key, index) in groupedOutput" v-bind:key="index">
-          <span v-if="key.key !== ''">{{ key.key | stripBrackets }}</span><span v-else>Computed</span>
+          <span v-if="key.key !== ''"><sql-string :sql="key.key"></sql-string></span>
+          <span v-else>Computed</span>
           <ul class="comma-list">
-            <li v-for="(member, memberIndex) in key.members" v-bind:key="memberIndex">{{ member.Column }}</li>
+            <li v-for="(member, memberIndex) in key.members" v-bind:key="memberIndex"><sql-string :sql="member.Column" :expandedColumns="expandedColumns"></sql-string></li>
           </ul>
         </div>
       </div>
@@ -97,7 +98,7 @@
 
 <script lang='ts'>
 import { Vue, Component, Prop} from 'vue-property-decorator';
-import { BaseStmtInfo, RelOp, ObjectType } from '@/parser/showplan';
+import { BaseStmtInfo, RelOp, ObjectType, ExpandedComputedColumn } from '@/parser/showplan';
 import * as ShowPlan from '@/parser/showplan';
 
 import SortBy from './operations/SortByView.vue';
@@ -218,6 +219,10 @@ export default class OperationSummary extends Vue {
     }
 
     return this.operation.LogicalOp;
+  }
+
+  private get expandedColumns(): ExpandedComputedColumn[] {
+    return this.operation.ExpandedComputedColumns;
   }
 
   public get runtimeCountersSummary(): ShowPlan.RunTimeInformationTypeRunTimeCountersPerThread | undefined {

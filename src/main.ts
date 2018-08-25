@@ -5,6 +5,8 @@ import 'normalize.css';
 import './../styles/styles.scss';
 import * as numbro from 'numbro';
 
+import './string-extensions';
+
 Vue.config.productionTip = false;
 
 setFilters();
@@ -64,8 +66,3 @@ function setFilters() {
     return numbro(value).format({ output: 'ordinal' });
   });
 }
-
-String.prototype.replaceAll = function(this: string, search: string, replace: string) {
-  const s = this;
-  return s.split(search).join(replace);
-};

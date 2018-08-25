@@ -1,4 +1,5 @@
 import { Guid } from 'guid-typescript';
+import '@/string-extensions';
 
 /** This is the root element */
 export class ShowPlanXML {
@@ -86,6 +87,13 @@ export class RelOp {
   public EstimateRebinds: number;
   public EstimateRewinds: number;
   public EstimateRows: number;
+  public get ExpandedComputedColumns(): ExpandedComputedColumn[] {
+    if (this.expandedComputedColumns === undefined) {
+      this.expandedComputedColumns = this.GetExpandedComputedColumns();
+    }
+
+    return this.expandedComputedColumns!;
+  }
   public GroupExecuted?: boolean;
   public IsAdaptive?: boolean;
   public LogicalOp: LogicalOpType;
@@ -101,6 +109,8 @@ export class RelOp {
   public MemoryFractions?: MemoryFractions;
   public Action: RelOpAction;
   public Warnings?: Warnings;
+
+  private expandedComputedColumns?: ExpandedComputedColumn[];
 
   constructor(
     Action: RelOpAction,
@@ -132,60 +142,75 @@ export class RelOp {
     this.OutputList = OutputList;
   }
 
-  /* replaced with child items
-  AdaptiveJoin: AdaptiveJoin;
-  Assert: Filter;
-  BatchHashTableBuild: BatchHashTableBuild;
-  Bitmap: Bitmap;
-  Collapse: Collapse;
-  ComputeScalar: ComputeScalar;
-  Concat: Concat;
-  ConstantScan: ConstantScan;
-  CreateIndex: CreateIndex;
-  DeletedScan: Rowset;
-  Extension: UDX;
-  Filter: Filter;
-  ForeignKeyReferencesCheck: ForeignKeyReferencesCheck;
-  Generic: Generic;
-  Hash: Hash;
-  IndexScan: IndexScan;
-  InsertedScan: Rowset;
-  InternalInfo?: InternalInfo;
-  LogRowScan: RelOp;
-  Merge: Merge;
-  MergeInterval: SimpleIteratorOneChild;
-  NestedLoops: NestedLoops;
-  OnlineIndex: CreateIndex;
-  Parallelism: Parallelism;
-  ParameterTableScan: RelOp;
-  PrintDataflow: RelOp;
-  Put: Put;
-  RemoteFetch: RemoteFetch;
-  RemoteModify: RemoteModify;
-  RemoteQuery: RemoteQuery;
-  RemoteRange: RemoteRange;
-  RemoteScan: Remote;
-  RowCountSpool: Spool;
-  RunTimePartitionSummary?: RunTimePartitionSummary;
-  ScalarInsert: ScalarInsert;
-  Segment: Segment;
-  Sequence: Sequence;
-  SequenceProject: ComputeScalar;
-  SimpleUpdate: SimpleUpdate;
-  Sort: Sort | undefined;
-  Split: Split | undefined;
-  Spool: Spool | undefined;
-  StreamAggregate: StreamAggregate | undefined;
-  Switch: Switch | undefined;
-  TableScan: TableScan | undefined;
-  TableValuedFunction: TableValuedFunction | undefined;
-  Top: Top | undefined;
-  TopSort: TopSort;
-  Update: Update;
-  Warnings?: Warnings;
-  WindowAggregate: WindowAggregate;
-  WindowSpool: Window;
-  */
+  public GetChildExpandedComputedColumns(): ExpandedComputedColumn[] {
+    let childExpanded: ExpandedComputedColumn[] = [];
+
+    for (const relOp of this.Action.RelOp) {
+      childExpanded = childExpanded.concat(relOp.ExpandedComputedColumns);
+    }
+
+    return childExpanded;
+  }
+
+  private GetExpandedComputedColumns(): ExpandedComputedColumn[] {
+    let childExpanded: ExpandedComputedColumn[] = [];
+
+    for (const relOp of this.Action.RelOp) {
+      childExpanded = childExpanded.concat(relOp.GetExpandedComputedColumns());
+    }
+
+    const expand = (definedValue: DefinedValue, childColumns: ExpandedComputedColumn[]): ExpandedComputedColumn | undefined => {
+      if (definedValue.ScalarOperator === undefined || definedValue.ScalarOperator.ScalarString === undefined) {
+        // if we can't find a scalar string we have nothing to expand
+        return undefined;
+      }
+
+      if (definedValue.ColumnReference === undefined || definedValue.ColumnReference.length !== 1) {
+        // don't mess with anything with multiple columns or nothing defined
+        return undefined;
+      }
+
+      const columnRef = definedValue.ColumnReference[0];
+
+      if (columnRef.Table !== undefined) {
+        // if we have a table name here then I have no idea what's happened. bail
+        return undefined;
+      }
+
+      let expanded = definedValue.ScalarOperator!.ScalarString!;
+      for (const child of childColumns) {
+        expanded = expanded.replaceAll(child.Column, child.Value);
+      }
+
+      return new ExpandedComputedColumn(columnRef.Column, expanded);
+    };
+
+
+    if (this.Action.DefinedValues !== undefined) {
+      for (const definedValue of this.Action.DefinedValues) {
+        const expandedChild = expand(definedValue, childExpanded);
+        if (expandedChild !== undefined) {
+          // not sure what happenes here with columns referencing themselves in later
+          if (childExpanded.findIndex((i) => i.Column === expandedChild.Column) === -1) {
+            childExpanded.push(expandedChild);
+          }
+        }
+      }
+    }
+
+
+    return childExpanded;
+  }
+}
+
+export class ExpandedComputedColumn {
+  public Column: string;
+  public Value: string;
+
+  constructor(column: string, value: string) {
+    this.Column = column;
+    this.Value = value;
+  }
 }
 
 export class Rowset extends RelOpAction {
@@ -986,7 +1011,7 @@ export class OrderByTypeOrderByColumn {
       return this.ColumnReference.toString() + ' ASC';
     }
 
-    return this.ColumnReference.toString() + 'DESC';
+    return this.ColumnReference.toString() + ' DESC';
   }
 }
 

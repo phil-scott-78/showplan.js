@@ -3,16 +3,16 @@
       <div class="content" v-if="stremAggregate.GroupBy !== undefined && stremAggregate.GroupBy.length > 0">
         <h4>Group By</h4>
         <ul class="small">
-          <li v-for="(column, index) in stremAggregate.GroupBy" :key="index"><sql-string :sql="column.toString()"></sql-string></li>
+          <li v-for="(column, index) in stremAggregate.GroupBy" :key="index"><sql-string :sql="column.toString()" :expandedColumns="expandedChildColumns"></sql-string></li>
         </ul>
       </div>
-      <defined-values v-if="stremAggregate.DefinedValues !== undefined && stremAggregate.DefinedValues.length > 0" :definedValues="stremAggregate.DefinedValues"></defined-values>
+      <defined-values v-if="stremAggregate.DefinedValues !== undefined && stremAggregate.DefinedValues.length > 0" :definedValues="stremAggregate.DefinedValues" :expandedColumns="expandedChildColumns"></defined-values>
     </div>
 </template>
 
 <script lang='ts'>
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator';
-import { RelOp, StreamAggregate } from '@/parser/showplan';
+import { RelOp, StreamAggregate, ExpandedComputedColumn } from '@/parser/showplan';
 
 import DefinedValues from './DefinedValues.vue';
 import SqlString from './SqlString.vue';
@@ -25,6 +25,10 @@ export default class StreamAggregateView extends Vue {
 
   private get stremAggregate(): StreamAggregate {
     return this.operation.Action as StreamAggregate;
+  }
+
+  private get expandedChildColumns(): ExpandedComputedColumn[] {
+    return this.operation.GetChildExpandedComputedColumns();
   }
 }
 </script>

@@ -4,7 +4,7 @@
     <h4>Predicate</h4>
     <list-or-div v-bind:data="indexScan.Predicate">
       <template slot-scope="{ item }">
-        <sql-string :sql="item.ScalarOperator.ScalarString"></sql-string>
+        <sql-string :sql="item.ScalarOperator.ScalarString" :expandedColumns="expandedChildColumns"></sql-string>
       </template>
     </list-or-div>
   </div>
@@ -16,7 +16,7 @@
           <template slot-scope="keyItem">
             <list-or-div v-bind:data="keyItem.item.toStrings()">
               <template slot-scope="keyString">
-                {{ keyString.item.key }} - <sql-string :sql="keyString.item.value"></sql-string>
+                {{ keyString.item.key }} - <sql-string :sql="keyString.item.value" :expandedColumns="expandedChildColumns"></sql-string>
               </template>
             </list-or-div>
           </template>
@@ -30,7 +30,7 @@
       <template slot-scope="{ item }">
         <list-or-div v-bind:data="item.toStrings()">
           <template slot-scope="keyString">
-            {{ keyString.item.key }} - <sql-string :sql="keyString.item.value"></sql-string>
+            {{ keyString.item.key }} - <sql-string :sql="keyString.item.value" :expandedColumns="expandedChildColumns"></sql-string>
           </template>
         </list-or-div>
       </template>
@@ -46,7 +46,7 @@
 
 <script lang='ts'>
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator';
-import { RelOp, IndexScan as indexScan } from '@/parser/showplan';
+import { RelOp, ExpandedComputedColumn, IndexScan } from '@/parser/showplan';
 
 import SqlString from './SqlString.vue';
 import ListOrDiv from '../ListOrDiv.vue';
@@ -57,8 +57,12 @@ import ListOrDiv from '../ListOrDiv.vue';
 export default class IndexScanView extends Vue {
   @Prop() public operation!: RelOp;
 
-  private get indexScan(): indexScan {
-    return this.operation.Action as indexScan;
+  private get indexScan(): IndexScan {
+    return this.operation.Action as IndexScan;
+  }
+
+  private get expandedChildColumns(): ExpandedComputedColumn[] {
+    return this.operation.GetChildExpandedComputedColumns();
   }
 }
 </script>
