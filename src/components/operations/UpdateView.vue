@@ -4,6 +4,7 @@
     <div v-for="(object, index) in update.Object" :key="index" class="content">
       <h4>{{ object.IndexKind }} Update</h4>
       <ul class="small">
+        <li><sql-string :sql="object.getFullTableName()"></sql-string></li>
         <li><sql-string :sql="object.Index"></sql-string></li>
       </ul>
     </div>

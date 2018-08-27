@@ -112,6 +112,8 @@ import ConcatOp from './operations/ConcatView.vue';
 import TopOp from './operations/TopView.vue';
 import NestedLoop from './operations/NestedLoopView.vue';
 import UpdateOp from './operations/UpdateView.vue';
+import InsertOp from './operations/InsertView.vue';
+import MergeJoinOp from './operations/MergeJoinView.vue';
 
 import Warnings from './operations/Warnings.vue';
 
@@ -132,6 +134,8 @@ import TreeView from 'vue-json-tree';
     TopOp,
     NestedLoop,
     UpdateOp,
+    InsertOp,
+    MergeJoinOp,
     Warnings,
     TreeView,
   },
@@ -179,6 +183,10 @@ export default class OperationSummary extends Vue {
       return 'nested-loop';
     } else if (this.operation.Action instanceof ShowPlan.Update) {
       return 'update-op';
+    } else if (this.operation.Action instanceof ShowPlan.CreateIndex) {
+      return 'insert-op';
+    } else if (this.operation.Action instanceof ShowPlan.Merge) {
+      return 'merge-join-op';
     }
 
     return undefined;
