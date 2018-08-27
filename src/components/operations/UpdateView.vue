@@ -5,7 +5,7 @@
       <h4>{{ object.IndexKind }} Update</h4>
       <ul class="small">
         <li><sql-string :sql="object.getFullTableName()"></sql-string></li>
-        <li><sql-string :sql="object.Index"></sql-string></li>
+        <li v-if="object.Index !== undefined"><sql-string :sql="object.Index"></sql-string></li>
       </ul>
     </div>
   </div>

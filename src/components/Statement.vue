@@ -17,7 +17,7 @@
     <highlight-sql-statement :statementText="fullStatementText"></highlight-sql-statement>
   </div>
 
-  <div v-if="statement.QueryPlan.MissingIndexes !== undefined">
+  <div v-if="statement.QueryPlan != undefined && statement.QueryPlan.MissingIndexes !== undefined">
     <div class="message warning">
       <h4>Missing Indexes</h4>
       <ul v-for="(indexGroup, indexGroupIndex) in statement.QueryPlan.MissingIndexes.MissingIndexGroup" :key="indexGroupIndex">

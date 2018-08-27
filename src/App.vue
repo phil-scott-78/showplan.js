@@ -1,6 +1,7 @@
 <template>
   <div id="app">
     <header-menu @plan-changed="planXmlChanged" :currentPlan="showPlan"></header-menu>
+    <div class="message warning" v-if="errorMessage !== undefined">{{ errorMessage }}</div>
     <component v-bind:is="currentComponent" :statement="currentStatement" :showPlan="showPlan" @showplan-changed="planXmlChanged" @showplan-statement-changed="statementChanged"></component>
     <p class="footer">Everything is ran in browser so no files will be uploaded. I can't afford the storage space anyways</p>
   </div>
@@ -19,12 +20,15 @@ import * as ShowPlan from '@/parser/showplan';
     return {
       showPlan: undefined,
       selectedStatementGuid: undefined,
+      errorMessage: undefined,
     };
   },
 })
 export default class App extends Vue {
   public showPlan: ShowPlan.ShowPlanXML | undefined;
   public selectedStatementGuid: string | undefined;
+
+  private errorMessage: string | undefined;
 
   public get currentComponent(): string {
     if (this.showPlan === undefined) {
@@ -73,6 +77,8 @@ export default class App extends Vue {
   }
 
   public planXmlChanged(plan: string | undefined) {
+    this.errorMessage = undefined;
+
     if (plan === undefined) {
       this.showPlan = undefined;
       return;
@@ -80,8 +86,13 @@ export default class App extends Vue {
 
     const vm = this;
     import('@/parser/showplan-parser').then((showPlanParser) => {
-      const parser = new showPlanParser.ShowPlanParser();
-      this.showPlanChanged(parser.Parse(plan!));
+      try {
+        const parser = new showPlanParser.ShowPlanParser();
+        this.showPlanChanged(parser.Parse(plan!));
+      } catch (e) {
+        this.errorMessage = e.message;
+      }
+
     });
   }
 }
