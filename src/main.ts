@@ -11,8 +11,6 @@ Vue.config.productionTip = false;
 
 setFilters();
 
-import SqlString from '@/components/operations/SqlString.vue';
-
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { faGithub } from '@fortawesome/free-brands-svg-icons';
 import { faCloudUploadAlt } from '@fortawesome/free-solid-svg-icons';
@@ -21,7 +19,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
 library.add(faGithub, faCloudUploadAlt, faChevronCircleDown);
 Vue.component('font-awesome-icon', FontAwesomeIcon);
-Vue.component('sql-string', SqlString);
+Vue.component('sql-string', () => import('@/components/operations/SqlString.vue'));
 
 new Vue({
   render: (h) => h(App),
