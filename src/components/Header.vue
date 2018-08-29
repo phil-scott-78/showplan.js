@@ -6,8 +6,8 @@
     <div class="actions">
 
       <a href="https://github.com/phil-scott-78/showplan.js" class="item"><font-awesome-icon :icon="['fab', 'github']" /></a>
-      <a v-if="currentPlan === undefined" @click="loadSample" class="item">Load Sample</a>
-      <a v-else @click="planChanged(undefined)" class="item">New Plan</a>
+      <button v-if="currentPlan === undefined" @click="loadSample" class="item">Load Sample</button>
+      <button v-else @click="planChanged(undefined)" class="item">New Plan</button>
     </div>
   </div>
 </template>
@@ -64,6 +64,12 @@ export default class Header extends Vue {
     text-align: right;
 
     a {color: inherit;}
+
+    button {
+      border: none;
+      background-color: var(--alt-background);
+      color: var(--foreground);
+    }
 
     .item {
       border-left: 1px solid var(--alt-border);
