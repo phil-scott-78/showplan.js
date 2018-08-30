@@ -28,7 +28,7 @@ export default class Header extends Vue {
         this.planChanged(request.responseText);
       }
     };
-    request.open('GET', 'users-with-post-count-and-comment-count.sqlplan');
+    request.open('GET', 'users-with-post-count-and-comment-count.xml');
     request.send();
   }
 
