@@ -1,22 +1,23 @@
 <template>
+  <div class="chart-wrapper">
     <svg :width="width" :height="width">
-    <g>
-      <g :transform="'translate(' + width / 2 + ',' + width  /2 + ')'">
-        <a v-for="(line, index) in lines" v-bind:key="index" :title="line.data.LogicalOp" v-on:mouseout="hover(undefined)" v-on:mouseover="hover(line)" v-on:click="operationClicked(line)">
-          <g>
-            <path :d="arc(line)" :stroke="getStroke(line)" :opacity="getOpacity(line)" :fill="getFill(line)" />
-            <polygon v-if="line.data.Warnings !== undefined" :transform="getIconLocation(line)"  fill="var(--orange)" stroke="var(--alt-background)" points="0,-5 -5,5 5,5"/>
+      <g>
+        <g :transform="'translate(' + width / 2 + ',' + width  /2 + ')'">
+          <g v-for="(line, index) in lines" v-bind:key="index" :title="line.data.LogicalOp" v-on:mouseout="hover(undefined)" v-on:mouseover="hover(line)" v-on:click="operationClicked(line)">
+            <path :d="arc(line)" :stroke="getStroke(line)" :fill-opacity="getOpacity(line)" :fill="getFill(line)"></path>
+            <polygon v-if="line.data.Warnings !== undefined" :transform="getIconLocation(line)"  fill="var(--orange)" stroke="var(--alt-background)" points="0,-5 -5,5 5,5"></polygon>
+            <text v-if="line.data.NodeId == -1" text-anchor="middle" fill="var(--foreground)" alignment-baseline="middle" style="font-weight:normal;font-size:1.5rem">{{ statement.StatementType }}</text>
           </g>
-        </a>
+        </g>
       </g>
-    </g>
-  </svg>
+    </svg>
+  </div>
 </template>
 
 <script lang='ts'>
 import { Vue, Component, Prop, Watch, Emit } from 'vue-property-decorator';
 
-import * as ShowPlan from '@/parser/showplan';
+import * as ShowPlan from '../parser/showplan';
 import { hierarchy, partition, HierarchyRectangularNode } from 'd3-hierarchy';
 import { arc } from 'd3-shape';
 import { normalize } from 'path';
@@ -24,9 +25,13 @@ import { normalize } from 'path';
 @Component({
 })
 export default class ShowPlanSunburst extends Vue {
-  @Prop() public queryPlan!: ShowPlan.QueryPlan;
+  @Prop() public statement!: ShowPlan.StmtSimple;
   @Prop({ default: 500 }) public width!: number;
   @Prop({ default: undefined }) public selectedNode!: ShowPlan.RelOp | undefined;
+
+  private get queryPlan(): ShowPlan.QueryPlan {
+    return this.statement!.QueryPlan!;
+  }
 
   private get highlightedNode(): HierarchyRectangularNode<ShowPlan.RelOp> | undefined {
     if (this.selectedNode === undefined) {
@@ -49,19 +54,19 @@ export default class ShowPlanSunburst extends Vue {
     .endAngle((d) => d.x1)
     .padAngle((d) => Math.min((d.x1 - d.x0) / 2, 0.005))
     .padRadius(this.radius / 2)
-    .innerRadius((d) => d.y0)
-    .outerRadius((d) => d.y1 - 1);
+    .innerRadius((d) => Math.sqrt(d.y0))
+    .outerRadius((d) => Math.sqrt(d.y1) - 1);
 
   private colors: { [id: string]: string; } = {
-    operation: 'var(--green)',
-    data: 'var(--red)',
-    join: 'var(--blue)',
-    language: 'var(--orange)',
-    other: 'var(--purple)',
-    update: 'var(--purple)',
-    end: 'var(--grey)',
-    generic: 'var(--grey)',
-    root: 'var(--background)',
+    'performance': 'var(--green)',
+    'reading-data': 'var(--blue)',
+    'combining-data': 'var(--orange)',
+    'modifying-data': 'var(--red)',
+    'manipulating-data': 'var(--purple)',
+    'grouping-data': 'var(--light-blue)',
+    'remote': 'var(--brown)',
+    'operation': 'var(--grey)',
+    'root': 'var(--alt-background)',
   };
 
   @Emit('rel-op-selected')
@@ -76,7 +81,7 @@ export default class ShowPlanSunburst extends Vue {
 
   private getOpacity(node: HierarchyRectangularNode<ShowPlan.RelOp>): number {
     if (this.highlightedNode === undefined) {
-      return 1;
+      return .9;
     }
 
     for (const childNode of this.highlightedNode.descendants()) {
@@ -85,24 +90,38 @@ export default class ShowPlanSunburst extends Vue {
       }
     }
 
-/*
-    for (const parentNodes of this.highlightedNode.ancestors()) {
-      if (node.data.NodeId === parentNodes.data.NodeId) {
-        return .9;
+    for (const childNode of this.highlightedNode.ancestors()) {
+      if (node.data.NodeId === childNode.data.NodeId) {
+        return .6;
       }
     }
-*/
 
-    return .7;
+    return .05;
   }
 
   private getStroke(node: HierarchyRectangularNode<ShowPlan.RelOp>): string {
-    return 'var(--background)';
+    if (this.highlightedNode === undefined) {
+      return 'var(--background)'; // this.colors[this.getOperationType(node.data.PhysicalOp)];
+    }
+
+    for (const childNode of this.highlightedNode.descendants()) {
+      if (node.data.NodeId === childNode.data.NodeId) {
+        return 'var(--background)';
+      }
+    }
+
+    for (const childNode of this.highlightedNode.ancestors()) {
+      if (node.data.NodeId === childNode.data.NodeId) {
+        return 'var(--background)';
+      }
+    }
+
+    return this.colors[this.getOperationType(node.data.PhysicalOp)];
+
   }
 
   private getFill(node: HierarchyRectangularNode<ShowPlan.RelOp>): string {
-    const operationType = this.getOperationType(node.data.LogicalOp);
-    return this.colors[operationType];
+    return this.colors[this.getOperationType(node.data.PhysicalOp)];
   }
 
   private getIconLocation(node: HierarchyRectangularNode<ShowPlan.RelOp>): string {
@@ -132,43 +151,86 @@ export default class ShowPlanSunburst extends Vue {
     this.statementSelected(op.data);
   }
 
-  private getOperationType(logicalOp: string) {
-    switch (logicalOp) {
-      case 'Generic':
-        return 'generic';
+  private getOperationType(physicalOp: ShowPlan.PhysicalOp): operationType {
+    switch (physicalOp) {
+      case 'Constant Scan':
       case 'Clustered Index Scan':
       case 'Clustered Index Seek':
       case 'Index Seek':
       case 'Index Scan':
       case 'Table Scan':
-        return 'data';
-      case 'Cross Join':
-      case 'Inner Join':
-      case 'Left Anti Semi Join':
-      case 'Left Outer Join':
-      case 'Left Semi Join':
-      case 'Right Anti Semi Join':
-      case 'Right Outer Join':
-      case 'Right Semi Join':
-      case 'Merge':
-        return 'join';
+      case 'RID Lookup':
+      case 'Key Lookup':
+      case 'Columnstore Index Scan':
+      case 'Log Row Scan':
+      case 'Deleted Scan':
+      case 'Inserted Scan':
+        return 'reading-data';
+      case 'Nested Loops':
+      case 'Merge Join':
+      case 'Hash Match':
+      case 'Adaptive Join':
+      case 'Sequence':
+      case 'Concatenation':
+      case 'Switch':
+        return 'combining-data';
+      case 'Sort':
+      case 'Stream Aggregate':
+      case 'Window Aggregate':
+      case 'Segment':
+        return 'grouping-data';
+      case 'Compute Scalar':
+      case 'Filter':
+      case 'Top':
+      case 'Sequence Project':
+        return 'manipulating-data';
+      case 'Table Spool':
+      case 'Row Count Spool':
+      case 'Index Spool':
+      case 'Window Spool':
+      case 'Bitmap':
+      case 'Parallelism':
+      case 'Parameter Table Scan':
+        return 'performance';
+      case 'Table Delete':
+      case 'Table Insert':
+      case 'Table Merge':
+      case 'Table Update':
+      case 'Index Delete':
+      case 'Index Insert':
+      case 'Index Update':
+      case 'Columnstore Index Delete':
+      case 'Columnstore Index Insert':
+      case 'Columnstore Index Merge':
+      case 'Columnstore Index Update':
+      case 'Clustered Index Delete':
+      case 'Clustered Index Insert':
+      case 'Clustered Index Merge':
+      case 'Clustered Index Update':
+      case 'Clustered Update':
+      case 'Assert':
+      case 'Split':
+      case 'Collapse':
+        return 'modifying-data';
+      case 'Remote Delete':
+      case 'Remote Index Scan':
+      case 'Remote Index Seek':
+      case 'Remote Insert':
+      case 'Remote Query':
+      case 'Remote Scan':
+      case 'Remote Update':
+        return 'remote';
       case 'Root':
         return 'root';
-      case 'Repartition Streams':
-      case 'Gather Streams':
-      case 'Distribute Streams':
-        return 'other';
-      case 'Update':
-        return 'update';
       default:
-          return 'operation';
+        return 'operation';
     }
   }
 
   private root(): HierarchyRectangularNode<ShowPlan.RelOp> {
     const vm = this;
     const partitionFunc = partition<ShowPlan.RelOp>()
-      .size([2 * Math.PI, this.radius]);
+      .size([2 * Math.PI, this.radius * this.radius]);
 
 
     // fudge a minimum size so that everything at least shows up as a sliver
@@ -202,6 +264,18 @@ class ParentRelOp extends ShowPlan.RelOp {
 
 class ParentRelOpAction extends ShowPlan.RelOpAction {
 }
+
+type operationType =
+  | 'reading-data'
+  | 'manipulating-data'
+  | 'modifying-data'
+  | 'combining-data'
+  | 'grouping-data'
+  | 'remote'
+  | 'operation'
+  | 'performance'
+  | 'root';
+
 </script>
 
 <style lang="scss">
@@ -210,7 +284,7 @@ class ParentRelOpAction extends ShowPlan.RelOpAction {
   }
 
   svg path {
-    transition: opacity .15s ease;
+    transition: all .5s ease;
     cursor: pointer;
   }
 </style>

@@ -29,11 +29,11 @@
 
   <div v-if="statement.QueryPlan !== undefined" class="queryplan">
     <div class="visualization">
-      <show-plan-sunburst width="600" v-bind:queryPlan="statement.QueryPlan" :selectedNode="displayedOp" v-on:rel-op-selected="relOpSelected" v-on:rel-op-highlighted="relOpHighlighted"></show-plan-sunburst>
+      <show-plan-sunburst width="600" :statement="statement" :selectedNode="displayedOp" @rel-op-selected="relOpSelected" @rel-op-highlighted="relOpHighlighted"></show-plan-sunburst>
     </div>
     <div class="details">
       <div v-if="displayedOp !== undefined" class="opSummary">
-        <operation-summary v-bind:statement="statement" v-bind:operation="displayedOp"></operation-summary>
+        <operation-summary :statement="statement" :operation="displayedOp"></operation-summary>
       </div>
     </div>
   </div>
