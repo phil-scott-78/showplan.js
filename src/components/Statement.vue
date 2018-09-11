@@ -13,16 +13,16 @@
     </span>
   </h1>
 
-  <div v-if="fullStatementText !== undefined">
-    <highlight-sql-statement :statementText="fullStatementText"></highlight-sql-statement>
-  </div>
+  <div class="card" style="margin-bottom:2rem">
+    <component v-bind:is="selectedOverviewTab" :statement="statement"></component>
 
-  <div v-if="statement.QueryPlan != undefined && statement.QueryPlan.MissingIndexes !== undefined">
-    <div class="message warning">
-      <h4>Missing Indexes</h4>
-      <ul v-for="(indexGroup, indexGroupIndex) in statement.QueryPlan.MissingIndexes.MissingIndexGroup" :key="indexGroupIndex">
-        <li v-for="(index, indexIndex) in indexGroup.MissingIndex" :key="indexIndex">Impact: {{ indexGroup.Impact  | filterSigfig }}: <sql-string :sql="index.toCreateIndexString()"></sql-string></li>
-      </ul>
+    <div class="footer">
+      <div class="buttons">
+        <a @click="selectedOverviewTab='highlight-sql-statement'" :class="{ 'selected': selectedOverviewTab === 'highlight-sql-statement' }">Query Text</a>
+        <a @click="selectedOverviewTab='statement-overview'" :class="{ 'selected': selectedOverviewTab === 'statement-overview' }">Query Properties</a>
+        <a v-if="statement.QueryPlan != undefined && statement.QueryPlan.OptimizerStatsUsage !== undefined" @click="selectedOverviewTab='statistics-list'" :class="{ 'selected': selectedOverviewTab === 'statistics-list' }">Statistics Usage</a>
+        <a v-if="statement.QueryPlan != undefined && statement.QueryPlan.MissingIndexes !== undefined" @click="selectedOverviewTab='missing-indexes'" :class="{ 'selected': selectedOverviewTab === 'missing-indexes' }">Missing Indexes</a>
+      </div>
     </div>
   </div>
 
@@ -47,10 +47,13 @@ import ShowPlanSunburst from './ShowPlanSunburst.vue';
 import HighlightSqlStatement from './HighlightSqlStatement.vue';
 import OperationSummary from './OperationSummary.vue';
 import SelectPlan from './SelectPlan.vue';
+import StatementOverview from './StatementOverview.vue';
+import MissingIndexes from './MissingIndexes.vue';
+import StatisticsList from './StatisticsList.vue';
 
 @Component({
   components: {
-    ShowPlanSunburst, HighlightSqlStatement, OperationSummary, SelectPlan,
+    ShowPlanSunburst, HighlightSqlStatement, OperationSummary, SelectPlan, MissingIndexes, StatementOverview, StatisticsList,
   },
   data() {
     return {
@@ -65,6 +68,7 @@ export default class Statement extends Vue {
 
   private selectedOp: RelOp | undefined;
   private highlightedOp: RelOp | undefined;
+  private selectedOverviewTab: string = 'highlight-sql-statement';
 
   @Emit('showplan-statement-changed')
   public statementSelected(statementGuid: string) {
@@ -75,38 +79,6 @@ export default class Statement extends Vue {
     this.statementSelected(statementGuid);
   }
 
-  public get fullStatementText(): string | undefined {
-    let variableDeclarations = '';
-
-    if (this.statement.StatementText === undefined) {
-      return undefined;
-    }
-
-    if (this.statement instanceof StmtSimple) {
-      const statement = this.statement as StmtSimple;
-      if (statement.QueryPlan === undefined) {
-        return this.statement.StatementText;
-      }
-
-      if (statement.QueryPlan!.ParameterList !== undefined && statement.QueryPlan!.ParameterList!.length > 0) {
-        for (const param of statement.QueryPlan!.ParameterList!) {
-          if (param.ParameterRuntimeValue !== undefined) {
-            if (param.ParameterDataType !== undefined) {
-              variableDeclarations += `DECLARE ${param.Column} ${param.ParameterDataType}\n`;
-            }
-            variableDeclarations += `SET ${param.Column} = ${param.ParameterRuntimeValue}\n`;
-          }
-        }
-      }
-
-      if (variableDeclarations === '') {
-        return this.statement.StatementText!.trim();
-      }
-
-      return ('// runtime parameter declarations \n' + variableDeclarations + '\n' + this.statement.StatementText).trim();
-    }
-
-  }
 
   @Watch('statement')
   private OnStatementChanged(val: BaseStmtInfo, oldVal: BaseStmtInfo) {

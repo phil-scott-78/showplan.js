@@ -20,6 +20,7 @@
     "d3-hierarchy": "^1.1.8",
     "d3-path": "^1.0.7",
     "d3-shape": "^1.2.2",
+    "date-fns": "^2.0.0-alpha.16",
     "guid-typescript": "^1.0.7",
     "lodash": "^4.17.10",
     "normalize.css": "^8.0.0",

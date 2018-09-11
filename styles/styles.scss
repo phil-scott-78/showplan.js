@@ -46,7 +46,7 @@ div.message {
   font-size: .8rem;
   border-radius: $border-radius;
 
-  >:first-child {
+  .content:first-of-type {
     border-radius: $border-radius $border-radius 0 0!important;
     border-top: none!important;
   }
@@ -55,7 +55,7 @@ div.message {
     border: none;
     border-top: 1px solid var(--border);
     margin: 0;
-    padding: 1em 1em;
+    padding: 1rem;
 
     &.warning {
       background-color: var(--alt-background);
@@ -88,7 +88,21 @@ div.message {
         content: attr(data-title);
         box-shadow: 0 4px 2px -2px rgba(0,0,0,0.3);
       }
-  }
+    }
+
+    .pill {
+      font-size:.8rem;
+      border: 1px solid var(--alt-border);
+      border-radius: $border-radius;
+      padding:.1rem .25rem .25rem .25rem;
+      margin-right:.5rem;
+
+      &.on {
+        background-color: var(--green);
+        border-color: var(--green);
+        color: var(--background);
+      }
+    }
 
     ul.small {
       padding: 0 0 0 1.5rem;
@@ -165,6 +179,23 @@ div.message {
       white-space: nowrap;
       overflow: hidden;
     }
+  }
+
+  table.data {
+    width:100%;
+
+    th {text-align: left;}
+    th, td {
+      border-bottom: 1px solid var(--alt-border);
+      padding:.25rem;
+    }
+
+    tbody tr:last-child{
+     th, td {
+      border-bottom: none;
+    }
+  }
+
   }
 
   .json-tree {
