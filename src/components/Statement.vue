@@ -21,7 +21,7 @@
         <a @click="selectedOverviewTab='highlight-sql-statement'" :class="{ 'selected': selectedOverviewTab === 'highlight-sql-statement' }">Query Text</a>
         <a @click="selectedOverviewTab='statement-overview'" :class="{ 'selected': selectedOverviewTab === 'statement-overview' }">Query Properties</a>
         <a v-if="statement.QueryPlan != undefined && statement.QueryPlan.OptimizerStatsUsage !== undefined" @click="selectedOverviewTab='statistics-list'" :class="{ 'selected': selectedOverviewTab === 'statistics-list' }">Statistics Usage</a>
-        <a v-if="statement.QueryPlan != undefined && statement.QueryPlan.MissingIndexes !== undefined" @click="selectedOverviewTab='missing-indexes'" :class="{ 'selected': selectedOverviewTab === 'missing-indexes' }">Missing Indexes</a>
+        <a v-if="statement.QueryPlan != undefined && statement.QueryPlan.MissingIndexes !== undefined" @click="selectedOverviewTab='missing-indexes'" :class="{ 'selected': selectedOverviewTab === 'missing-indexes' }"> <font-awesome-icon style="color:var(--orange)" icon="exclamation-circle" /> Missing Indexes</a>
       </div>
     </div>
   </div>
