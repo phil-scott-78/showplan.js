@@ -23,36 +23,11 @@ export default class HighlightSqlStatement extends Vue {
   }
 
   public get fullStatementText(): string | undefined {
-    let variableDeclarations = '';
-
     if (this.statement.StatementText === undefined) {
       return undefined;
     }
 
-    if (this.statement instanceof StmtSimple) {
-      const statement = this.statement as StmtSimple;
-      if (statement.QueryPlan === undefined) {
-        return this.statement.StatementText;
-      }
-
-      if (statement.QueryPlan!.ParameterList !== undefined && statement.QueryPlan!.ParameterList!.length > 0) {
-        for (const param of statement.QueryPlan!.ParameterList!) {
-          if (param.ParameterRuntimeValue !== undefined) {
-            if (param.ParameterDataType !== undefined) {
-              variableDeclarations += `DECLARE ${param.Column} ${param.ParameterDataType}\n`;
-            }
-            variableDeclarations += `SET ${param.Column} = ${param.ParameterRuntimeValue}\n`;
-          }
-        }
-      }
-
-      if (variableDeclarations === '') {
-        return this.statement.StatementText!.trim();
-      }
-
-      return ('// runtime parameter declarations \n' + variableDeclarations + '\n' + this.statement.StatementText).trim();
-    }
-
+    return this.statement.StatementText!.trim();
   }
 }
 </script>

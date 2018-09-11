@@ -26,7 +26,7 @@ import { formatDistance } from 'date-fns';
 
 @Component({
 })
-export default class MissingIndexes extends Vue {
+export default class StatisticsList extends Vue {
   @Prop() public statement!: BaseStmtInfo;
 
   public formatDistance(date: Date): string {

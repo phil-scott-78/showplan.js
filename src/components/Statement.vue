@@ -20,6 +20,7 @@
       <div class="buttons">
         <a @click="selectedOverviewTab='highlight-sql-statement'" :class="{ 'selected': selectedOverviewTab === 'highlight-sql-statement' }">Query Text</a>
         <a @click="selectedOverviewTab='statement-overview'" :class="{ 'selected': selectedOverviewTab === 'statement-overview' }">Query Properties</a>
+        <a v-if="statement.QueryPlan != undefined && statement.QueryPlan.ParameterList !== undefined && statement.QueryPlan.ParameterList.length > 0" @click="selectedOverviewTab='query-parameters'" :class="{ 'selected': selectedOverviewTab === 'query-parameters' }">Query Parameters</a>
         <a v-if="statement.QueryPlan != undefined && statement.QueryPlan.OptimizerStatsUsage !== undefined" @click="selectedOverviewTab='statistics-list'" :class="{ 'selected': selectedOverviewTab === 'statistics-list' }">Statistics Usage</a>
         <a v-if="statement.QueryPlan != undefined && statement.QueryPlan.MissingIndexes !== undefined" @click="selectedOverviewTab='missing-indexes'" :class="{ 'selected': selectedOverviewTab === 'missing-indexes' }"> <font-awesome-icon style="color:var(--orange)" icon="exclamation-circle" /> Missing Indexes</a>
       </div>
@@ -50,10 +51,11 @@ import SelectPlan from './SelectPlan.vue';
 import StatementOverview from './StatementOverview.vue';
 import MissingIndexes from './MissingIndexes.vue';
 import StatisticsList from './StatisticsList.vue';
+import QueryParameters from './QueryParameters.vue';
 
 @Component({
   components: {
-    ShowPlanSunburst, HighlightSqlStatement, OperationSummary, SelectPlan, MissingIndexes, StatementOverview, StatisticsList,
+    ShowPlanSunburst, HighlightSqlStatement, OperationSummary, SelectPlan, MissingIndexes, StatementOverview, StatisticsList, QueryParameters,
   },
   data() {
     return {
