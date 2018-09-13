@@ -1,12 +1,18 @@
 <template>
   <div class="chart-wrapper">
-    <svg :width="width" :height="width">
+    <svg :width="width" :height="width" :viewBox="viewBox">
       <g>
-        <g :transform="'translate(' + width / 2 + ',' + width  /2 + ')'">
-          <g v-for="(line, index) in lines" v-bind:key="index" :title="line.data.LogicalOp" v-on:mouseout="hover(undefined)" v-on:mouseover="hover(line)" v-on:click="operationClicked(line)">
-            <path :d="arc(line)" :stroke="getStroke(line)" :fill-opacity="getOpacity(line)" :fill="getFill(line)"></path>
+        <g>
+          <g class="slice" v-for="(line, index) in lines" :key="index" :title="line.data.LogicalOp" v-on:mouseout="hover(undefined)" v-on:mouseover="hover(line)" v-on:click="operationClicked(line)">
+            <path :d="arc(line)" class="main-arc" :stroke="getStroke(line)" :fill-opacity="getOpacity(line)" :fill="getFill(line)"></path>
+            <path :d="middleArc(line)" class="hidden-arc" :id="'hiddenTextArc' + index + statement.QueryHash"></path>
             <polygon v-if="line.data.Warnings !== undefined" :transform="getIconLocation(line)"  fill="var(--orange)" stroke="var(--alt-background)" points="0,-5 -5,5 5,5"></polygon>
             <text v-if="line.data.NodeId == -1" text-anchor="middle" fill="var(--foreground)" alignment-baseline="middle" style="font-weight:normal;font-size:1.5rem">{{ statement.StatementType }}</text>
+            <text v-else-if="textFits(line)" class="operationName" dominant-baseline="middle" :fill="getLabelColor(line)" :style="{ fontSize: (y(line.y1) - y(line.y0)) / 2 + 'px' }" >
+              <textPath startOffset="50%" :href="'#hiddenTextArc' + index + statement.QueryHash">
+                {{ line.data.LogicalOp }}
+              </textPath>
+            </text>
           </g>
         </g>
       </g>
@@ -14,20 +20,20 @@
   </div>
 </template>
 
+
 <script lang='ts'>
 import { Vue, Component, Prop, Watch, Emit } from 'vue-property-decorator';
 
 import * as ShowPlan from '../parser/showplan';
 import { hierarchy, partition, HierarchyRectangularNode } from 'd3-hierarchy';
 import { arc } from 'd3-shape';
+import { path } from 'd3-path';
+import { scaleLinear, scaleSqrt, scaleLog, scalePow } from 'd3-scale';
 import { normalize } from 'path';
 
 @Component({
 })
 export default class ShowPlanSunburst extends Vue {
-  @Prop() public statement!: ShowPlan.StmtSimple;
-  @Prop({ default: 500 }) public width!: number;
-  @Prop({ default: undefined }) public selectedNode!: ShowPlan.RelOp | undefined;
 
   private get queryPlan(): ShowPlan.QueryPlan {
     return this.statement!.QueryPlan!;
@@ -41,6 +47,10 @@ export default class ShowPlanSunburst extends Vue {
     return this.root().descendants().filter((i) => i.data.NodeId === this.selectedNode!.NodeId)[0];
   }
 
+  private get viewBox(): string {
+    return `${-this.width / 2} ${-this.width / 2} ${this.width} ${this.width}`;
+  }
+
   private get radius(): number  {
     return this.width / 2;
   }
@@ -48,14 +58,24 @@ export default class ShowPlanSunburst extends Vue {
   private get lines(): Array<HierarchyRectangularNode<ShowPlan.RelOp>> {
     return this.root().descendants();
   }
+  @Prop() public statement!: ShowPlan.StmtSimple;
+  @Prop({ default: 500 }) public width!: number;
+  @Prop({ default: undefined }) public selectedNode!: ShowPlan.RelOp | undefined;
+
+  private x = scaleLinear()
+    .range([0, 2 * Math.PI])
+    .clamp(true);
+
+  private y = scaleSqrt()
+    .range([0, this.radius]);
 
   private arc = arc<HierarchyRectangularNode<ShowPlan.RelOp>>()
-    .startAngle((d) => d.x0)
-    .endAngle((d) => d.x1)
+    .startAngle((d) => this.x(d.x0))
+    .endAngle((d) => this.x(d.x1))
     .padAngle((d) => Math.min((d.x1 - d.x0) / 2, 0.005))
     .padRadius(this.radius / 2)
-    .innerRadius((d) => Math.sqrt(d.y0))
-    .outerRadius((d) => Math.sqrt(d.y1) - 1);
+    .innerRadius((d) => Math.max(0, this.y(d.y0)))
+    .outerRadius((d) => Math.max(0, this.y(d.y1) - 1));
 
   private colors: { [id: string]: string; } = {
     'performance': 'var(--green)',
@@ -77,6 +97,34 @@ export default class ShowPlanSunburst extends Vue {
   @Emit('rel-op-highlighted')
   public statementHighlighted(op: ShowPlan.RelOp | undefined) {
     //
+  }
+
+  private textFits = (d: HierarchyRectangularNode<ShowPlan.RelOp>) => {
+    if ((this.y(d.y1) - this.y(d.y0)) / 2 < 6) {
+      return false;
+    }
+
+    const CHAR_SPACE = 7;
+
+    const deltaAngle = this.x(d.x1) - this.x(d.x0);
+    const r = Math.max(0, (this.y(d.y0) + this.y(d.y1)) / 2);
+    const perimeter = r * deltaAngle;
+
+    return d.data.LogicalOp.length * CHAR_SPACE < perimeter;
+  }
+
+  private middleArc = (d: HierarchyRectangularNode<ShowPlan.RelOp>) => {
+    const halfPi = Math.PI / 2;
+    const angles = [this.x(d.x0) - halfPi, this.x(d.x1) - halfPi];
+    const r = Math.max(0, (this.y(d.y0) + this.y(d.y1)) / 2);
+
+    const middleAngle = (angles[1] + angles[0]) / 2;
+    const invertDirection = middleAngle > 0 && middleAngle < Math.PI; // On lower quadrants write text ccw
+    if (invertDirection) { angles.reverse(); }
+
+    const pathBuilder = path();
+    pathBuilder.arc(0, 0, r, angles[0], angles[1], invertDirection);
+    return pathBuilder.toString();
   }
 
   private getOpacity(node: HierarchyRectangularNode<ShowPlan.RelOp>): number {
@@ -117,7 +165,28 @@ export default class ShowPlanSunburst extends Vue {
     }
 
     return this.colors[this.getOperationType(node.data.PhysicalOp)];
+  }
 
+  private getLabelColor(node: HierarchyRectangularNode<ShowPlan.RelOp>): string {
+    const whiteLabel = 'rgba(255,255,255,.75)';
+
+    if (this.highlightedNode === undefined) {
+      return whiteLabel;
+    }
+
+    for (const childNode of this.highlightedNode.descendants()) {
+      if (node.data.NodeId === childNode.data.NodeId) {
+        return whiteLabel;
+      }
+    }
+
+    for (const childNode of this.highlightedNode.ancestors()) {
+      if (node.data.NodeId === childNode.data.NodeId) {
+        return whiteLabel;
+      }
+    }
+
+    return this.colors[this.getOperationType(node.data.PhysicalOp)];
   }
 
   private getFill(node: HierarchyRectangularNode<ShowPlan.RelOp>): string {
@@ -229,8 +298,7 @@ export default class ShowPlanSunburst extends Vue {
 
   private root(): HierarchyRectangularNode<ShowPlan.RelOp> {
     const vm = this;
-    const partitionFunc = partition<ShowPlan.RelOp>()
-      .size([2 * Math.PI, this.radius * this.radius]);
+    const partitionFunc = partition<ShowPlan.RelOp>();
 
 
     // fudge a minimum size so that everything at least shows up as a sliver
@@ -275,16 +343,27 @@ type operationType =
   | 'operation'
   | 'performance'
   | 'root';
-
 </script>
 
 <style lang="scss">
   svg {
     filter: drop-shadow(2px 2px 2px rgba(34,36,38,.15));
+
+    path {
+      cursor: pointer;
+
+      &.hidden-arc {
+        fill:none;
+      }
+
+      &.main-arc {
+        transition:  fill-opacity .5s ease, stroke .5s ease;
+      }
+    }
+
+    text.operationName {
+      text-anchor: middle;
+    }
   }
 
-  svg path {
-    transition: all .5s ease;
-    cursor: pointer;
-  }
 </style>
