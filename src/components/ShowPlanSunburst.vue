@@ -168,7 +168,7 @@ export default class ShowPlanSunburst extends Vue {
   }
 
   private getLabelColor(node: HierarchyRectangularNode<ShowPlan.RelOp>): string {
-    const whiteLabel = 'rgba(255,255,255,.75)';
+    const whiteLabel = 'var(--alt-background)';
 
     if (this.highlightedNode === undefined) {
       return whiteLabel;
@@ -363,6 +363,7 @@ type operationType =
 
     text.operationName {
       text-anchor: middle;
+      text-shadow: rgba(0,0,0,.1) 1px 1px 1px;
     }
   }
 
