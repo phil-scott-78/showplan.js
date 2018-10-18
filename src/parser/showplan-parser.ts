@@ -5,7 +5,7 @@ import { StatementParser } from './statement-parser';
 
 export class ShowPlanParser {
   public static ForOnlyElementsInNodes<T>(
-    nodes: NodeListOf<Node & ChildNode>,
+    nodes: HTMLCollectionOf<Element>,
     action: (node: Element) => T | undefined,
   ) {
     const results: T[] = [];
@@ -35,13 +35,13 @@ export class ShowPlanParser {
     doc: Document,
     batches: ShowPlan.ShowPlanXMLTypeBatchSequenceTypeBatch[],
   ): ShowPlan.ShowPlanXML {
-    const version = doc.documentElement.getAttribute('Version') as string;
-    const build = doc.documentElement.getAttribute('Build') as string;
+    const version = doc.documentElement!.getAttribute('Version') as string;
+    const build = doc.documentElement!.getAttribute('Build') as string;
     return new ShowPlan.ShowPlanXML(build, false, version, batches);
   }
 
   public GetBatchFromElement(batchElement: Element): ShowPlan.BaseStmtInfo[] {
-    const statementElements: NodeListOf<Element> = batchElement.getElementsByTagName('Statements');
+    const statementElements = batchElement.getElementsByTagName('Statements');
 
     const results = ShowPlanParser.ForOnlyElementsInNodes(statementElements, (node) => {
       let statement: ShowPlan.BaseStmtInfo | undefined;
@@ -120,7 +120,7 @@ export class ShowPlanParser {
 
     const statements: ShowPlan.BaseStmtInfo[] = [];
     for (let count = 0; count < batchElements.length; count++) {
-      const batchElement = batchElements.item(count);
+      const batchElement = batchElements.item(count)!;
       const batchStatements = this.GetBatchFromElement(batchElement);
       Array.prototype.push.apply(statements, batchStatements);
     }

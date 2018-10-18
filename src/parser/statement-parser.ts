@@ -21,7 +21,7 @@ export class StatementParser {
     return statement;
   }
 
-  private static ParseUDF(udf: NodeListOf<Element>): ShowPlan.FunctionPlan[] {
+  private static ParseUDF(udf: HTMLCollectionOf<Element>): ShowPlan.FunctionPlan[] {
     return [];
   }
 

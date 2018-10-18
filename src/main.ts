@@ -3,7 +3,7 @@ import App from './App.vue';
 
 import 'normalize.css';
 import './../styles/styles.scss';
-import * as numbro from 'numbro';
+import numbro from 'numbro';
 
 import './string-extensions';
 
