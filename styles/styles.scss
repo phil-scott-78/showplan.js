@@ -1,5 +1,8 @@
 @import "colors.scss";
 
+html { overflow-y: scroll; }
+
+
 body {
   font-family: 'Segoe Ui', Verdana, sans-serif;
   padding:1rem;
