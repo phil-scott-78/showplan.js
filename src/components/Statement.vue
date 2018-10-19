@@ -14,8 +14,9 @@
   </h1>
 
   <div class="card" style="margin-bottom:2rem">
-    <component v-bind:is="selectedOverviewTab" :statement="statement"></component>
-
+    <smooth-reflow>
+      <component v-bind:is="selectedOverviewTab" :statement="statement"></component>
+    </smooth-reflow>
     <div class="footer">
       <div class="buttons">
         <a @click="selectedOverviewTab='highlight-sql-statement'" :class="{ 'selected': selectedOverviewTab === 'highlight-sql-statement' }">Query Text</a>
@@ -44,6 +45,7 @@
 import { Vue, Component, Prop, Watch, Emit } from 'vue-property-decorator';
 import { BaseStmtInfo, RelOp, StmtSimple, ShowPlanXML } from '@/parser/showplan';
 
+import SmoothReflow from './SmoothReflow.vue';
 import ShowPlanSunburst from './ShowPlanSunburst.vue';
 import HighlightSqlStatement from './HighlightSqlStatement.vue';
 import OperationSummary from './OperationSummary.vue';
@@ -55,7 +57,7 @@ import QueryParameters from './QueryParameters.vue';
 
 @Component({
   components: {
-    ShowPlanSunburst, HighlightSqlStatement, OperationSummary, SelectPlan, MissingIndexes, StatementOverview, StatisticsList, QueryParameters,
+    SmoothReflow, ShowPlanSunburst, HighlightSqlStatement, OperationSummary, SelectPlan, MissingIndexes, StatementOverview, StatisticsList, QueryParameters,
   },
   data() {
     return {
