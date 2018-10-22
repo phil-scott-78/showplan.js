@@ -29,8 +29,14 @@
   </div>
 
   <div v-if="statement.QueryPlan !== undefined" class="queryplan">
-    <div class="visualization">
-      <show-plan-sunburst width="600" :statement="statement" :selectedNode="displayedOp" @rel-op-selected="relOpSelected" @rel-op-highlighted="relOpHighlighted"></show-plan-sunburst>
+    <div class="visualization card">
+      <component v-bind:is="selectVisualizationTab" width="600" :statement="statement" :selectedNode="displayedOp" @rel-op-selected="relOpSelected" @rel-op-highlighted="relOpHighlighted"></component>
+      <div class="footer">
+        <div class="buttons">
+          <a @click="selectVisualizationTab='operator-flow'" :class="{ 'selected': selectVisualizationTab === 'operator-flow' }">Operator Flow</a>
+          <a @click="selectVisualizationTab='show-plan-sunburst'" :class="{ 'selected': selectVisualizationTab === 'show-plan-sunburst' }">Cost Analysis</a>
+        </div>
+    </div>
     </div>
     <div class="details">
       <div v-if="displayedOp !== undefined" class="opSummary">
@@ -46,7 +52,8 @@ import { Vue, Component, Prop, Watch, Emit } from 'vue-property-decorator';
 import { BaseStmtInfo, RelOp, StmtSimple, ShowPlanXML } from '@/parser/showplan';
 
 import SmoothReflow from './SmoothReflow.vue';
-import ShowPlanSunburst from './ShowPlanSunburst.vue';
+import ShowPlanSunburst from './visualizations/ShowPlanSunburst.vue';
+import OperatorFlow from './visualizations/OperatorFlow.vue';
 import HighlightSqlStatement from './HighlightSqlStatement.vue';
 import OperationSummary from './OperationSummary.vue';
 import SelectPlan from './SelectPlan.vue';
@@ -57,7 +64,7 @@ import QueryParameters from './QueryParameters.vue';
 
 @Component({
   components: {
-    SmoothReflow, ShowPlanSunburst, HighlightSqlStatement, OperationSummary, SelectPlan, MissingIndexes, StatementOverview, StatisticsList, QueryParameters,
+    SmoothReflow, ShowPlanSunburst, OperatorFlow, HighlightSqlStatement, OperationSummary, SelectPlan, MissingIndexes, StatementOverview, StatisticsList, QueryParameters,
   },
   data() {
     return {
@@ -73,6 +80,7 @@ export default class Statement extends Vue {
   private selectedOp: RelOp | undefined;
   private highlightedOp: RelOp | undefined;
   private selectedOverviewTab: string = 'highlight-sql-statement';
+  private selectVisualizationTab: string = 'operator-flow';
 
   @Emit('showplan-statement-changed')
   public statementSelected(statementGuid: string) {
@@ -114,6 +122,7 @@ export default class Statement extends Vue {
     .visualization {
       flex: 2;
       max-width:66%;
+      margin-right:1rem;
     }
 
     .details {

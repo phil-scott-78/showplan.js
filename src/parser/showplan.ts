@@ -110,6 +110,34 @@ export class RelOp {
   public Action: RelOpAction;
   public Warnings?: Warnings;
 
+  public get SecondaryDesc(): string {
+    switch (this.PhysicalOp) {
+      case 'Index Scan':
+      case 'Index Seek':
+      case 'Clustered Index Scan':
+      case 'Clustered Index Seek':
+        return (this.Action as IndexScan).Object[0].Table!.replaceAll('[', '').replaceAll(']', '');
+      default:
+        break;
+    }
+
+    return this.LogicalOp;
+  }
+
+  public get ThirdLevelDesc(): string | undefined {
+    switch (this.PhysicalOp) {
+      case 'Index Scan':
+      case 'Index Seek':
+      case 'Clustered Index Scan':
+      case 'Clustered Index Seek':
+        return (this.Action as IndexScan).Object[0].Index!.replaceAll('[', '').replaceAll(']', '');
+      default:
+        break;
+    }
+
+    return undefined;
+  }
+
   private expandedComputedColumns?: ExpandedComputedColumn[];
 
   constructor(
