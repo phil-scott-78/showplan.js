@@ -199,8 +199,14 @@ export default class OperationSummary extends Vue {
   public get shallowOperation(): RelOp {
     // clone the operation but remove the child relop collection
     // for displaying in the 'raw' display
-    const shallow = (JSON.parse(JSON.stringify(this.operation)));
-    shallow.Action.RelOp = [];
+    const shallow: RelOp = JSON.parse(JSON.stringify(this.operation, function(key, value) {
+      if (key === 'RelOp') {
+        return;
+      }
+
+      return value;
+    }));
+
     return shallow;
   }
 

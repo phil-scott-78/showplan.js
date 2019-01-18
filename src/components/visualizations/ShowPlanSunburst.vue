@@ -80,12 +80,12 @@ export default class ShowPlanSunburst extends Vue {
     .outerRadius((d) => Math.max(0, this.y(d.y1) - 1));
 
   @Emit('rel-op-selected')
-  public statementSelected(op: ShowPlan.RelOp) {
+  public statementSelected(op: number) {
     //
   }
 
   @Emit('rel-op-highlighted')
-  public statementHighlighted(op: ShowPlan.RelOp | undefined) {
+  public statementHighlighted(op: number | undefined) {
     //
   }
 
@@ -199,7 +199,7 @@ export default class ShowPlanSunburst extends Vue {
       return;
     }
 
-    this.statementHighlighted(op!.data);
+    this.statementHighlighted(op!.data.NodeId);
   }
 
   private operationClicked(op: HierarchyRectangularNode<ShowPlan.RelOp>) {
@@ -207,7 +207,7 @@ export default class ShowPlanSunburst extends Vue {
       return;
     }
 
-    this.statementSelected(op.data);
+    this.statementSelected(op.data.NodeId);
   }
 
   private root(): HierarchyRectangularNode<ShowPlan.RelOp> {

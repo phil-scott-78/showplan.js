@@ -46,7 +46,7 @@ import { min, max } from 'd3-array';
 import { Colors, GetOperationType, GetOperationColor } from '@/components/visualizations/VizColors';
 import { ParentRelOp, ParentRelOpAction } from './FakeParent';
 import { zoom } from 'd3-zoom';
-import * as f from 'd3-selection';
+import * as d3 from 'd3-selection';
 
 @Component({
 })
@@ -74,12 +74,12 @@ export default class OperatorFlow extends Vue {
   @Prop({ default: undefined }) public selectedNode!: ShowPlan.RelOp | undefined;
 
   @Emit('rel-op-selected')
-  public statementSelected(op: ShowPlan.RelOp) {
+  public statementSelected(op: number) {
     //
   }
 
   @Emit('rel-op-highlighted')
-  public statementHighlighted(op: ShowPlan.RelOp | undefined) {
+  public statementHighlighted(op: number | undefined) {
     //
   }
 
@@ -160,7 +160,7 @@ export default class OperatorFlow extends Vue {
 
   private mounted() {
     const vm = this;
-    const svg = f.select(this.$refs.chart);
+    const svg = d3.select(this.$refs.chart);
     svg.call(
         zoom()
           .scaleExtent([1, 10])
@@ -168,8 +168,8 @@ export default class OperatorFlow extends Vue {
   }
 
   private handleZoom() {
-    const svg = f.select(this.$refs.chartG);
-    svg.attr('transform', f.event.transform);
+    const svg = d3.select(this.$refs.chartG);
+    svg.attr('transform', d3.event.transform);
   }
 
   private hover(op: HierarchyPointNode<ShowPlan.RelOp> | undefined) {
@@ -182,7 +182,7 @@ export default class OperatorFlow extends Vue {
       return;
     }
 
-    this.statementHighlighted(op!.data);
+    this.statementHighlighted(op!.data.NodeId);
   }
 
   private operationClicked(op: HierarchyPointNode<ShowPlan.RelOp>) {
@@ -190,7 +190,7 @@ export default class OperatorFlow extends Vue {
       return;
     }
 
-    this.statementSelected(op.data);
+    this.statementSelected(op.data.NodeId);
   }
 }
 </script>

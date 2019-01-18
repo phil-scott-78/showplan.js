@@ -34,6 +34,7 @@
       <div class="footer">
         <div class="buttons">
           <a @click="selectVisualizationTab='operator-flow'" :class="{ 'selected': selectVisualizationTab === 'operator-flow' }">Operator Flow</a>
+          <a @click="selectVisualizationTab='data-flow'" :class="{ 'selected': selectVisualizationTab === 'data-flow' }">Data Flow</a>
           <a @click="selectVisualizationTab='show-plan-sunburst'" :class="{ 'selected': selectVisualizationTab === 'show-plan-sunburst' }">Cost Analysis</a>
         </div>
     </div>
@@ -54,6 +55,7 @@ import { BaseStmtInfo, RelOp, StmtSimple, ShowPlanXML } from '@/parser/showplan'
 import SmoothReflow from './SmoothReflow.vue';
 import ShowPlanSunburst from './visualizations/ShowPlanSunburst.vue';
 import OperatorFlow from './visualizations/OperatorFlow.vue';
+import DataFlow from './visualizations/DataFlow.vue';
 import HighlightSqlStatement from './HighlightSqlStatement.vue';
 import OperationSummary from './OperationSummary.vue';
 import SelectPlan from './SelectPlan.vue';
@@ -64,23 +66,25 @@ import QueryParameters from './QueryParameters.vue';
 
 @Component({
   components: {
-    SmoothReflow, ShowPlanSunburst, OperatorFlow, HighlightSqlStatement, OperationSummary, SelectPlan, MissingIndexes, StatementOverview, StatisticsList, QueryParameters,
+    SmoothReflow, ShowPlanSunburst, OperatorFlow, DataFlow, HighlightSqlStatement, OperationSummary, SelectPlan, MissingIndexes, StatementOverview, StatisticsList, QueryParameters,
   },
   data() {
     return {
-      selectedOp: undefined,
-      highlightedOp: undefined,
+      selectedOpId: undefined,
+      highlightedOpId: undefined,
     };
   },
 })
 export default class Statement extends Vue {
   @Prop() public statement!: BaseStmtInfo;
   @Prop() public showPlan!: ShowPlanXML;
+  private operationMap: Map<number, RelOp> = new Map<number, RelOp>();
 
-  private selectedOp: RelOp | undefined;
-  private highlightedOp: RelOp | undefined;
+  private selectedOpId: number | undefined;
+  private highlightedOpId: number | undefined;
   private selectedOverviewTab: string = 'highlight-sql-statement';
   private selectVisualizationTab: string = 'operator-flow';
+
 
   @Emit('showplan-statement-changed')
   public statementSelected(statementGuid: string) {
@@ -91,26 +95,49 @@ export default class Statement extends Vue {
     this.statementSelected(statementGuid);
   }
 
+  public mounted() {
+    this.buidlMap(this.statement);
+  }
 
   @Watch('statement')
   private OnStatementChanged(val: BaseStmtInfo, oldVal: BaseStmtInfo) {
-    this.selectedOp = undefined;
+    this.buidlMap(val);
+  }
+
+  private buidlMap(val: BaseStmtInfo) {
+    this.selectedOpId = undefined;
+    this.operationMap = new Map<number, RelOp>();
+
+    const statement = val as StmtSimple;
+
+    const addChildren = (map: Map<number, RelOp>, op: RelOp) => {
+      map.set(op.NodeId, op);
+      for (const childOp of op.Action.RelOp) {
+        addChildren(map, childOp);
+      }
+    };
+
+    addChildren(this.operationMap, statement.QueryPlan!.RelOp);
   }
 
   private get displayedOp(): RelOp | undefined {
-    if (this.highlightedOp !== undefined) {
-      return this.highlightedOp;
+    if (this.highlightedOpId !== undefined) {
+      return this.operationMap.get(this.highlightedOpId);
     }
 
-    return this.selectedOp;
+    if (this.selectedOpId === undefined) {
+      return undefined;
+    }
+
+    return this.operationMap.get(this.selectedOpId);
   }
 
-  private relOpSelected(op: RelOp) {
-    this.selectedOp = op;
+  private relOpSelected(op: number) {
+    this.selectedOpId = op;
   }
 
-  private relOpHighlighted(op: RelOp) {
-    this.highlightedOp = op;
+  private relOpHighlighted(op: number) {
+    this.highlightedOpId = op;
   }
 }
 </script>
