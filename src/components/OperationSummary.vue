@@ -277,16 +277,17 @@ export default class OperationSummary extends Vue {
 </script>
 
 <style lang="scss" scoped>
-
-</style>
-
-<style>
-  .json-tree-root {
+  .card .json-tree-root {
     background-color: inherit !important;
     padding:0 !important;
+    margin: 0;
   }
 
-  .json-tree {
+  .card .json-tree-sign {
+    display: none;
+  }
+
+  .card .json-tree {
     font-size: .75rem !important;
   }
 </style>

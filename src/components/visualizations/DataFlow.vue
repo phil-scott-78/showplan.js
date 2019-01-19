@@ -12,7 +12,6 @@ import * as ShowPlan from '@/parser/showplan';
 import { Colors, GetOperationType, GetOperationColor } from '@/components/visualizations/VizColors';
 import { ParentRelOp, ParentRelOpAction } from './FakeParent';
 import { zoom } from 'd3-zoom';
-import * as d3sankey from 'd3-sankey';
 import * as d3 from 'd3-selection';
 
 @Component({

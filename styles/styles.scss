@@ -22,6 +22,11 @@ body {
   border:1px solid var(--alt-border);
 }
 
+::-webkit-scrollbar-corner {
+  background-color: var(--alt-background);
+  border:1px solid var(--alt-border);
+}
+
 h1,h2,h3 {
   .subheading {
     font-size: .75em;
