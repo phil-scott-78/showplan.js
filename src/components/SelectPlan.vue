@@ -53,7 +53,7 @@ export default class SelectPlan extends Vue {
   }
 
   public showDrop(e: MouseEvent) {
-    this.$refs.drop.$emit('show', true, e.target);
+    this.$refs.drop.$emit('show', e.target);
     this.$nextTick(() => {
       if (this.show) {
         this.$emit('show');
