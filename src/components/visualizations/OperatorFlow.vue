@@ -3,24 +3,24 @@
     <svg ref="chart" width="100%" height="600px">
       <g transform="translate(400,25)">
       <g ref="chartG">
-        <g v-for="(link, index) in links" :key="'link' + index" stroke="var(--border)" :stroke-opacity="getLineStrokeOpacity(link)" fill="none" :stroke-width="getLineStrokeWidth(link)">
+        <g class="connector-link" v-for="(link, index) in links" :key="'link' + index" :stroke="getStrokeColor(link)" fill="none" :stroke-width="getLineStrokeWidth(link)" stroke-linecap="round" >
           <path :d="linkPath(link)"></path>
         </g>
         <g v-for="(node, index) in nodes" :key="'node' + index" >
           <g :transform="nodeTransform(node)" @mouseover="hover(node)" @mouseout="hover(undefined)" @click="operationClicked(node)">
             <g>
               <g fill="var(--foreground)" text-anchor="middle">
-                <text dy="1.6rem" style="font-size:.7rem">
+                <text dy="1.8rem" style="font-size:.7rem">
                   {{ (node.data.NodeId === -1) ? statement.StatementType : node.data.PhysicalOp }}
                 </text>
                 <g style="font-size:.6rem" opacity=".5" >
                   <text v-if="node.data.NodeId !== -1 && node.data.SecondaryDesc != node.data.PhysicalOp"
-                    dy="2.3rem"
+                    dy="2.5rem"
                   >
                     {{ node.data.SecondaryDesc }}
                   </text>
                   <text v-if="node.data.NodeId !== -1 &&  node.data.ThirdLevelDesc !== undefined"
-                    dy="3.1rem"
+                    dy="3.3rem"
                   >
                     {{ node.data.ThirdLevelDesc }}
                   </text>
@@ -98,7 +98,7 @@ export default class OperatorFlow extends Vue {
 
     return tree<ShowPlan.RelOp>()
       .size([this.radius, this.radius])
-      .nodeSize([this.radius * 1.5, 60])
+      .nodeSize([this.radius * 1.5, 70])
       .separation((a, b) => .3)
       (hierarchy(noop, (children) => children.Action.RelOp));
   }
@@ -116,6 +116,29 @@ export default class OperatorFlow extends Vue {
     return this.rowWidthScale(link.target.data.EstimateRows);
   }
 
+  private getStrokeColor(link: HierarchyPointLink<ShowPlan.RelOp>): string {
+    const selectedColor = 'var(--grey)';
+    const notSelectedColor = 'var(--alt-border)';
+
+    if (this.highlightedNode === undefined) {
+      return notSelectedColor;
+    }
+
+    for (const childNode of this.highlightedNode.descendants()) {
+      if (link.target.data.NodeId === childNode.data.NodeId) {
+        return selectedColor;
+      }
+    }
+
+    for (const childNode of this.highlightedNode.ancestors()) {
+      if (link.target.data.NodeId === childNode.data.NodeId) {
+        return selectedColor;
+      }
+    }
+
+    return notSelectedColor;
+  }
+
   private getNodeSize(node: HierarchyPointNode<ShowPlan.RelOp>) {
     if (node.data.NodeId === -1) {
       return 10;
@@ -127,7 +150,7 @@ export default class OperatorFlow extends Vue {
   private get costCircleScale() {
     return scaleLinear()
       .domain([0, this.queryPlan.RelOp.EstimatedTotalSubtreeCost])
-      .rangeRound([2, 15]);
+      .rangeRound([2, 20]);
   }
 
   private get rowWidthScale() {
@@ -136,7 +159,7 @@ export default class OperatorFlow extends Vue {
 
     return scaleLinear()
       .domain([minRows, maxRows])
-      .rangeRound([1, 10]);
+      .rangeRound([1, 20]);
   }
 
   private get links(): Array<HierarchyPointLink<ShowPlan.RelOp>> {
@@ -196,5 +219,7 @@ export default class OperatorFlow extends Vue {
 </script>
 
 <style lang="scss" scoped>
-
+  .chart-wrapper .connector-link {
+    transition:  stroke .5s ease, stroke .5s ease;
+  }
 </style>
