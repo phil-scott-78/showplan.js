@@ -10,6 +10,7 @@
           <g :transform="nodeTransform(node)" @mouseover="hover(node)" @mouseout="hover(undefined)" @click="operationClicked(node)">
             <g>
               <g fill="var(--foreground)" text-anchor="middle">
+                <rect class="background-rect" y="1rem" x="-60" stroke="var(--alt-border)" width="120" height="2.5rem" rx="5" ry="5" fill="var(--alt-background)" :opacity="getBackgroundRectOpacity(node)"></rect>
                 <text dy="1.8rem" style="font-size:.7rem">
                   {{ (node.data.NodeId === -1) ? statement.StatementType : node.data.PhysicalOp }}
                 </text>
@@ -137,6 +138,18 @@ export default class OperatorFlow extends Vue {
     }
 
     return notSelectedColor;
+  }
+
+  private getBackgroundRectOpacity(node: HierarchyPointNode<ShowPlan.RelOp>) {
+    if (this.highlightedNode === undefined) {
+      return 0;
+    }
+
+    if (node.data.NodeId === this.highlightedNode!.data.NodeId) {
+      return .9;
+    }
+
+    return 0;
   }
 
   private getNodeSize(node: HierarchyPointNode<ShowPlan.RelOp>) {

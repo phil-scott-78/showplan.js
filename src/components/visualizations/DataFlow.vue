@@ -10,6 +10,7 @@
           <g :transform="nodeTransform(node)" @mouseover="hover(node)" @mouseout="hover(undefined)" @click="operationClicked(node)">
             <g>
               <g fill="var(--foreground)" text-anchor="middle" >
+                <rect class="background-rect" y="1.3rem" x="-60" width="120" height="2.5rem" rx="5" ry="5" stroke="var(--alt-border)"  fill="var(--alt-background)" :opacity="getBackgroundRectOpacity(node)"></rect>
                 <text dy="2rem" style="font-size:.7rem">
                   {{ (node.data.NodeId === -1) ? statement.StatementType : node.data.PhysicalOp }}
                 </text>
@@ -25,6 +26,7 @@
                     {{ node.data.ThirdLevelDesc }}
                   </text>
                 </g>
+
               </g>
             </g>
             <circle :r="getNodeSize(node)" :fill="getNodeColor(node)" ></circle>
@@ -101,7 +103,7 @@ export default class DataFlow extends Vue {
 
     return cluster<ShowPlan.RelOp>()
       .size([this.radius, this.radius])
-      .nodeSize([this.radius * 1.5, 110])
+      .nodeSize([this.radius * 1.5, 120])
       .separation((a, b) => .3)
       (hierarchy(noop, (children) => children.Action.RelOp));
   }
@@ -135,6 +137,18 @@ export default class DataFlow extends Vue {
     }
 
     return notSelectedColor;
+  }
+
+  private getBackgroundRectOpacity(node: HierarchyPointNode<ShowPlan.RelOp>) {
+    if (this.highlightedNode === undefined) {
+      return 0;
+    }
+
+    if (node.data.NodeId === this.highlightedNode!.data.NodeId) {
+      return .9;
+    }
+
+    return 0;
   }
 
   private getNodeSize(node: HierarchyPointNode<ShowPlan.RelOp>) {
@@ -218,6 +232,10 @@ export default class DataFlow extends Vue {
 
 <style lang="scss" scoped>
   .chart-wrapper .connector-link {
-    transition:  stroke .5s ease, stroke .5s ease;
+    transition:  stroke .5s ease;
+  }
+
+  .chart-wrapper .background-rect {
+    transition:  opacity .5s ease;
   }
 </style>
