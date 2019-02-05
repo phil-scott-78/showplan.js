@@ -200,7 +200,7 @@ export default class OperationSummary extends Vue {
     // clone the operation but remove the child relop collection
     // for displaying in the 'raw' display
     const shallow: RelOp = JSON.parse(JSON.stringify(this.operation, function(key, value) {
-      if (key === 'RelOp') {
+      if (key === 'RelOp' || key === 'expandedComputedColumns') {
         return;
       }
 
