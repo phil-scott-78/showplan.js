@@ -166,7 +166,7 @@ export default class OperatorFlow extends Vue {
       }
     }
 
-    return .2
+    return .2;
   }
 
   private getBackgroundRectFill(node: HierarchyPointNode<ShowPlan.RelOp>) {
@@ -220,7 +220,7 @@ export default class OperatorFlow extends Vue {
     return linkVertical()(
       {
         source: [link.source.x, link.source.y + 40],
-        target: [link.target.x, link.target.y]
+        target: [link.target.x, link.target.y],
       })!;
 
   }
