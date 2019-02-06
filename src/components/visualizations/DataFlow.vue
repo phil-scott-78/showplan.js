@@ -117,12 +117,13 @@ export default class DataFlow extends Vue {
   }
 
   private getStrokeColor(link: HierarchyPointLink<ShowPlan.RelOp>): string {
-    const selectedColor = 'var(--grey)';
     const notSelectedColor = 'var(--alt-border)';
 
     if (this.highlightedNode === undefined) {
       return notSelectedColor;
     }
+
+    const selectedColor = GetOperationColor(link.target.data.PhysicalOp);
 
     for (const childNode of this.highlightedNode.descendants()) {
       if (link.target.data.NodeId === childNode.data.NodeId) {
