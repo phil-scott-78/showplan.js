@@ -10,25 +10,29 @@
           <g :transform="nodeTransform(node)" @mouseover="hover(node)" @mouseout="hover(undefined)" @click="operationClicked(node)">
             <g>
               <g fill="var(--foreground)" text-anchor="middle">
-                <rect class="background-rect" y="1rem" x="-60" stroke="var(--alt-border)" width="120" height="2.5rem" rx="5" ry="5" fill="var(--alt-background)" :opacity="getBackgroundRectOpacity(node)"></rect>
-                <text dy="1.8rem" style="font-size:.7rem">
-                  {{ (node.data.NodeId === -1) ? statement.StatementType : node.data.PhysicalOp }}
-                </text>
+                <rect class="background-rect" y="0" x="-90" :stroke="getNodeColor(node)" width="180" height="3.5em" rx="5" ry="5" :fill="getBackgroundRectFill(node)" :stroke-opacity="getBackgroundRectStrokeOpacity(node)"></rect>
+                <g style="font-size:.7rem">
+                  <text dy="1.5em" >
+                    {{ (node.data.NodeId === -1) ? statement.StatementType : node.data.PhysicalOp }}
+                  </text>
+                  <text x="75" dy="1.5em" text-anchor="right" :style="node.data.EstimateTotalCost / statement.StatementSubTreeCost < .25 ? 'fill:var(--foreground)' : 'fill:var(--red)'" v-if="node.data.NodeId !== -1">
+                    {{ node.data.EstimateTotalCost / statement.StatementSubTreeCost | filterPercent }}
+                  </text>
+                </g>
                 <g style="font-size:.6rem" opacity=".5" >
                   <text v-if="node.data.NodeId !== -1 && node.data.SecondaryDesc != node.data.PhysicalOp"
-                    dy="2.5rem"
+                    dy="3em"
                   >
                     {{ node.data.SecondaryDesc }}
                   </text>
                   <text v-if="node.data.NodeId !== -1 &&  node.data.ThirdLevelDesc !== undefined"
-                    dy="3.3rem"
+                    dy="4em"
                   >
                     {{ node.data.ThirdLevelDesc }}
                   </text>
                 </g>
               </g>
             </g>
-            <circle :r="getNodeSize(node)" :fill="getNodeColor(node)" ></circle>
           </g>
         </g>
       </g>
@@ -99,8 +103,8 @@ export default class OperatorFlow extends Vue {
 
     return tree<ShowPlan.RelOp>()
       .size([this.radius, this.radius])
-      .nodeSize([this.radius * 1.5, 70])
-      .separation((a, b) => .3)
+      .nodeSize([this.radius * .6, 110])
+      .separation((a, b) => 1.1)
       (hierarchy(noop, (children) => children.Action.RelOp));
   }
 
@@ -114,7 +118,7 @@ export default class OperatorFlow extends Vue {
   }
 
   private getLineStrokeWidth(link: HierarchyPointLink<ShowPlan.RelOp>) {
-    return this.rowWidthScale(link.target.data.EstimateRows);
+    return this.rowWidthScale(link.target.data.EstimateTotalCost);
   }
 
   private getStrokeColor(link: HierarchyPointLink<ShowPlan.RelOp>): string {
@@ -141,16 +145,40 @@ export default class OperatorFlow extends Vue {
     return notSelectedColor;
   }
 
-  private getBackgroundRectOpacity(node: HierarchyPointNode<ShowPlan.RelOp>) {
+  private getBackgroundRectStrokeOpacity(node: HierarchyPointNode<ShowPlan.RelOp>) {
     if (this.highlightedNode === undefined) {
-      return 0;
+      return .2;
+    }
+
+    if (node.data.NodeId === this.highlightedNode.data.NodeId) {
+      return 1;
+    }
+
+    for (const childNode of this.highlightedNode.descendants()) {
+      if (node.data.NodeId === childNode.data.NodeId) {
+        return .4;
+      }
+    }
+
+    for (const childNode of this.highlightedNode.ancestors()) {
+      if (node.data.NodeId === childNode.data.NodeId) {
+        return 1;
+      }
+    }
+
+    return .2
+  }
+
+  private getBackgroundRectFill(node: HierarchyPointNode<ShowPlan.RelOp>) {
+    if (this.highlightedNode === undefined) {
+      return 'var(--background)';
     }
 
     if (node.data.NodeId === this.highlightedNode!.data.NodeId) {
-      return .9;
+      return 'var(--alt-background)';
     }
 
-    return 0;
+    return 'var(--background)';
   }
 
   private getNodeSize(node: HierarchyPointNode<ShowPlan.RelOp>) {
@@ -189,10 +217,12 @@ export default class OperatorFlow extends Vue {
   }
 
   private linkPath(link: HierarchyPointLink<ShowPlan.RelOp>): string {
-    return linkVertical<HierarchyPointLink<ShowPlan.RelOp>, HierarchyPointNode<ShowPlan.RelOp>>()
-      .x((i) => i.x)
-      .y((i) => i.y)
-      (link)!;
+    return linkVertical()(
+      {
+        source: [link.source.x, link.source.y + 40],
+        target: [link.target.x, link.target.y]
+      })!;
+
   }
 
   private mounted() {
@@ -200,7 +230,7 @@ export default class OperatorFlow extends Vue {
     const svg = d3.select(this.$refs.chart);
     svg.call(
         zoom()
-          .scaleExtent([1, 10])
+          .scaleExtent([.5, 10])
           .on('zoom', function() { vm.handleZoom(); }));
   }
 
@@ -234,6 +264,10 @@ export default class OperatorFlow extends Vue {
 
 <style lang="scss" scoped>
   .chart-wrapper .connector-link {
-    transition:  stroke .5s ease, stroke .5s ease;
+    transition:  stroke .5s ease;
+  }
+
+  .chart-wrapper .background-rect {
+    transition: stroke-opacity .5s ease, background-color .5s ease;
   }
 </style>

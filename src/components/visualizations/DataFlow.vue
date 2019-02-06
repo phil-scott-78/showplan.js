@@ -10,18 +10,18 @@
           <g :transform="nodeTransform(node)" @mouseover="hover(node)" @mouseout="hover(undefined)" @click="operationClicked(node)">
             <g>
               <g fill="var(--foreground)" text-anchor="middle" >
-                <rect class="background-rect" y="1.3rem" x="-60" width="120" height="2.5rem" rx="5" ry="5" stroke="var(--alt-border)"  fill="var(--alt-background)" :opacity="getBackgroundRectOpacity(node)"></rect>
-                <text dy="2rem" style="font-size:.7rem">
+                <rect class="background-rect" y="1.6em" x="-60" width="120" height="3.5em" rx="5" ry="5" stroke="var(--alt-border)"  fill="var(--alt-background)" :opacity="getBackgroundRectOpacity(node)"></rect>
+                <text dy="3em" style="font-size:.7rem">
                   {{ (node.data.NodeId === -1) ? statement.StatementType : node.data.PhysicalOp }}
                 </text>
                 <g style="font-size:.6rem" opacity=".5" >
                   <text v-if="node.data.NodeId !== -1 && node.data.SecondaryDesc != node.data.PhysicalOp"
-                    dy="2.8rem"
+                    dy="5em"
                   >
                     {{ node.data.SecondaryDesc }}
                   </text>
                   <text v-if="node.data.NodeId !== -1 &&  node.data.ThirdLevelDesc !== undefined"
-                    dy="3.5rem"
+                    dy="6em"
                   >
                     {{ node.data.ThirdLevelDesc }}
                   </text>
@@ -138,6 +138,10 @@ export default class DataFlow extends Vue {
     }
 
     return notSelectedColor;
+  }
+
+  private GetOperationColor(op: ShowPlan.PhysicalOp) {
+    return GetOperationColor(op);
   }
 
   private getBackgroundRectOpacity(node: HierarchyPointNode<ShowPlan.RelOp>) {
