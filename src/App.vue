@@ -1,9 +1,11 @@
 <template>
-  <div id="app">
-    <header-menu @plan-changed="planXmlChanged" :currentPlan="showPlan"></header-menu>
-    <div class="message warning" v-if="errorMessage !== undefined">{{ errorMessage }}</div>
-    <component v-bind:is="currentComponent" :statement="currentStatement" :showPlan="showPlan" @showplan-changed="planXmlChanged" @showplan-statement-changed="statementChanged"></component>
-    <p class="footer">Everything is ran in browser so no files will be uploaded. I can't afford the storage space anyways</p>
+  <div id="app" :class="theme">
+    <div id="container">
+      <header-menu @plan-changed="planXmlChanged" :currentPlan="showPlan"></header-menu>
+      <div class="message warning" v-if="errorMessage !== undefined">{{ errorMessage }}</div>
+      <component v-bind:is="currentComponent" :statement="currentStatement" :showPlan="showPlan" @showplan-changed="planXmlChanged" @showplan-statement-changed="statementChanged"></component>
+      <p class="footer">Everything is ran in browser so no files will be uploaded. I can't afford the storage space anyways</p>
+    </div>
   </div>
 </template>
 
@@ -27,6 +29,7 @@ import * as ShowPlan from '@/parser/showplan';
 export default class App extends Vue {
   public showPlan: ShowPlan.ShowPlanXML | undefined;
   public selectedStatementGuid: string | undefined;
+  public theme: string = 'theme--dark';
 
   private errorMessage: string | undefined;
 
@@ -100,6 +103,11 @@ export default class App extends Vue {
 
 <style lang="scss" scoped>
   #app {
+    padding: 1rem;
+    min-height: 100vh;
+  }
+
+  #container {
     position: relative;
     min-width:800px;
     max-width:1200px;

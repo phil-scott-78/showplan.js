@@ -28,7 +28,7 @@ import Vue from 'vue';
 import Component from 'vue-class-component';
 import { Emit, Prop, Watch } from 'vue-property-decorator';
 
-import Dropdown from 'v-dropdown';
+import Dropdown from '@/components/Dropdown.vue';
 
 import SqlString from '@/components/operations/SqlString.vue';
 
@@ -53,10 +53,12 @@ export default class SelectPlan extends Vue {
   }
 
   public showDrop(e: MouseEvent) {
-    this.$refs.drop.$emit('show', e.target);
+    console.log(e.target);
+    const target = e.target;
+    this.$refs.drop.$emit('show', target);
     this.$nextTick(() => {
       if (this.show) {
-        this.$emit('show');
+        this.$emit('show', target);
       }
     });
   }

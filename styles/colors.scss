@@ -3,13 +3,13 @@
   color: var(--foreground);
 }
 
-.theme--light {
+body #app.theme--light {
   @extend %theme;
   --background: #fff;
-  --foreground: #333;
+  --foreground: rgba(0, 0, 0, 0.8);
   --border: #ccc;
-  --alt-background: rgba(0,0,0,.03);
-  --alt-border: #ccc;
+  --alt-background: #F1F1EF;
+  --alt-border: #ddd;
   --red: #A71D5D;
   --blue: #183691;
   --green: #63a35c;
@@ -19,7 +19,7 @@
   --purple: #795da3;
   --light-blue: #445588;
 }
-.theme--dark {
+body #app.theme--dark {
   @extend %theme;
   --background: #282c34;
   --alt-background: #2f333d;
