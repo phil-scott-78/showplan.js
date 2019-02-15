@@ -1,7 +1,6 @@
 <template>
   <div class="chart-wrapper">
     <svg ref="chart" width="100%" height="600px">
-      <g transform="translate(400,25)">
       <g ref="chartG">
         <g class="connector-link" v-for="(link, index) in links" :key="'link' + index" :stroke="getStrokeColor(link)" fill="none" :stroke-width="getLineStrokeWidth(link)" stroke-linecap="round" >
           <path :d="linkPath(link)"></path>
@@ -36,7 +35,6 @@
           </g>
         </g>
       </g>
-      </g>
     </svg>
   </div>
 </template>
@@ -50,7 +48,7 @@ import { scalePow, scaleLog, scaleLinear } from 'd3-scale';
 import { min, max } from 'd3-array';
 import { Colors, GetOperationType, GetOperationColor } from '@/components/visualizations/VizColors';
 import { ParentRelOp, ParentRelOpAction } from './FakeParent';
-import { zoom } from 'd3-zoom';
+import { zoom as d3zoom } from 'd3-zoom';
 import * as d3 from 'd3-selection';
 
 @Component({
@@ -228,10 +226,13 @@ export default class OperatorFlow extends Vue {
   private mounted() {
     const vm = this;
     const svg = d3.select(this.$refs.chart);
-    svg.call(
-        zoom()
+
+    const zoom = d3zoom()
           .scaleExtent([.5, 10])
-          .on('zoom', function() { vm.handleZoom(); }));
+          .wheelDelta(() => { return -d3.event.deltaY * (d3.event.deltaMode ? 120 : 1) / 2000; })
+          .on('zoom', function() { vm.handleZoom(); });
+    svg.call(zoom);
+    zoom.translateBy(svg, 400, 25);
   }
 
   private handleZoom() {
@@ -264,10 +265,10 @@ export default class OperatorFlow extends Vue {
 
 <style lang="scss" scoped>
   .chart-wrapper .connector-link {
-    transition:  stroke .5s ease;
+    transition:  stroke .3s ease;
   }
 
   .chart-wrapper .background-rect {
-    transition: stroke-opacity .5s ease, background-color .5s ease;
+    transition: stroke-opacity .3s ease, background-color .3s ease;
   }
 </style>

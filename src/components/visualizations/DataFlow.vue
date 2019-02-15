@@ -1,7 +1,6 @@
 <template>
   <div class="chart-wrapper">
     <svg ref="chart" width="100%" height="600px">
-      <g :transform="initTransform">
       <g ref="chartG">
         <g class="connector-link" v-for="(link, index) in links" :key="'link' + index" :stroke="getStrokeColor(link)" fill="none" :stroke-width="getLineStrokeWidth(link)" stroke-linecap="round" >
           <path :d="linkPath(link)"></path>
@@ -26,13 +25,11 @@
                     {{ node.data.ThirdLevelDesc }}
                   </text>
                 </g>
-
               </g>
             </g>
             <circle :r="getNodeSize(node)" :fill="getNodeColor(node)" ></circle>
           </g>
         </g>
-      </g>
       </g>
     </svg>
   </div>
@@ -47,7 +44,7 @@ import { scalePow, scaleLog, scaleLinear } from 'd3-scale';
 import { min, max } from 'd3-array';
 import { Colors, GetOperationType, GetOperationColor } from '@/components/visualizations/VizColors';
 import { ParentRelOp, ParentRelOpAction } from './FakeParent';
-import { zoom } from 'd3-zoom';
+import { zoom as d3zoom } from 'd3-zoom';
 import * as d3 from 'd3-selection';
 
 @Component({
@@ -75,6 +72,9 @@ export default class DataFlow extends Vue {
   @Prop({ default: 500 }) public width!: number;
   @Prop({ default: undefined }) public selectedNode!: ShowPlan.RelOp | undefined;
 
+  private nodeWidth: number = 120;
+  private nodeHeight: number = 120;
+
   @Emit('rel-op-selected')
   public statementSelected(op: number) {
     //
@@ -89,13 +89,6 @@ export default class DataFlow extends Vue {
     return this.width / 2;
   }
 
-  private get initTransform(): string {
-    const x = max(this.nodes, (n) => n.y)! + 80;
-    const y = min(this.nodes, (n) => n.x)! * -1 + 80;
-
-    return `translate(${x}, ${y})`;
-  }
-
   private get root(): HierarchyPointNode<ShowPlan.RelOp> {
     const noop: ShowPlan.RelOp = new ParentRelOp();
     noop.Action.RelOp[0] = this.queryPlan.RelOp;
@@ -103,8 +96,8 @@ export default class DataFlow extends Vue {
 
     return cluster<ShowPlan.RelOp>()
       .size([this.radius, this.radius])
-      .nodeSize([this.radius * 1.5, 120])
-      .separation((a, b) => .3)
+      .nodeSize([this.nodeHeight, this.nodeWidth])
+      .separation((a, b) => 1)
       (hierarchy(noop, (children) => children.Action.RelOp));
   }
 
@@ -199,12 +192,18 @@ export default class DataFlow extends Vue {
   }
 
   private mounted() {
+    const x = max(this.nodes, (n) => n.y)! + this.nodeWidth ;
+    const y = min(this.nodes, (n) => n.x)! * -1 + this.nodeHeight * .5;
+
     const vm = this;
     const svg = d3.select(this.$refs.chart);
-    svg.call(
-        zoom()
+    const zoom = d3zoom()
           .scaleExtent([.25, 10])
-          .on('zoom', function() { vm.handleZoom(); }));
+          .wheelDelta(() => { return -d3.event.deltaY * (d3.event.deltaMode ? 120 : 1) / 2000 })
+          .on('zoom', function() { vm.handleZoom(); })
+
+    svg.call(zoom);
+    zoom.translateBy(svg, x, y);
   }
 
   private handleZoom() {
@@ -237,10 +236,10 @@ export default class DataFlow extends Vue {
 
 <style lang="scss" scoped>
   .chart-wrapper .connector-link {
-    transition:  stroke .5s ease;
+    transition:  stroke .3s ease;
   }
 
   .chart-wrapper .background-rect {
-    transition:  opacity .5s ease;
+    transition:  opacity .3s ease;
   }
 </style>
