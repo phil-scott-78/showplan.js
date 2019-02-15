@@ -9,7 +9,7 @@
           <g :transform="nodeTransform(node)" @mouseover="hover(node)" @mouseout="hover(undefined)" @click="operationClicked(node)">
             <g>
               <g fill="var(--foreground)" text-anchor="middle" >
-                <rect class="background-rect" y="1.6em" :x="-1 * nodeWidth / 2" :width="nodeWidth" height="3.5em" rx="5" ry="5" stroke="var(--alt-border)"  fill="var(--alt-background)" :opacity="getBackgroundRectOpacity(node)"></rect>
+                <rect class="background-rect" y="1.6em" :x="-1 * nodeWidth / 2" :width="nodeWidth" :height="nodeHeight" rx="5" ry="5" stroke="var(--alt-border)"  fill="var(--alt-background)" :opacity="getBackgroundRectOpacity(node)"></rect>
                 <text dy="3em" style="font-size:.7rem">
                   {{ (node.data.NodeId === -1) ? statement.StatementType : node.data.PhysicalOp }}
                 </text>
@@ -17,12 +17,12 @@
                   <text v-if="node.data.NodeId !== -1 && node.data.SecondaryDesc != node.data.PhysicalOp"
                     dy="5em"
                   >
-                    {{ node.data.SecondaryDesc }}
+                    {{ node.data.SecondaryDesc | maxLength }}
                   </text>
                   <text v-if="node.data.NodeId !== -1 &&  node.data.ThirdLevelDesc !== undefined"
                     dy="6em"
                   >
-                    {{ node.data.ThirdLevelDesc }}
+                    {{ node.data.ThirdLevelDesc | maxLength }}
                   </text>
                 </g>
               </g>
@@ -73,7 +73,7 @@ export default class DataFlow extends Vue {
   @Prop({ default: undefined }) public selectedNode!: ShowPlan.RelOp | undefined;
 
   private nodeWidth: number = 140;
-  private nodeHeight: number = 120;
+  private nodeHeight: number = 50;
 
   @Emit('rel-op-selected')
   public statementSelected(op: number) {
@@ -96,7 +96,7 @@ export default class DataFlow extends Vue {
 
     return cluster<ShowPlan.RelOp>()
       .size([this.radius, this.radius])
-      .nodeSize([this.nodeHeight, this.nodeWidth])
+      .nodeSize([this.nodeHeight * 3, this.nodeWidth])
       .separation((a, b) => 1)
       (hierarchy(noop, (children) => children.Action.RelOp));
   }

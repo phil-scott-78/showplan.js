@@ -9,25 +9,30 @@
           <g :transform="nodeTransform(node)" @mouseover="hover(node)" @mouseout="hover(undefined)" @click="operationClicked(node)">
             <g>
               <g fill="var(--foreground)" text-anchor="middle">
-                <rect class="background-rect" y="0" :x="-1 * nodeWidth / 2" :stroke="getNodeColor(node)" :width="nodeWidth" :height="nodeHeight" rx="5" ry="5" :fill="getBackgroundRectFill(node)" :stroke-opacity="getBackgroundRectStrokeOpacity(node)"></rect>
+                <rect class="background-rect" y="0" :x="-1 * nodeWidth / 2" :stroke="getNodeColor(node)" :width="nodeWidth" :height="nodeHeight" rx="5" ry="5" :fill="getBackgroundRectFill(node)" :fill-opacity="getBackgroundRectFillOpacity(node)" :stroke-opacity="getBackgroundRectStrokeOpacity(node)"></rect>
                 <g style="font-size:.7rem">
-                  <text dy="1.5em" >
-                    {{ (node.data.NodeId === -1) ? statement.StatementType : node.data.PhysicalOp }}
+                  <text v-if="node.data.NodeId === -1" dy="1.6em" style="font-weight:500;font-size:1.2rem">
+                    {{ statement.StatementType }}
                   </text>
-                  <text x="75" dy="1.5em" text-anchor="right" :style="node.data.EstimateTotalCost / statement.StatementSubTreeCost < .25 ? 'fill:var(--foreground)' : 'fill:var(--red)'" v-if="node.data.NodeId !== -1">
-                    {{ node.data.EstimateTotalCost / statement.StatementSubTreeCost | filterPercent }}
-                  </text>
+                  <g v-else>
+                    <text dy="1.5em" >
+                      {{ (node.data.NodeId === -1) ? statement.StatementType : node.data.PhysicalOp }}
+                    </text>
+                    <text x="75" dy="1.5em" text-anchor="right" :style="node.data.EstimateTotalCost / statement.StatementSubTreeCost < .25 ? 'fill:var(--foreground)' : 'fill:var(--red)'" v-if="node.data.NodeId !== -1">
+                      {{ node.data.EstimateTotalCost / statement.StatementSubTreeCost | filterPercent }}
+                    </text>
+                  </g>
                 </g>
-                <g style="font-size:.6rem" opacity=".5" >
-                  <text v-if="node.data.NodeId !== -1 && node.data.SecondaryDesc != node.data.PhysicalOp"
+                <g v-if="node.data.NodeId !== -1" style="font-size:.6rem" opacity=".5" >
+                  <text v-if=" node.data.SecondaryDesc != node.data.PhysicalOp"
                     dy="3em"
                   >
-                    {{ node.data.SecondaryDesc }}
+                    {{ node.data.SecondaryDesc | maxLength}}
                   </text>
-                  <text v-if="node.data.NodeId !== -1 &&  node.data.ThirdLevelDesc !== undefined"
+                  <text v-if="node.data.ThirdLevelDesc !== undefined"
                     dy="4em"
                   >
-                    {{ node.data.ThirdLevelDesc }}
+                    {{ node.data.ThirdLevelDesc | maxLength }}
                   </text>
                 </g>
               </g>
@@ -175,11 +180,31 @@ export default class OperatorFlow extends Vue {
       return 'var(--background)';
     }
 
+    if (node.data.NodeId === -1) {
+      return 'var(--grey)';
+    }
+
     if (node.data.NodeId === this.highlightedNode!.data.NodeId) {
-      return 'var(--alt-background)';
+      return GetOperationColor(node.data.PhysicalOp);
     }
 
     return 'var(--background)';
+  }
+
+  private getBackgroundRectFillOpacity(node: HierarchyPointNode<ShowPlan.RelOp>): number {
+    if (node.data.NodeId === -1) {
+      return 1;
+    }
+
+    if (this.highlightedNode === undefined) {
+      return 1;
+    }
+
+    if (node.data.NodeId === this.highlightedNode!.data.NodeId) {
+      return .3;
+    }
+
+    return 1;
   }
 
   private getNodeSize(node: HierarchyPointNode<ShowPlan.RelOp>) {
@@ -220,7 +245,7 @@ export default class OperatorFlow extends Vue {
   private linkPath(link: HierarchyPointLink<ShowPlan.RelOp>): string {
     return linkVertical()(
       {
-        source: [link.source.x, link.source.y + 40],
+        source: [link.source.x, link.source.y + this.nodeHeight],
         target: [link.target.x, link.target.y],
       })!;
 

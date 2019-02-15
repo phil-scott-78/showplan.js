@@ -66,4 +66,13 @@ function setFilters() {
   Vue.filter('ordinal', function(value: number) {
     return numbro(value).format({ output: 'ordinal' });
   });
+
+  Vue.filter('maxLength', function(value: string, maxLength: number = 30) {
+
+    if (value.length < maxLength) {
+      return value;
+    }
+
+    return value.substring(0, maxLength) + '...';
+  });
 }

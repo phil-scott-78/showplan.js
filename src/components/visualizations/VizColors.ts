@@ -9,7 +9,7 @@ const Colors: { [id: string]: string; } = {
   'grouping-data': 'var(--light-blue)',
   'remote': 'var(--brown)',
   'operation': 'var(--grey)',
-  'root': 'var(--alt-background)',
+  'root': 'var(--grey)',
 };
 
 type operationType =

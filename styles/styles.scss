@@ -163,6 +163,7 @@ div.message {
   .content.header {
     font-size:1rem;
     background-color: var(--alt-background);
+    border-bottom: 1px solid var(--border);
   }
 
   .content.raw-data {
