@@ -1,7 +1,7 @@
 <template>
   <div id="app" :class="theme">
     <div id="container">
-      <header-menu @plan-changed="planXmlChanged" :currentPlan="showPlan"></header-menu>
+      <header-menu @plan-changed="planXmlChanged" @toggle-theme="toggleTheme" :darkMode="darkMode" :currentPlan="showPlan"></header-menu>
       <div class="message warning" v-if="errorMessage !== undefined">{{ errorMessage }}</div>
       <component v-bind:is="currentComponent" :statement="currentStatement" :showPlan="showPlan" @showplan-changed="planXmlChanged" @showplan-statement-changed="statementChanged"></component>
       <p class="footer">Everything is ran in browser so no files will be uploaded. I can't afford the storage space anyways</p>
@@ -29,8 +29,15 @@ import * as ShowPlan from '@/parser/showplan';
 export default class App extends Vue {
   public showPlan: ShowPlan.ShowPlanXML | undefined;
   public selectedStatementGuid: string | undefined;
-  public theme: string = 'theme--dark';
+  public get theme(): string {
+    if (this.darkMode) {
+      return 'theme--dark';
+    }
 
+    return 'theme--light';
+  }
+
+  private darkMode: boolean = true;
   private errorMessage: string | undefined;
 
   public get currentComponent(): string {
@@ -39,6 +46,10 @@ export default class App extends Vue {
     }
 
     return 'statement';
+  }
+
+  public toggleTheme() {
+    this.darkMode = !this.darkMode;
   }
 
   public get currentStatement(): ShowPlan.BaseStmtInfo | undefined {
@@ -105,6 +116,7 @@ export default class App extends Vue {
   #app {
     padding: 1rem;
     min-height: 100vh;
+    transition: background-color .3s ease, color .3s ease;
   }
 
   #container {

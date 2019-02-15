@@ -16,9 +16,11 @@ import { faGithub } from '@fortawesome/free-brands-svg-icons';
 import { faCloudUploadAlt } from '@fortawesome/free-solid-svg-icons';
 import { faChevronCircleDown } from '@fortawesome/free-solid-svg-icons';
 import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
+import { faSun } from '@fortawesome/free-solid-svg-icons';
+import { faMoon } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
-library.add(faGithub, faCloudUploadAlt, faChevronCircleDown, faExclamationCircle);
+library.add(faGithub, faCloudUploadAlt, faChevronCircleDown, faExclamationCircle, faSun, faMoon);
 Vue.component('font-awesome-icon', FontAwesomeIcon);
 Vue.component('sql-string', () => import('@/components/operations/SqlString.vue'));
 
