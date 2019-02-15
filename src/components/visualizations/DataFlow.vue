@@ -199,8 +199,8 @@ export default class DataFlow extends Vue {
     const svg = d3.select(this.$refs.chart);
     const zoom = d3zoom()
           .scaleExtent([.25, 10])
-          .wheelDelta(() => { return -d3.event.deltaY * (d3.event.deltaMode ? 120 : 1) / 1000 })
-          .on('zoom', function() { vm.handleZoom(); })
+          .wheelDelta(() =>  -d3.event.deltaY * (d3.event.deltaMode ? 120 : 1) / 1000)
+          .on('zoom', function() { vm.handleZoom(); });
 
     svg.call(zoom);
     zoom.translateBy(svg, x, y);
