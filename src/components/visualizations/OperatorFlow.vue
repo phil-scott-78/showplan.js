@@ -229,7 +229,7 @@ export default class OperatorFlow extends Vue {
 
     const zoom = d3zoom()
           .scaleExtent([.5, 10])
-          .wheelDelta(() => { return -d3.event.deltaY * (d3.event.deltaMode ? 120 : 1) / 2000; })
+          .wheelDelta(() => { return -d3.event.deltaY * (d3.event.deltaMode ? 120 : 1) / 1000; })
           .on('zoom', function() { vm.handleZoom(); });
     svg.call(zoom);
     zoom.translateBy(svg, 400, 25);
