@@ -9,7 +9,7 @@
           <g :transform="nodeTransform(node)" @mouseover="hover(node)" @mouseout="hover(undefined)" @click="operationClicked(node)">
             <g>
               <g fill="var(--foreground)" text-anchor="middle">
-                <rect class="background-rect" y="0" x="-90" :stroke="getNodeColor(node)" width="180" height="3.5em" rx="5" ry="5" :fill="getBackgroundRectFill(node)" :stroke-opacity="getBackgroundRectStrokeOpacity(node)"></rect>
+                <rect class="background-rect" y="0" :x="-1 * nodeWidth / 2" :stroke="getNodeColor(node)" :width="nodeWidth" :height="nodeHeight" rx="5" ry="5" :fill="getBackgroundRectFill(node)" :stroke-opacity="getBackgroundRectStrokeOpacity(node)"></rect>
                 <g style="font-size:.7rem">
                   <text dy="1.5em" >
                     {{ (node.data.NodeId === -1) ? statement.StatementType : node.data.PhysicalOp }}
@@ -76,6 +76,9 @@ export default class OperatorFlow extends Vue {
   @Prop({ default: 500 }) public width!: number;
   @Prop({ default: undefined }) public selectedNode!: ShowPlan.RelOp | undefined;
 
+  private nodeWidth: number = 180;
+  private nodeHeight: number = 50;
+
   @Emit('rel-op-selected')
   public statementSelected(op: number) {
     //
@@ -101,8 +104,8 @@ export default class OperatorFlow extends Vue {
 
     return tree<ShowPlan.RelOp>()
       .size([this.radius, this.radius])
-      .nodeSize([this.radius * .6, 110])
-      .separation((a, b) => 1.1)
+      .nodeSize([this.nodeWidth, this.nodeHeight * 2])
+      .separation((a, b) => a.parent == b.parent ? 1.1 : 1.5)
       (hierarchy(noop, (children) => children.Action.RelOp));
   }
 

@@ -9,7 +9,7 @@
           <g :transform="nodeTransform(node)" @mouseover="hover(node)" @mouseout="hover(undefined)" @click="operationClicked(node)">
             <g>
               <g fill="var(--foreground)" text-anchor="middle" >
-                <rect class="background-rect" y="1.6em" x="-60" width="120" height="3.5em" rx="5" ry="5" stroke="var(--alt-border)"  fill="var(--alt-background)" :opacity="getBackgroundRectOpacity(node)"></rect>
+                <rect class="background-rect" y="1.6em" :x="-1 * nodeWidth / 2" :width="nodeWidth" height="3.5em" rx="5" ry="5" stroke="var(--alt-border)"  fill="var(--alt-background)" :opacity="getBackgroundRectOpacity(node)"></rect>
                 <text dy="3em" style="font-size:.7rem">
                   {{ (node.data.NodeId === -1) ? statement.StatementType : node.data.PhysicalOp }}
                 </text>
@@ -72,7 +72,7 @@ export default class DataFlow extends Vue {
   @Prop({ default: 500 }) public width!: number;
   @Prop({ default: undefined }) public selectedNode!: ShowPlan.RelOp | undefined;
 
-  private nodeWidth: number = 120;
+  private nodeWidth: number = 140;
   private nodeHeight: number = 120;
 
   @Emit('rel-op-selected')
