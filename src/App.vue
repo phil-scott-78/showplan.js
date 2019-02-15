@@ -116,6 +116,7 @@ export default class App extends Vue {
   #app {
     padding: 1rem;
     min-height: 100vh;
+    min-width: 800px;
     transition: background-color .3s ease, color .3s ease;
   }
 
