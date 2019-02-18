@@ -35,7 +35,7 @@
         <div class="buttons">
           <a @click="selectVisualizationTab='operator-flow'" :class="{ 'selected': selectVisualizationTab === 'operator-flow' }">Operator Flow</a>
           <a @click="selectVisualizationTab='data-flow'" :class="{ 'selected': selectVisualizationTab === 'data-flow' }">Data Flow</a>
-          <a @click="selectVisualizationTab='show-plan-sunburst'" :class="{ 'selected': selectVisualizationTab === 'show-plan-sunburst' }">Cost Analysis</a>
+          <a @click="selectVisualizationTab='cost-analysis'" :class="{ 'selected': selectVisualizationTab === 'cost-analysis' }">Cost Analysis</a>
         </div>
     </div>
     </div>
@@ -53,7 +53,7 @@ import { Vue, Component, Prop, Watch, Emit } from 'vue-property-decorator';
 import { BaseStmtInfo, RelOp, StmtSimple, ShowPlanXML } from '@/parser/showplan';
 
 import SmoothReflow from './SmoothReflow.vue';
-import ShowPlanSunburst from './visualizations/ShowPlanSunburst.vue';
+import CostAnalysis from './visualizations/CostAnalysis.vue';
 import OperatorFlow from './visualizations/OperatorFlow.vue';
 import DataFlow from './visualizations/DataFlow.vue';
 import HighlightSqlStatement from './HighlightSqlStatement.vue';
@@ -66,7 +66,7 @@ import QueryParameters from './QueryParameters.vue';
 
 @Component({
   components: {
-    SmoothReflow, ShowPlanSunburst, OperatorFlow, DataFlow, HighlightSqlStatement, OperationSummary, SelectPlan, MissingIndexes, StatementOverview, StatisticsList, QueryParameters,
+    SmoothReflow, CostAnalysis, OperatorFlow, DataFlow, HighlightSqlStatement, OperationSummary, SelectPlan, MissingIndexes, StatementOverview, StatisticsList, QueryParameters,
   },
   data() {
     return {

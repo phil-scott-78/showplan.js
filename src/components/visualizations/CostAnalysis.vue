@@ -35,7 +35,7 @@ import { GetOperationColor } from '@/components/visualizations/VizColors';
 
 @Component({
 })
-export default class ShowPlanSunburst extends Vue {
+export default class CostAnalysis extends Vue {
 
   private get queryPlan(): ShowPlan.QueryPlan {
     return this.statement!.QueryPlan!;
