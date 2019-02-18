@@ -15,6 +15,7 @@ import { Component, Prop, Vue } from 'vue-property-decorator';
 import FileUploadDrop from '@/components/FileUploadDrop.vue';
 import HeaderMenu from '@/components/Header.vue';
 import * as ShowPlan from '@/parser/showplan';
+import { lastDayOfDecade } from 'date-fns/fp';
 
 @Component({
   components: { HeaderMenu, FileUploadDrop, Statement: () => import('@/components/Statement.vue')},
@@ -108,6 +109,26 @@ export default class App extends Vue {
       }
 
     });
+  }
+
+  public mounted() {
+    const vsCodeFunction = Function(`
+      if (typeof acquireVsCodeApi == 'function') {
+        return acquireVsCodeApi();
+      } else {
+        return undefined;
+      }
+      `);
+    const vscode = vsCodeFunction();
+    if (vscode !== undefined) {
+      vscode.postMessage({ command: 'mounted' });
+      this.$nextTick(() => {
+        window.addEventListener('message', (event) => {
+          const xml = event.data;
+          this.planXmlChanged(xml);
+        });
+      });
+    }
   }
 }
 </script>

@@ -6,6 +6,11 @@ body {
   font-family: 'Segoe Ui', Verdana, sans-serif;
 }
 
+body.vscode-light, body.vscode-dark, body.vscode-high-contrast {
+  .menu { display: none; }
+  .upload-form, #app > p.footer { display: none; }
+}
+
 #app {
   ::-webkit-scrollbar {
     width: 1rem;
@@ -41,7 +46,8 @@ p.footer {
 }
 
 pre code {
-  font-family: 'Consolas', 'Courier New', Courier, monospace
+  font-family: 'Consolas', 'Courier New', Courier, monospace;
+  color: var(--foreground);
 }
 
 div.message {
@@ -92,7 +98,7 @@ div.message {
     }
 
     abbr[data-title] {
-      border-bottom: 1px dotted var(--orange);
+      border-bottom: 1px dotted var(--grey);
       text-decoration: none;
       cursor: help;
 

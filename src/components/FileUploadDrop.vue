@@ -1,7 +1,7 @@
 <template>
 <div class="container">
   <!--UPLOAD-->
-  <form enctype="multipart/form-data" novalidate>
+  <form class="upload-form" enctype="multipart/form-data" novalidate>
     <div v-if="showPasteTextBox === false" class="dropbox">
       <div>
         <font-awesome-icon icon="cloud-upload-alt" size="6x"></font-awesome-icon>

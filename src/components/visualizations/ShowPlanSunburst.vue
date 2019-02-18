@@ -4,7 +4,7 @@
       <g>
         <g>
           <g class="slice" v-for="(line, index) in lines" :key="index" :title="line.data.LogicalOp" v-on:mouseout="hover(undefined)" v-on:mouseover="hover(line)" v-on:click="operationClicked(line)">
-            <path :d="arc(line)" class="main-arc" :stroke="getStroke(line)" :fill-opacity="getOpacity(line)" :fill="getFill(line)"></path>
+            <path :d="arc(line)" class="main-arc" :stroke="getStroke(line)" :stroke-opacity="getStrokeOpacity(line)" :fill-opacity="getOpacity(line)" :fill="getFill(line)"></path>
             <path :d="middleArc(line)" class="hidden-arc" :id="'hiddenTextArc' + index + statement.QueryHash"></path>
             <polygon v-if="line.data.Warnings !== undefined" :transform="getIconLocation(line)"  fill="var(--orange)" stroke="var(--alt-background)" points="0,-5 -5,5 5,5"></polygon>
             <text v-if="line.data.NodeId == -1" text-anchor="middle" fill="var(--foreground)" alignment-baseline="middle" style="font-weight:normal;font-size:1.5rem">{{ statement.StatementType }}</text>
@@ -119,22 +119,26 @@ export default class ShowPlanSunburst extends Vue {
 
   private getOpacity(node: HierarchyRectangularNode<ShowPlan.RelOp>): number {
     if (this.highlightedNode === undefined) {
-      return .9;
+      return .5;
+    }
+
+    if (this.highlightedNode.data.NodeId === node.data.NodeId) {
+      return .8;
     }
 
     for (const childNode of this.highlightedNode.descendants()) {
       if (node.data.NodeId === childNode.data.NodeId) {
-        return 1;
+        return .5;
       }
     }
 
     for (const childNode of this.highlightedNode.ancestors()) {
       if (node.data.NodeId === childNode.data.NodeId) {
-        return .6;
+        return .25;
       }
     }
 
-    return .05;
+    return .1;
   }
 
   private getStroke(node: HierarchyRectangularNode<ShowPlan.RelOp>): string {
@@ -157,8 +161,28 @@ export default class ShowPlanSunburst extends Vue {
     return GetOperationColor(node.data.PhysicalOp);
   }
 
+  private getStrokeOpacity(node: HierarchyRectangularNode<ShowPlan.RelOp>): number {
+    if (this.highlightedNode === undefined) {
+      return 1; // this.colors[this.getOperationType(node.data.PhysicalOp)];
+    }
+
+    for (const childNode of this.highlightedNode.descendants()) {
+      if (node.data.NodeId === childNode.data.NodeId) {
+        return 1;
+      }
+    }
+
+    for (const childNode of this.highlightedNode.ancestors()) {
+      if (node.data.NodeId === childNode.data.NodeId) {
+        return 11;
+      }
+    }
+
+    return .5;
+  }
+
   private getLabelColor(node: HierarchyRectangularNode<ShowPlan.RelOp>): string {
-    const whiteLabel = 'var(--alt-background)';
+    const whiteLabel = 'var(--foreground)';
 
     if (this.highlightedNode === undefined) {
       return whiteLabel;
@@ -258,6 +282,7 @@ export default class ShowPlanSunburst extends Vue {
     text.operationName {
       text-anchor: middle;
       text-shadow: rgba(0,0,0,.1) 1px 1px 1px;
+      font-weight: 100;
     }
   }
 
