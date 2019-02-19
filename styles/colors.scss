@@ -23,8 +23,8 @@ body #app.theme--dark, body.vscode-dark #app, body.vscode-high-contrast #app {
   @extend %theme;
   --background: #282c34;
   --alt-background: #2f333d;
-    --border: rgba(0,0,0,.3);
-    --alt-border: rgba(0,0,0,.2);
+  --border: rgba(255,255,255,.05);
+  --alt-border: rgba(255,255,255,.15);
   --foreground: #abb2bf;
   --red: #e06c75;
   --dark-red: #be5046;
