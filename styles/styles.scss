@@ -233,7 +233,7 @@ div.message {
 
     .json-tree-value-string { color: var(--green); }
     .json-tree-value-boolean { color: var(--red); }
-    .json-tree-value-number { color: var(--blue); }
+    .json-tree-value-number { color: var(--light-blue); }
     .json-tree-paired,.json-tree-row:hover {
       background-color: var(--alt-background);;
     }
@@ -410,12 +410,12 @@ pre[class*="language-"] {
 .token.url,
 .language-css .token.string,
 .style .token.string {
-  color: var(--orange);
+  color: var(--green);
 }
 .token.atrule,
 .token.attr-value,
 .token.keyword {
-  color: var(--blue);
+  color: var(--light-blue);
 }
 .token.function {
   color: var(--red);
@@ -423,7 +423,7 @@ pre[class*="language-"] {
 .token.regex,
 .token.important,
 .token.variable {
-  color: var(--orange);
+  color: var(--green);
 }
 .token.important,
 .token.bold {

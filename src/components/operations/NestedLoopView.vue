@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="nestedLoop.Predicate !== undefined && nestedLoop.PassThru !== undefined && nestedLoop.OuterReferences !== undefined">
     <div v-if="nestedLoop.Predicate !== undefined" class="content">
       <h4>Predicate</h4>
       <div><sql-string :sql="nestedLoop.Predicate.ScalarOperator.ScalarString" :expandedColumns="expandedChildColumns"></sql-string></div>

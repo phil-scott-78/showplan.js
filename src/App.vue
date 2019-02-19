@@ -30,7 +30,15 @@ import { lastDayOfDecade } from 'date-fns/fp';
 export default class App extends Vue {
   public showPlan: ShowPlan.ShowPlanXML | undefined;
   public selectedStatementGuid: string | undefined;
+
+
   public get theme(): string {
+    // vscode will set the theme themselves
+    // via the body tag
+    if (process.env.VUE_APP_EMBED) {
+      return '';
+    }
+
     if (this.darkMode) {
       return 'theme--dark';
     }
@@ -107,27 +115,35 @@ export default class App extends Vue {
       } catch (e) {
         this.errorMessage = e.message;
       }
-
     });
   }
 
   public mounted() {
-    const vsCodeFunction = Function(`
-      if (typeof acquireVsCodeApi == 'function') {
-        return acquireVsCodeApi();
-      } else {
-        return undefined;
-      }
-      `);
-    const vscode = vsCodeFunction();
-    if (vscode !== undefined) {
-      vscode.postMessage({ command: 'mounted' });
-      this.$nextTick(() => {
-        window.addEventListener('message', (event) => {
-          const xml = event.data;
-          this.planXmlChanged(xml);
+    if (process.env.VUE_APP_EMBED) {
+      // if we are running within VS Code they'll dynamically add
+      // aquireVsCodeApi. Since it isn't valid until then we'll need
+      // to invoke it dynamically.
+      const vsCodeFunction = Function(`
+        if (typeof acquireVsCodeApi == 'function') {
+          return acquireVsCodeApi();
+        } else {
+          return undefined;
+        }
+        `);
+      const vscode = vsCodeFunction();
+      if (vscode !== undefined) {
+
+        // we need to send a message to VS Code to tell it we are
+        // ready to go and everything is loaded up so send us
+        // the xml payload
+        vscode.postMessage({ command: 'mounted' });
+        this.$nextTick(() => {
+          window.addEventListener('message', (event) => {
+            const xml = event.data;
+            this.planXmlChanged(xml);
+          });
         });
-      });
+      }
     }
   }
 }

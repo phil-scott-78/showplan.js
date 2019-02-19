@@ -23,8 +23,8 @@ body #app.theme--dark, body.vscode-dark #app, body.vscode-high-contrast #app {
   @extend %theme;
   --background: #282c34;
   --alt-background: #2f333d;
-  --border: rgba(255,255,255,.05);
-  --alt-border: rgba(255,255,255,.15);
+  --border: rgba(255,255,255,.15);
+  --alt-border: rgba(255, 255, 255, 0.25);
   --foreground: #abb2bf;
   --red: #e06c75;
   --dark-red: #be5046;
@@ -46,8 +46,8 @@ body.vscode-light #app, body.vscode-dark #app, body.vscode-high-contrast #app {
   --green: var(--vscode-terminal-ansiBrightGreen);
   --blue: var(--vscode-terminal-ansiBrightBlue);
   --light-blue: var(--vscode-terminal-ansiBrightCyan);
-  --purple-blue: var(--vscode-terminal-ansiBrightMagenta);
+  --purple: var(--vscode-terminal-ansiBrightMagenta);
   --orange: var(--vscode-terminal-ansiBrightYellow);
-  --brown: var(--vscode-terminal-ansiBrightBrown);
+  --brown: var(--vscode-terminal-ansiYellow);
   --grey: var(--vscode-terminal-ansiBrightBlack);
 }

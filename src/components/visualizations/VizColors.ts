@@ -3,8 +3,8 @@ import * as ShowPlan from '@/parser/showplan';
 const Colors: { [id: string]: string; } = {
   'performance': 'var(--green)',
   'reading-data': 'var(--blue)',
-  'combining-data': 'var(--orange)',
-  'modifying-data': 'var(--red)',
+  'combining-data': 'var(--grey)',
+  'modifying-data': 'var(--dark-red)',
   'manipulating-data': 'var(--purple)',
   'grouping-data': 'var(--light-blue)',
   'remote': 'var(--brown)',

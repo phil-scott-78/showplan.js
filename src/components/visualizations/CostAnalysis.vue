@@ -123,12 +123,12 @@ export default class CostAnalysis extends Vue {
     }
 
     if (this.highlightedNode.data.NodeId === node.data.NodeId) {
-      return .8;
+      return .9;
     }
 
     for (const childNode of this.highlightedNode.descendants()) {
       if (node.data.NodeId === childNode.data.NodeId) {
-        return .5;
+        return .7;
       }
     }
 
@@ -281,7 +281,7 @@ export default class CostAnalysis extends Vue {
 
     text.operationName {
       text-anchor: middle;
-      text-shadow: rgba(0,0,0,.1) 1px 1px 1px;
+      text-shadow: rgba(0,0,0,.3) 1px 1px 1px;
       font-weight: 100;
     }
   }

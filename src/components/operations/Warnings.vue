@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="warnings-container">
     <div v-if="warnings.NoJoinPredicate === true" class="content warning">
       <h4>No Join Predicate</h4>
     </div>
