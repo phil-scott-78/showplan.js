@@ -4,6 +4,7 @@ import App from './App.vue';
 import 'normalize.css';
 import './../styles/styles.scss';
 import numbro from 'numbro';
+import VueDragscroll from 'vue-dragscroll';
 
 import './string-extensions';
 
@@ -19,6 +20,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 library.add(faGithub, faCloudUploadAlt, faChevronCircleDown, faExclamationCircle, faSun, faMoon, faSearchMinus, faSearchPlus);
 Vue.component('font-awesome-icon', FontAwesomeIcon);
 Vue.component('sql-string', () => import('@/components/operations/SqlString.vue'));
+Vue.use(VueDragscroll);
 
 new Vue({
   render: (h) => h(App),

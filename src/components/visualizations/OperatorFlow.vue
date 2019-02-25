@@ -3,7 +3,7 @@
     <div class="zoom-buttons">
       <zoom-buttons @zoom-in="scale += .1" @zoom-out="scale -= .1"></zoom-buttons>
     </div>
-    <div ref="chartWrapper" class="chart-wrapper">
+    <div v-dragscroll ref="chartWrapper" class="chart-wrapper">
       <svg ref="chart" :style="chartStyle" >
         <g ref="chartG" :transform="chartTransform">
           <g class="connector-link" v-for="(link, index) in links" :key="'link' + index" :stroke="getStrokeColor(link)" fill="none" :stroke-width="getLineStrokeWidth(link)" stroke-linecap="round" >
