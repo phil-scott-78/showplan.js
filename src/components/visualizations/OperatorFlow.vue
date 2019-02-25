@@ -1,46 +1,52 @@
 <template>
-  <div class="chart-wrapper">
-    <svg ref="chart" width="100%" height="600px">
-      <g ref="chartG">
-        <g class="connector-link" v-for="(link, index) in links" :key="'link' + index" :stroke="getStrokeColor(link)" fill="none" :stroke-width="getLineStrokeWidth(link)" stroke-linecap="round" >
-          <path :d="linkPath(link)"></path>
-        </g>
-        <g v-for="(node, index) in nodes" :key="'node' + index" >
-          <g :transform="nodeTransform(node)" @mouseover="hover(node)" @mouseout="hover(undefined)" @click="operationClicked(node)">
-            <g>
-              <g fill="var(--foreground)" text-anchor="middle">
-                <rect class="background-rect" y="0" :x="-1 * nodeWidth / 2" :stroke="getNodeColor(node)" :width="nodeWidth" :height="nodeHeight" rx="5" ry="5" :fill="getBackgroundRectFill(node)" :fill-opacity="getBackgroundRectFillOpacity(node)" :stroke-opacity="getBackgroundRectStrokeOpacity(node)"></rect>
-                <g style="font-size:.7rem">
-                  <text v-if="node.data.NodeId === -1" dy="1.6em" style="font-weight:500;font-size:1.2rem">
-                    {{ statement.StatementType }}
-                  </text>
-                  <g v-else>
-                    <text dy="1.5em" >
-                      {{ (node.data.NodeId === -1) ? statement.StatementType : node.data.PhysicalOp }}
+  <div class="wrapper">
+    <div class="zoom-buttons">
+      <button v-on:click="scale -= .1"><font-awesome-icon :icon="['fa', 'search-minus']" /></button>
+      <button v-on:click="scale += .1"><font-awesome-icon :icon="['fa', 'search-plus']" /></button>
+    </div>
+    <div ref="chartWrapper" class="chart-wrapper">
+      <svg ref="chart" :style="chartStyle" >
+        <g ref="chartG" :transform="chartTransform">
+          <g class="connector-link" v-for="(link, index) in links" :key="'link' + index" :stroke="getStrokeColor(link)" fill="none" :stroke-width="getLineStrokeWidth(link)" stroke-linecap="round" >
+            <path :d="linkPath(link)"></path>
+          </g>
+          <g v-for="(node, index) in nodes" :key="'node' + index" >
+            <g :transform="nodeTransform(node)" @mouseover="hover(node)" @mouseout="hover(undefined)" @click="operationClicked(node)">
+              <g>
+                <g fill="var(--foreground)" text-anchor="middle">
+                  <rect class="background-rect" y="0" :x="-1 * nodeWidth / 2" :stroke="getNodeColor(node)" :width="nodeWidth" :height="nodeHeight" rx="5" ry="5" :fill="getBackgroundRectFill(node)" :fill-opacity="getBackgroundRectFillOpacity(node)" :stroke-opacity="getBackgroundRectStrokeOpacity(node)"></rect>
+                  <g style="font-size:.7rem">
+                    <text v-if="node.data.NodeId === -1" dy="1.6em" style="font-weight:500;font-size:1.2rem">
+                      {{ statement.StatementType }}
                     </text>
-                    <text x="75" dy="1.5em" text-anchor="right" :style="node.data.EstimateTotalCost / statement.StatementSubTreeCost < .25 ? 'fill:var(--foreground)' : 'fill:var(--red)'" v-if="node.data.NodeId !== -1">
-                      {{ node.data.EstimateTotalCost / statement.StatementSubTreeCost | filterPercent }}
+                    <g v-else>
+                      <text dy="1.5em" >
+                        {{ (node.data.NodeId === -1) ? statement.StatementType : node.data.PhysicalOp }}
+                      </text>
+                      <text x="75" dy="1.5em" text-anchor="right" :style="node.data.EstimateTotalCost / statement.StatementSubTreeCost < .25 ? 'fill:var(--foreground)' : 'fill:var(--red)'" v-if="node.data.NodeId !== -1">
+                        {{ node.data.EstimateTotalCost / statement.StatementSubTreeCost | filterPercent }}
+                      </text>
+                    </g>
+                  </g>
+                  <g v-if="node.data.NodeId !== -1" style="font-size:.6rem" opacity=".5" >
+                    <text v-if=" node.data.SecondaryDesc != node.data.PhysicalOp"
+                      dy="3em"
+                    >
+                      {{ node.data.SecondaryDesc | maxLength}}
+                    </text>
+                    <text v-if="node.data.ThirdLevelDesc !== undefined"
+                      dy="4em"
+                    >
+                      {{ node.data.ThirdLevelDesc | maxLength }}
                     </text>
                   </g>
-                </g>
-                <g v-if="node.data.NodeId !== -1" style="font-size:.6rem" opacity=".5" >
-                  <text v-if=" node.data.SecondaryDesc != node.data.PhysicalOp"
-                    dy="3em"
-                  >
-                    {{ node.data.SecondaryDesc | maxLength}}
-                  </text>
-                  <text v-if="node.data.ThirdLevelDesc !== undefined"
-                    dy="4em"
-                  >
-                    {{ node.data.ThirdLevelDesc | maxLength }}
-                  </text>
                 </g>
               </g>
             </g>
           </g>
         </g>
-      </g>
-    </svg>
+      </svg>
+    </div>
   </div>
 </template>
 
@@ -53,7 +59,7 @@ import { scalePow, scaleLog, scaleLinear } from 'd3-scale';
 import { min, max } from 'd3-array';
 import { Colors, GetOperationType, GetOperationColor } from '@/components/visualizations/VizColors';
 import { ParentRelOp, ParentRelOpAction } from './FakeParent';
-import { zoom as d3zoom } from 'd3-zoom';
+import { zoom as d3zoom, zoomIdentity } from 'd3-zoom';
 import * as d3 from 'd3-selection';
 
 @Component({
@@ -63,6 +69,7 @@ export default class OperatorFlow extends Vue {
   public $refs!: {
     chart: Element,
     chartG: Element,
+    chartWrapper: Element,
   };
 
   private get queryPlan(): ShowPlan.QueryPlan {
@@ -78,11 +85,11 @@ export default class OperatorFlow extends Vue {
   }
 
   @Prop() public statement!: ShowPlan.StmtSimple;
-  @Prop({ default: 500 }) public width!: number;
   @Prop({ default: undefined }) public selectedNode!: ShowPlan.RelOp | undefined;
 
   private nodeWidth: number = 180;
   private nodeHeight: number = 50;
+  private scale = 1;
 
   @Emit('rel-op-selected')
   public statementSelected(op: number) {
@@ -94,24 +101,20 @@ export default class OperatorFlow extends Vue {
     //
   }
 
-  private get viewBox(): string {
-    return `0 -25 ${this.width / 2} ${this.width}`;
-  }
-
-  private get radius(): number  {
-    return this.width / 2;
-  }
-
   private get root(): HierarchyPointNode<ShowPlan.RelOp> {
     const noop: ShowPlan.RelOp = new ParentRelOp();
     noop.Action.RelOp[0] = this.queryPlan.RelOp;
     noop.NodeId = -1;
 
     return tree<ShowPlan.RelOp>()
-      .size([this.radius, this.radius])
       .nodeSize([this.nodeWidth, this.nodeHeight * 2])
-      .separation((a, b) => a.parent === b.parent ? 1.1 : 1.5)
+      .separation((a, b) => 1.25)
       (hierarchy(noop, (children) => children.Action.RelOp));
+  }
+
+  @Watch('root')
+  private rootWatch() {
+    this.updateScrollPos();
   }
 
   private getNodeColor(node: HierarchyPointNode<ShowPlan.RelOp>): string {
@@ -215,6 +218,38 @@ export default class OperatorFlow extends Vue {
     return this.costCircleScale(node.data.EstimateTotalCost);
   }
 
+  private get chartWidth(): number {
+    const minX = min(this.nodes, (d) => d.x)!;
+    const maxX = max(this.nodes, (d) => d.x)!;
+
+    return maxX - minX + this.nodeWidth * 2;
+  }
+
+  private get chartHeight(): number {
+    const minY = min(this.nodes, (d) => d.y)!;
+    const maxY = max(this.nodes, (d) => d.y)!;
+
+    return maxY - minY + this.nodeHeight * 2;
+  }
+
+  private get chartStyle() {
+    return {
+      'min-height': this.chartHeight * this.scale,
+      'min-width': this.chartWidth * this.scale,
+      'width': '100%',
+      'height': '100%',
+    };
+  }
+
+  private get rootRectOffsetX(): number {
+    const x = min(this.nodes, (d) => d.x)! * -1 + this.nodeWidth;
+    return x;
+  }
+
+  private get chartTransform() {
+    return `translate(${this.rootRectOffsetX * this.scale}, ${this.nodeHeight * .5}) scale(${this.scale})`;
+  }
+
   private get costCircleScale() {
     return scaleLinear()
       .domain([0, this.queryPlan.RelOp.EstimatedTotalSubtreeCost])
@@ -238,6 +273,16 @@ export default class OperatorFlow extends Vue {
     return this.root.descendants().reverse();
   }
 
+  private mounted() {
+    this.updateScrollPos();
+  }
+
+  private updateScrollPos() {
+    Vue.nextTick().then(() => {
+      this.$refs.chartWrapper.scrollLeft = this.rootRectOffsetX - this.nodeWidth * 2;
+    });
+  }
+
   private nodeTransform(node: HierarchyPointNode<ShowPlan.RelOp>) {
     return `translate(${node.x}, ${node.y})`;
   }
@@ -248,24 +293,6 @@ export default class OperatorFlow extends Vue {
         source: [link.source.x, link.source.y + this.nodeHeight],
         target: [link.target.x, link.target.y],
       })!;
-
-  }
-
-  private mounted() {
-    const vm = this;
-    const svg = d3.select(this.$refs.chart);
-
-    const zoom = d3zoom()
-          .scaleExtent([.5, 10])
-          .wheelDelta(() => -d3.event.deltaY * (d3.event.deltaMode ? 120 : 1) / 1000)
-          .on('zoom', function() { vm.handleZoom(); });
-    svg.call(zoom);
-    zoom.translateBy(svg, 400, 25);
-  }
-
-  private handleZoom() {
-    const svg = d3.select(this.$refs.chartG);
-    svg.attr('transform', d3.event.transform);
   }
 
   private hover(op: HierarchyPointNode<ShowPlan.RelOp> | undefined) {
@@ -292,11 +319,53 @@ export default class OperatorFlow extends Vue {
 </script>
 
 <style lang="scss" scoped>
-  .chart-wrapper .connector-link {
-    transition:  stroke .3s ease;
+  .chart-wrapper {
+    overflow: scroll;
+    width: 100%;
+    height: 600px;
+
+    .connector-link {
+      transition:  stroke .3s ease;
+    }
+    .background-rect {
+      transition: stroke-opacity .3s ease, background-color .3s ease;
+    }
   }
 
-  .chart-wrapper .background-rect {
-    transition: stroke-opacity .3s ease, background-color .3s ease;
+  .wrapper {
+    position: relative;
+
+
+    .zoom-buttons {
+      z-index: 1000;
+
+      position: absolute;
+      top: 25px;
+      left: 25px;
+
+      button {
+        background-color: inherit;
+        border: 1px solid var(--border);
+        color: var(--foreground);
+        padding: .5rem;
+        font-size:1rem;
+        cursor: pointer;
+
+        &:first-child {
+          border-top-left-radius: 15px;
+          border-bottom-left-radius: 15px;
+        }
+
+        &:last-child {
+          border-top-right-radius: 15px;
+          border-bottom-right-radius: 15px;
+        }
+
+        &:hover{
+          background-color: var(--alt-background);
+        }
+      }
+    }
   }
+
 </style>

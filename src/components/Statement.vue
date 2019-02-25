@@ -109,6 +109,9 @@ export default class Statement extends Vue {
     this.operationMap = new Map<number, RelOp>();
 
     const statement = val as StmtSimple;
+    if (statement.QueryPlan === undefined) {
+      return;
+    }
 
     const addChildren = (map: Map<number, RelOp>, op: RelOp) => {
       map.set(op.NodeId, op);
