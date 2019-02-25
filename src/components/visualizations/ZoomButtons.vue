@@ -25,8 +25,11 @@ export default class ZoomButtons extends Vue {
 
 <style lang="scss" scoped>
   button {
-    background-color: inherit;
-    border: 1px solid var(--border);
+    background-color: var(--alt-background);
+    border-left: none;
+    border-top: none;
+    border-right: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
     color: var(--foreground);
     opacity: .5;
     padding: .5rem 1rem;
@@ -34,14 +37,8 @@ export default class ZoomButtons extends Vue {
     cursor: pointer;
     transition: opacity .3s ease, background-color .3s ease;
 
-    &:first-child {
-      border-top-left-radius: 15px;
-      border-bottom-left-radius: 15px;
-    }
-
     &:last-child {
-      border-top-right-radius: 15px;
-      border-bottom-right-radius: 15px;
+      border-bottom-right-radius: 8px;
     }
 
     &:hover{

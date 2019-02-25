@@ -337,13 +337,11 @@ export default class OperatorFlow extends Vue {
   .wrapper {
     position: relative;
 
-
     .zoom-buttons {
       z-index: 1000;
-
       position: absolute;
-      top: 25px;
-      left: 25px;
+      top: 0;
+      left: 0;
     }
   }
 

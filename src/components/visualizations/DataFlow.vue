@@ -1,59 +1,61 @@
 <template>
-  <div class="chart-wrapper">
-    <svg ref="chart" width="100%" height="600px">
-      <g ref="chartG">
-        <g class="connector-link" v-for="(link, index) in links" :key="'link' + index" :stroke="getStrokeColor(link)" fill="none" :stroke-width="getLineStrokeWidth(link)" stroke-linecap="round" >
-          <path :d="linkPath(link)"></path>
-        </g>
-        <g v-for="(node, index) in nodes" :key="'node' + index" >
-          <g :transform="nodeTransform(node)" @mouseover="hover(node)" @mouseout="hover(undefined)" @click="operationClicked(node)">
-            <g>
-              <g fill="var(--foreground)" text-anchor="middle" >
-                <rect class="background-rect" y="1.6em" :x="-1 * nodeWidth / 2" :width="nodeWidth" :height="nodeHeight" rx="5" ry="5" stroke="var(--alt-border)"  fill="var(--alt-background)" :opacity="getBackgroundRectOpacity(node)"></rect>
-                <text dy="3em" style="font-size:.7rem">
-                  {{ (node.data.NodeId === -1) ? statement.StatementType : node.data.PhysicalOp }}
-                </text>
-                <g style="font-size:.6rem" opacity=".5" >
-                  <text v-if="node.data.NodeId !== -1 && node.data.SecondaryDesc != node.data.PhysicalOp"
-                    dy="5em"
-                  >
-                    {{ node.data.SecondaryDesc | maxLength }}
+  <div class="wrapper">
+    <div class="zoom-buttons">
+      <zoom-buttons @zoom-in="scale += .1" @zoom-out="scale -= .1"></zoom-buttons>
+    </div>
+    <div ref="chartWrapper" class="chart-wrapper">
+      <svg ref="chart" class="chart" :style="chartStyle">
+        <g ref="chartG" :transform="chartTransform">
+          <g class="connector-link" v-for="(link, index) in links" :key="'link' + index" :stroke="getStrokeColor(link)" fill="none" :stroke-width="getLineStrokeWidth(link)" stroke-linecap="round" >
+            <path :d="linkPath(link)"></path>
+          </g>
+          <g v-for="(node, index) in nodes" :key="'node' + index" >
+            <g :transform="nodeTransform(node)" @mouseover="hover(node)" @mouseout="hover(undefined)" @click="operationClicked(node)">
+              <g>
+                <g fill="var(--foreground)" text-anchor="middle" >
+                  <rect class="background-rect" y="1.6em" :x="-1 * nodeWidth / 2" :width="nodeWidth" :height="nodeHeight" rx="5" ry="5" stroke="var(--alt-border)"  fill="var(--alt-background)" :opacity="getBackgroundRectOpacity(node)"></rect>
+                  <text dy="3em" style="font-size:.7rem">
+                    {{ (node.data.NodeId === -1) ? statement.StatementType : node.data.PhysicalOp }}
                   </text>
-                  <text v-if="node.data.NodeId !== -1 &&  node.data.ThirdLevelDesc !== undefined"
-                    dy="6em"
-                  >
-                    {{ node.data.ThirdLevelDesc | maxLength }}
-                  </text>
+                  <g style="font-size:.6rem" opacity=".5" >
+                    <text v-if="node.data.NodeId !== -1 && node.data.SecondaryDesc != node.data.PhysicalOp" dy="5em">
+                      {{ node.data.SecondaryDesc | maxLength }}
+                    </text>
+                    <text v-if="node.data.NodeId !== -1 &&  node.data.ThirdLevelDesc !== undefined" dy="6em">
+                      {{ node.data.ThirdLevelDesc | maxLength }}
+                    </text>
+                  </g>
                 </g>
               </g>
+              <circle :r="getNodeSize(node)" :fill="getNodeColor(node)" ></circle>
             </g>
-            <circle :r="getNodeSize(node)" :fill="getNodeColor(node)" ></circle>
           </g>
         </g>
-      </g>
-    </svg>
+      </svg>
+    </div>
   </div>
 </template>
 
 <script lang='ts'>
 import { Vue, Component, Prop, Watch, Emit } from 'vue-property-decorator';
 import * as ShowPlan from '@/parser/showplan';
+import ZoomButtons from './ZoomButtons.vue';
 import { hierarchy, cluster, HierarchyPointNode, HierarchyPointLink } from 'd3-hierarchy';
 import { linkRadial, linkHorizontal, pointRadial, linkVertical } from 'd3-shape';
 import { scalePow, scaleLog, scaleLinear } from 'd3-scale';
 import { min, max } from 'd3-array';
-import { Colors, GetOperationType, GetOperationColor } from '@/components/visualizations/VizColors';
+import { Colors, GetOperationType, GetOperationColor, GetStateValue, GetStateValueOptions  } from '@/components/visualizations/VizColors';
 import { ParentRelOp, ParentRelOpAction } from './FakeParent';
-import { zoom as d3zoom } from 'd3-zoom';
-import * as d3 from 'd3-selection';
 
 @Component({
+    components: { ZoomButtons },
 })
 export default class DataFlow extends Vue {
 
   public $refs!: {
     chart: Element,
     chartG: Element,
+    chartWrapper: Element,
   };
 
   private get queryPlan(): ShowPlan.QueryPlan {
@@ -69,11 +71,11 @@ export default class DataFlow extends Vue {
   }
 
   @Prop() public statement!: ShowPlan.StmtSimple;
-  @Prop({ default: 500 }) public width!: number;
   @Prop({ default: undefined }) public selectedNode!: ShowPlan.RelOp | undefined;
 
   private nodeWidth: number = 140;
   private nodeHeight: number = 50;
+  private scale = 1;
 
   @Emit('rel-op-selected')
   public statementSelected(op: number) {
@@ -85,22 +87,38 @@ export default class DataFlow extends Vue {
     //
   }
 
-  private get radius(): number {
-    return this.width / 2;
-  }
-
   private get root(): HierarchyPointNode<ShowPlan.RelOp> {
     const noop: ShowPlan.RelOp = new ParentRelOp();
     noop.Action.RelOp[0] = this.queryPlan.RelOp;
     noop.NodeId = -1;
 
     return cluster<ShowPlan.RelOp>()
-      .size([this.radius, this.radius])
       .nodeSize([this.nodeHeight * 3, this.nodeWidth])
       .separation((a, b) => 1)
       (hierarchy(noop, (children) => children.Action.RelOp));
   }
 
+  private get links(): Array<HierarchyPointLink<ShowPlan.RelOp>> {
+    return this.root.links();
+  }
+
+  private get nodes(): Array<HierarchyPointNode<ShowPlan.RelOp>> {
+    return this.root.descendants().reverse();
+  }
+
+  // svg elements
+  private nodeTransform(node: HierarchyPointNode<ShowPlan.RelOp>) {
+    return `translate(${-1 * node.y}, ${node.x})`;
+  }
+
+  private linkPath(link: HierarchyPointLink<ShowPlan.RelOp>): string {
+    return linkHorizontal<HierarchyPointLink<ShowPlan.RelOp>, HierarchyPointNode<ShowPlan.RelOp>>()
+      .x((i) => -1 * i.y)
+      .y((i) => i.x)
+      (link)!;
+  }
+
+  // node styling
   private getNodeColor(node: HierarchyPointNode<ShowPlan.RelOp>): string {
     return GetOperationColor(node.data.PhysicalOp);
   }
@@ -133,10 +151,6 @@ export default class DataFlow extends Vue {
     return notSelectedColor;
   }
 
-  private GetOperationColor(op: ShowPlan.PhysicalOp) {
-    return GetOperationColor(op);
-  }
-
   private getBackgroundRectOpacity(node: HierarchyPointNode<ShowPlan.RelOp>) {
     if (this.highlightedNode === undefined) {
       return 0;
@@ -163,7 +177,7 @@ export default class DataFlow extends Vue {
       .rangeRound([2, 20]);
   }
 
-  private get rowWidthScale() {
+    private get rowWidthScale() {
     const minRows = min(this.nodes, (n) => n.data.EstimateRows)!;
     const maxRows = max(this.nodes, (n) => n.data.EstimateRows)!;
 
@@ -172,45 +186,43 @@ export default class DataFlow extends Vue {
       .rangeRound([1, 20]);
   }
 
-  private get links(): Array<HierarchyPointLink<ShowPlan.RelOp>> {
-    return this.root.links();
+  private GetOperationColor(op: ShowPlan.PhysicalOp) {
+    return GetOperationColor(op);
   }
 
-  private get nodes(): Array<HierarchyPointNode<ShowPlan.RelOp>> {
-    return this.root.descendants().reverse();
+  // chart sizing and styling
+  private get chartWidth(): number {
+    const minX = min(this.nodes, (d) => d.y)!;
+    const maxX = max(this.nodes, (d) => d.y)!;
+
+    return maxX - minX + this.nodeWidth * 2;
   }
 
-  private nodeTransform(node: HierarchyPointNode<ShowPlan.RelOp>) {
-    return `translate(${-1 * node.y}, ${node.x})`;
+  private get chartHeight(): number {
+    // invers the x and y
+    const minY = min(this.nodes, (d) => d.x)!;
+    const maxY = max(this.nodes, (d) => d.x)!;
+
+    return maxY - minY + this.nodeHeight * 4;
   }
 
-  private linkPath(link: HierarchyPointLink<ShowPlan.RelOp>): string {
-    return linkHorizontal<HierarchyPointLink<ShowPlan.RelOp>, HierarchyPointNode<ShowPlan.RelOp>>()
-      .x((i) => -1 * i.y)
-      .y((i) => i.x)
-      (link)!;
+  private get chartStyle() {
+    return {
+      'min-height': this.chartHeight * this.scale,
+      'min-width': this.chartWidth * this.scale,
+      'width': '100%',
+      'height': '100%',
+    };
   }
 
-  private mounted() {
-    const x = max(this.nodes, (n) => n.y)! + this.nodeWidth ;
-    const y = min(this.nodes, (n) => n.x)! * -1 + this.nodeHeight * .5;
-
-    const vm = this;
-    const svg = d3.select(this.$refs.chart);
-    const zoom = d3zoom()
-          .scaleExtent([.25, 10])
-          .wheelDelta(() =>  -d3.event.deltaY * (d3.event.deltaMode ? 120 : 1) / 1000)
-          .on('zoom', function() { vm.handleZoom(); });
-
-    svg.call(zoom);
-    zoom.translateBy(svg, x, y);
+  private get chartTransform() {
+    // don't forget we are turning their x/y axis on the side
+    const offsetY = min(this.nodes, (n) => n.x)! * -1 + this.nodeHeight;
+    const offsetX = max(this.nodes, (n) => n.y)! + this.nodeWidth / 2;
+    return `translate(${offsetX * this.scale}, ${offsetY * this.scale}) scale(${this.scale})`;
   }
 
-  private handleZoom() {
-    const svg = d3.select(this.$refs.chartG);
-    svg.attr('transform', d3.event.transform);
-  }
-
+  // events
   private hover(op: HierarchyPointNode<ShowPlan.RelOp> | undefined) {
     if (op === undefined) {
       this.statementHighlighted(undefined);
@@ -235,11 +247,33 @@ export default class DataFlow extends Vue {
 </script>
 
 <style lang="scss" scoped>
-  .chart-wrapper .connector-link {
-    transition:  stroke .3s ease;
+
+  .chart-wrapper {
+    overflow: scroll;
+    width: 100%;
+
+    .chart {
+      margin-top: 2rem;
+    }
+
+    .connector-link {
+      transition:  stroke .3s ease;
+    }
+
+    .background-rect {
+      transition:  opacity .3s ease;
+    }
   }
 
-  .chart-wrapper .background-rect {
-    transition:  opacity .3s ease;
+  .wrapper {
+    position: relative;
+
+    .zoom-buttons {
+      z-index: 1000;
+
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
   }
 </style>
