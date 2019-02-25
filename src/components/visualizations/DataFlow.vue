@@ -251,6 +251,7 @@ export default class DataFlow extends Vue {
   .chart-wrapper {
     overflow: scroll;
     width: 100%;
+    height: 600px;
 
     .chart {
       margin-top: 2rem;
