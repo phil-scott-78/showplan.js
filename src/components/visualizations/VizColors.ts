@@ -103,5 +103,32 @@ const GetOperationColor = (physicalOp: ShowPlan.PhysicalOp): string => {
   return Colors[GetOperationType(physicalOp)];
 };
 
+interface GetStateValueOptions<T> {
+  selectedValue?: T;
+  childValue: T;
+  parentValue: T;
+  defaultValue: T;
+}
 
-export { Colors, GetOperationType, GetOperationColor };
+const GetStateValue = <T>(id: number, selectedId: number, parentIds: number[], childIds: number[], options: GetStateValueOptions<T>): T => {
+  if (options.selectedValue !== undefined && selectedId !== undefined && id === selectedId) {
+    return options.selectedValue;
+  }
+
+  for (const childId of childIds) {
+    if (id === childId) {
+      return options.childValue;
+    }
+  }
+
+  for (const parentId of parentIds) {
+    if (id === parentId) {
+      return options.parentValue;
+    }
+  }
+
+  return options.defaultValue;
+};
+
+
+export { Colors, GetOperationType, GetOperationColor, GetStateValue, GetStateValueOptions };

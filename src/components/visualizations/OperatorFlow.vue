@@ -1,8 +1,7 @@
 <template>
   <div class="wrapper">
     <div class="zoom-buttons">
-      <button v-on:click="scale -= .1"><font-awesome-icon :icon="['fa', 'search-minus']" /></button>
-      <button v-on:click="scale += .1"><font-awesome-icon :icon="['fa', 'search-plus']" /></button>
+      <zoom-buttons @zoom-in="scale += .1" @zoom-out="scale -= .1"></zoom-buttons>
     </div>
     <div ref="chartWrapper" class="chart-wrapper">
       <svg ref="chart" :style="chartStyle" >
@@ -53,16 +52,16 @@
 <script lang='ts'>
 import { Vue, Component, Prop, Watch, Emit } from 'vue-property-decorator';
 import * as ShowPlan from '@/parser/showplan';
+import ZoomButtons from './ZoomButtons.vue';
 import { hierarchy, tree, cluster, HierarchyPointNode, HierarchyPointLink } from 'd3-hierarchy';
 import { linkRadial, linkHorizontal, pointRadial, linkVertical } from 'd3-shape';
 import { scalePow, scaleLog, scaleLinear } from 'd3-scale';
 import { min, max } from 'd3-array';
-import { Colors, GetOperationType, GetOperationColor } from '@/components/visualizations/VizColors';
+import { Colors, GetOperationType, GetOperationColor, GetStateValue, GetStateValueOptions } from '@/components/visualizations/VizColors';
 import { ParentRelOp, ParentRelOpAction } from './FakeParent';
-import { zoom as d3zoom, zoomIdentity } from 'd3-zoom';
-import * as d3 from 'd3-selection';
 
 @Component({
+  components: { ZoomButtons },
 })
 export default class OperatorFlow extends Vue {
 
@@ -114,9 +113,32 @@ export default class OperatorFlow extends Vue {
 
   @Watch('root')
   private rootWatch() {
+    // if the visualization changes we'll want to update
+    // the scrollbar to point to the new root
     this.updateScrollPos();
   }
 
+  private get links(): Array<HierarchyPointLink<ShowPlan.RelOp>> {
+    return this.root.links();
+  }
+
+  private get nodes(): Array<HierarchyPointNode<ShowPlan.RelOp>> {
+    return this.root.descendants().reverse();
+  }
+
+  private nodeTransform(node: HierarchyPointNode<ShowPlan.RelOp>) {
+    return `translate(${node.x}, ${node.y})`;
+  }
+
+  private linkPath(link: HierarchyPointLink<ShowPlan.RelOp>): string {
+    return linkVertical()(
+      {
+        source: [link.source.x, link.source.y + this.nodeHeight],
+        target: [link.target.x, link.target.y],
+      })!;
+  }
+
+  // node styling
   private getNodeColor(node: HierarchyPointNode<ShowPlan.RelOp>): string {
     return GetOperationColor(node.data.PhysicalOp);
   }
@@ -138,53 +160,49 @@ export default class OperatorFlow extends Vue {
     }
 
     const selectedColor = GetOperationColor(link.target.data.PhysicalOp);
+    const options: GetStateValueOptions<string> = {
+      parentValue: selectedColor,
+      childValue: selectedColor,
+      defaultValue: notSelectedColor,
+    };
 
-    for (const childNode of this.highlightedNode.descendants()) {
-      if (link.target.data.NodeId === childNode.data.NodeId) {
-        return selectedColor;
-      }
-    }
-
-    for (const childNode of this.highlightedNode.ancestors()) {
-      if (link.target.data.NodeId === childNode.data.NodeId) {
-        return selectedColor;
-      }
-    }
-
-    return notSelectedColor;
+    return GetStateValue(
+      link.target.data.NodeId,
+      this.highlightedNode.data.NodeId,
+      this.highlightedNode.ancestors().map((d) => d.data.NodeId),
+      this.highlightedNode.descendants().map((d) => d.data.NodeId),
+      options,
+      );
   }
 
   private getBackgroundRectStrokeOpacity(node: HierarchyPointNode<ShowPlan.RelOp>) {
+    const options: GetStateValueOptions<number> = {
+      parentValue: 1,
+      childValue: .4,
+      defaultValue: .2,
+      selectedValue: 1,
+    };
+
     if (this.highlightedNode === undefined) {
-      return .2;
+      return options.defaultValue;
     }
 
-    if (node.data.NodeId === this.highlightedNode.data.NodeId) {
-      return 1;
-    }
-
-    for (const childNode of this.highlightedNode.descendants()) {
-      if (node.data.NodeId === childNode.data.NodeId) {
-        return .4;
-      }
-    }
-
-    for (const childNode of this.highlightedNode.ancestors()) {
-      if (node.data.NodeId === childNode.data.NodeId) {
-        return 1;
-      }
-    }
-
-    return .2;
+    return GetStateValue(
+      node.data.NodeId,
+      this.highlightedNode.data.NodeId,
+      this.highlightedNode.ancestors().map((d) => d.data.NodeId),
+      this.highlightedNode.descendants().map((d) => d.data.NodeId),
+      options,
+      );
   }
 
   private getBackgroundRectFill(node: HierarchyPointNode<ShowPlan.RelOp>) {
-    if (this.highlightedNode === undefined) {
-      return 'var(--background)';
-    }
-
     if (node.data.NodeId === -1) {
       return 'var(--grey)';
+    }
+
+    if (this.highlightedNode === undefined) {
+      return 'var(--background)';
     }
 
     if (node.data.NodeId === this.highlightedNode!.data.NodeId) {
@@ -218,6 +236,8 @@ export default class OperatorFlow extends Vue {
     return this.costCircleScale(node.data.EstimateTotalCost);
   }
 
+
+  // chart sizing and styling
   private get chartWidth(): number {
     const minX = min(this.nodes, (d) => d.x)!;
     const maxX = max(this.nodes, (d) => d.x)!;
@@ -265,14 +285,8 @@ export default class OperatorFlow extends Vue {
       .rangeRound([1, 20]);
   }
 
-  private get links(): Array<HierarchyPointLink<ShowPlan.RelOp>> {
-    return this.root.links();
-  }
 
-  private get nodes(): Array<HierarchyPointNode<ShowPlan.RelOp>> {
-    return this.root.descendants().reverse();
-  }
-
+  // events
   private mounted() {
     this.updateScrollPos();
   }
@@ -281,18 +295,6 @@ export default class OperatorFlow extends Vue {
     Vue.nextTick().then(() => {
       this.$refs.chartWrapper.scrollLeft = this.rootRectOffsetX - this.nodeWidth * 2;
     });
-  }
-
-  private nodeTransform(node: HierarchyPointNode<ShowPlan.RelOp>) {
-    return `translate(${node.x}, ${node.y})`;
-  }
-
-  private linkPath(link: HierarchyPointLink<ShowPlan.RelOp>): string {
-    return linkVertical()(
-      {
-        source: [link.source.x, link.source.y + this.nodeHeight],
-        target: [link.target.x, link.target.y],
-      })!;
   }
 
   private hover(op: HierarchyPointNode<ShowPlan.RelOp> | undefined) {
@@ -342,29 +344,6 @@ export default class OperatorFlow extends Vue {
       position: absolute;
       top: 25px;
       left: 25px;
-
-      button {
-        background-color: inherit;
-        border: 1px solid var(--border);
-        color: var(--foreground);
-        padding: .5rem;
-        font-size:1rem;
-        cursor: pointer;
-
-        &:first-child {
-          border-top-left-radius: 15px;
-          border-bottom-left-radius: 15px;
-        }
-
-        &:last-child {
-          border-top-right-radius: 15px;
-          border-bottom-right-radius: 15px;
-        }
-
-        &:hover{
-          background-color: var(--alt-background);
-        }
-      }
     }
   }
 
