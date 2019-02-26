@@ -34,7 +34,7 @@ export default class HighlightSqlStatement extends Vue {
 
 <style lang="scss" scoped>
   pre {
-    max-height:8rem;
+    max-height:8.2rem;
     overflow-y: auto;
     white-space: pre-wrap;
     margin: 0;
