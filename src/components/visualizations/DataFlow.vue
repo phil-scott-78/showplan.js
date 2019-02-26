@@ -1,7 +1,7 @@
 <template>
   <div class="wrapper">
     <div class="zoom-buttons">
-      <zoom-buttons @zoom-in="scale += .1" @zoom-out="scale -= .1"></zoom-buttons>
+      <zoom-buttons @zoom-in="zoom(.1)" @zoom-out="zoom(-.1)"></zoom-buttons>
     </div>
     <div v-dragscroll ref="chartWrapper" class="chart-wrapper" >
       <svg ref="chart" class="chart" :style="chartStyle">
@@ -223,6 +223,10 @@ export default class DataFlow extends Vue {
   }
 
   // events
+  private zoom(amount: number) {
+    this.scale = Math.min(Math.max(this.scale + amount, .25), 2);
+  }
+
   private hover(op: HierarchyPointNode<ShowPlan.RelOp> | undefined) {
     if (op === undefined) {
       this.statementHighlighted(undefined);

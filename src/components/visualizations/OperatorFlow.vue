@@ -1,7 +1,7 @@
 <template>
   <div class="wrapper">
     <div class="zoom-buttons">
-      <zoom-buttons @zoom-in="scale += .1" @zoom-out="scale -= .1"></zoom-buttons>
+      <zoom-buttons @zoom-in="zoom(.1)" @zoom-out="zoom(-.1)"></zoom-buttons>
     </div>
     <div v-dragscroll ref="chartWrapper" class="chart-wrapper">
       <svg ref="chart" :style="chartStyle" >
@@ -267,7 +267,12 @@ export default class OperatorFlow extends Vue {
   }
 
   private get chartTransform() {
-    return `translate(${this.rootRectOffsetX * this.scale}, ${this.nodeHeight * .5}) scale(${this.scale})`;
+    let offset = this.rootRectOffsetX * this.scale;
+    if (offset < 350) {
+      offset = 350;
+    }
+
+    return `translate(${offset}, ${this.nodeHeight * .5}) scale(${this.scale})`;
   }
 
   private get costCircleScale() {
@@ -289,6 +294,10 @@ export default class OperatorFlow extends Vue {
   // events
   private mounted() {
     this.updateScrollPos();
+  }
+
+  private zoom(amount: number) {
+    this.scale = Math.min(Math.max(this.scale + amount, .25), 2);
   }
 
   private updateScrollPos() {
