@@ -57,6 +57,7 @@ import { hierarchy, tree, cluster, HierarchyPointNode, HierarchyPointLink } from
 import { linkRadial, linkHorizontal, pointRadial, linkVertical } from 'd3-shape';
 import { scalePow, scaleLog, scaleLinear } from 'd3-scale';
 import { min, max } from 'd3-array';
+import * as TWEEN from '@tweenjs/tween.js';
 import { Colors, GetOperationType, GetOperationColor, GetStateValue, GetStateValueOptions } from '@/components/visualizations/VizColors';
 import { ParentRelOp, ParentRelOpAction } from './FakeParent';
 
@@ -89,6 +90,7 @@ export default class OperatorFlow extends Vue {
   private nodeWidth: number = 180;
   private nodeHeight: number = 50;
   private scale = 1;
+  private tweenedTransform = { scale: 1 };
 
   @Emit('rel-op-selected')
   public statementSelected(op: number) {
@@ -116,6 +118,27 @@ export default class OperatorFlow extends Vue {
     // if the visualization changes we'll want to update
     // the scrollbar to point to the new root
     this.updateScrollPos();
+  }
+
+  @Watch('scale')
+  private scaleWatch(newValue:number, oldValue: number) {
+    let frameHandler: any;
+
+
+    function animate (currentTime: any) {
+      if (TWEEN.update(currentTime)) {
+        frameHandler =requestAnimationFrame(animate);
+      }
+    };
+
+    const tween = new TWEEN.Tween(this.tweenedTransform)
+      .to({ scale: newValue }, 75)
+      .onComplete(() => {
+        cancelAnimationFrame(frameHandler)
+      })
+      .start();
+
+    frameHandler = requestAnimationFrame(animate);
   }
 
   private get links(): Array<HierarchyPointLink<ShowPlan.RelOp>> {
@@ -236,7 +259,6 @@ export default class OperatorFlow extends Vue {
     return this.costCircleScale(node.data.EstimateTotalCost);
   }
 
-
   // chart sizing and styling
   private get chartWidth(): number {
     const minX = min(this.nodes, (d) => d.x)!;
@@ -254,8 +276,8 @@ export default class OperatorFlow extends Vue {
 
   private get chartStyle() {
     return {
-      'min-height': this.chartHeight * this.scale,
-      'min-width': this.chartWidth * this.scale,
+      'min-height': this.chartHeight * this.tweenedTransform.scale,
+      'min-width': this.chartWidth * this.tweenedTransform.scale,
       'width': '100%',
       'height': '100%',
     };
@@ -267,12 +289,8 @@ export default class OperatorFlow extends Vue {
   }
 
   private get chartTransform() {
-    let offset = this.rootRectOffsetX * this.scale;
-    if (offset < 350) {
-      offset = 350;
-    }
-
-    return `translate(${offset}, ${this.nodeHeight * .5}) scale(${this.scale})`;
+    let offset = this.rootRectOffsetX * this.tweenedTransform.scale;
+    return `translate(${offset}, ${this.nodeHeight * .5 * this.tweenedTransform.scale }) scale(${this.tweenedTransform.scale})`;
   }
 
   private get costCircleScale() {
@@ -296,13 +314,17 @@ export default class OperatorFlow extends Vue {
     this.updateScrollPos();
   }
 
+  private created() {
+  }
+
   private zoom(amount: number) {
     this.scale = Math.min(Math.max(this.scale + amount, .25), 2);
   }
 
   private updateScrollPos() {
+    const vm = this;
     Vue.nextTick().then(() => {
-      this.$refs.chartWrapper.scrollLeft = this.rootRectOffsetX - this.nodeWidth * 2;
+      vm.$refs.chartWrapper.scrollLeft = this.rootRectOffsetX - this.nodeWidth * 2;
     });
   }
 

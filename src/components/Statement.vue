@@ -153,6 +153,7 @@ export default class Statement extends Vue {
       flex: 2;
       max-width:66%;
       margin-right:1rem;
+      height:100%;
     }
 
     .details {

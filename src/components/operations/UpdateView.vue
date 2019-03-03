@@ -9,7 +9,7 @@
       </ul>
     </div>
   </div>
-  <div v-if="update.SetPredicate !== undefined" class="content">
+  <div v-if="update.SetPredicate !== undefined" class="content max-height">
     <h4>Set Predicate</h4>
     <list-or-div v-bind:data="update.SetPredicate">
       <template slot-scope="{ item }">

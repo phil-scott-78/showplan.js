@@ -22,8 +22,8 @@ body.vscode-light, body.vscode-dark, body.vscode-high-contrast {
   }
 
   ::-webkit-scrollbar-thumb {
-    background-color: var(--alt-background);
-     box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+    background-color: var(--grey);
+    box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
   }
 
   ::-webkit-scrollbar-corner {

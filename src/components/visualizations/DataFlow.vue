@@ -44,6 +44,7 @@ import { hierarchy, cluster, HierarchyPointNode, HierarchyPointLink } from 'd3-h
 import { linkRadial, linkHorizontal, pointRadial, linkVertical } from 'd3-shape';
 import { scalePow, scaleLog, scaleLinear } from 'd3-scale';
 import { min, max } from 'd3-array';
+import * as TWEEN from '@tweenjs/tween.js';
 import { Colors, GetOperationType, GetOperationColor, GetStateValue, GetStateValueOptions  } from '@/components/visualizations/VizColors';
 import { ParentRelOp, ParentRelOpAction } from './FakeParent';
 
@@ -76,6 +77,28 @@ export default class DataFlow extends Vue {
   private nodeWidth: number = 140;
   private nodeHeight: number = 50;
   private scale = 1;
+  private tweenedTransform = { scale: 1 };
+
+  @Watch('scale')
+  private scaleWatch(newValue:number, oldValue: number) {
+    let frameHandler: any;
+
+
+    function animate (currentTime: any) {
+      if (TWEEN.update(currentTime)) {
+        frameHandler =requestAnimationFrame(animate);
+      }
+    };
+
+    const tween = new TWEEN.Tween(this.tweenedTransform)
+      .to({ scale: newValue }, 75)
+      .onComplete(() => {
+        cancelAnimationFrame(frameHandler)
+      })
+      .start();
+
+    frameHandler = requestAnimationFrame(animate);
+  }
 
   @Emit('rel-op-selected')
   public statementSelected(op: number) {
@@ -208,8 +231,8 @@ export default class DataFlow extends Vue {
 
   private get chartStyle() {
     return {
-      'min-height': this.chartHeight * this.scale,
-      'min-width': this.chartWidth * this.scale,
+      'min-height': this.chartHeight * this.tweenedTransform.scale,
+      'min-width': this.chartWidth * this.tweenedTransform.scale,
       'width': '100%',
       'height': '100%',
     };
@@ -219,12 +242,12 @@ export default class DataFlow extends Vue {
     // don't forget we are turning their x/y axis on the side
     const offsetY = min(this.nodes, (n) => n.x)! * -1 + this.nodeHeight;
     const offsetX = max(this.nodes, (n) => n.y)! + this.nodeWidth / 2;
-    return `translate(${offsetX * this.scale}, ${offsetY * this.scale}) scale(${this.scale})`;
+    return `translate(${offsetX * this.tweenedTransform.scale}, ${offsetY * this.tweenedTransform.scale}) scale(${this.tweenedTransform.scale})`;
   }
 
   // events
   private zoom(amount: number) {
-    this.scale = Math.min(Math.max(this.scale + amount, .25), 2);
+    this.scale = Math.min(Math.max(this.tweenedTransform.scale + amount, .25), 2);
   }
 
   private hover(op: HierarchyPointNode<ShowPlan.RelOp> | undefined) {

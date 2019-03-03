@@ -31,6 +31,7 @@ function setFilters() {
     return numbro(value).format(
       {
         output: 'byte',
+        thousandSeparated: true,
         base: 'general',
         mantissa: 1,
       });
@@ -40,12 +41,17 @@ function setFilters() {
     return numbro(value * 1024).format(
       {
         output: 'byte',
+        thousandSeparated: true,
         base: 'general',
         mantissa: 1,
       });
   });
 
   Vue.filter('filterSigfig', function(value: number) {
+    if (value > 100000) {
+      return value.toExponential(2);
+    }
+
     return numbro(value).format('0[.]0000');
   });
 
