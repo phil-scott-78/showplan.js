@@ -89,6 +89,7 @@ export default class OperatorFlow extends Vue {
 
   private nodeWidth: number = 180;
   private nodeHeight: number = 50;
+  private chartCenter: number = 350;
   private scale = 1;
   private tweenedTransform = { scale: 1 };
 
@@ -123,7 +124,6 @@ export default class OperatorFlow extends Vue {
   @Watch('scale')
   private scaleWatch(newValue:number, oldValue: number) {
     let frameHandler: any;
-
 
     function animate (currentTime: any) {
       if (TWEEN.update(currentTime)) {
@@ -260,24 +260,38 @@ export default class OperatorFlow extends Vue {
   }
 
   // chart sizing and styling
+  private scaled(original: number) : number {
+    return original * this.tweenedTransform.scale;
+  }
+
+  private inverseScaled(original: number): number {
+    return original / this.tweenedTransform.scale;
+  }
+
   private get chartWidth(): number {
     const minX = min(this.nodes, (d) => d.x)!;
     const maxX = max(this.nodes, (d) => d.x)!;
 
-    return maxX - minX + this.nodeWidth * 2;
+    let offset = this.scaled(this.rootRectOffsetX);
+    let nudge = 0;
+    if (offset < this.chartCenter) {
+      nudge = this.inverseScaled(this.chartCenter);
+    }
+
+    return maxX - minX + this.scaled(this.nodeWidth * 2) + nudge;
   }
 
   private get chartHeight(): number {
     const minY = min(this.nodes, (d) => d.y)!;
     const maxY = max(this.nodes, (d) => d.y)!;
 
-    return maxY - minY + this.nodeHeight * 2;
+    return maxY - minY + this.scaled(this.nodeHeight * 2);
   }
 
   private get chartStyle() {
     return {
-      'min-height': this.chartHeight * this.tweenedTransform.scale,
-      'min-width': this.chartWidth * this.tweenedTransform.scale,
+      'min-height': this.scaled(this.chartHeight),
+      'min-width': this.scaled(this.chartWidth),
       'width': '100%',
       'height': '100%',
     };
@@ -289,8 +303,13 @@ export default class OperatorFlow extends Vue {
   }
 
   private get chartTransform() {
-    let offset = this.rootRectOffsetX * this.tweenedTransform.scale;
-    return `translate(${offset}, ${this.nodeHeight * .5 * this.tweenedTransform.scale }) scale(${this.tweenedTransform.scale})`;
+    let offset: number;
+    offset = this.scaled(this.rootRectOffsetX);
+    if (offset < this.chartCenter) {
+      offset = this.chartCenter;
+    }
+
+    return `translate(${offset}, ${this.scaled(this.nodeHeight * .5)}) scale(${this.tweenedTransform.scale})`;
   }
 
   private get costCircleScale() {
@@ -312,6 +331,16 @@ export default class OperatorFlow extends Vue {
   // events
   private mounted() {
     this.updateScrollPos();
+    this.chartCenter = this.$refs.chartWrapper.clientWidth / 2;
+    window.addEventListener('resize', this.handleResize);
+  }
+
+  private beforeDestroy() {
+    window.removeEventListener('resize', this.handleResize)
+  }
+
+  private handleResize() {
+    this.chartCenter = this.$refs.chartWrapper.clientWidth / 2;
   }
 
   private created() {
