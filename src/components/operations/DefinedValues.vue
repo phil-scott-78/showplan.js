@@ -26,6 +26,15 @@ export default class DefinedValueView extends Vue {
       return definedValue.ColumnReference[0].toString();
     }
 
+    // if we have multiple column references but no scalar operator just return a list of columns
+    if (definedValue.ColumnReference !== undefined && definedValue.ColumnReference.length > 1 && definedValue.ScalarOperator === undefined) {
+      let columns = '';
+      for (const columnReference of definedValue.ColumnReference) {
+        columns += columnReference.toString() + '\r';
+      }
+      return columns;
+    }
+
     // if we have a column and a scalar then it's an assignment so include a
     // SET statement
     let sql = '';

@@ -158,7 +158,8 @@ export class QueryPlanParser {
       PhysicalOp,
       columnReferenceList,
     );
-
+    thisOp.AdaptiveThresholdRows = Convert.GetFloat(relOpElement, 'AdaptiveThresholdRows');
+    thisOp.EstimatedJoinType = Convert.GetString(relOpElement, 'EstimatedJoinType') as ShowPlan.PhysicalOp;
     thisOp.Warnings = QueryHelper.ParseSingleItem(relOpElement, 'Warnings', (i) => WarningsParser.ParseWarnings(i));
     thisOp.RunTimeInformation = QueryHelper.ParseSingleItem(relOpElement, 'RunTimeInformation', (i) => MetaInfoParser.ParseRunTimeInformation(i));
     return thisOp;

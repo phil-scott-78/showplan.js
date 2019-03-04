@@ -122,19 +122,19 @@ export default class OperatorFlow extends Vue {
   }
 
   @Watch('scale')
-  private scaleWatch(newValue:number, oldValue: number) {
+  private scaleWatch(newValue: number, oldValue: number) {
     let frameHandler: any;
 
-    function animate (currentTime: any) {
+    function animate(currentTime: any) {
       if (TWEEN.update(currentTime)) {
-        frameHandler =requestAnimationFrame(animate);
+        frameHandler = requestAnimationFrame(animate);
       }
-    };
+    }
 
     const tween = new TWEEN.Tween(this.tweenedTransform)
       .to({ scale: newValue }, 75)
       .onComplete(() => {
-        cancelAnimationFrame(frameHandler)
+        cancelAnimationFrame(frameHandler);
       })
       .start();
 
@@ -260,7 +260,7 @@ export default class OperatorFlow extends Vue {
   }
 
   // chart sizing and styling
-  private scaled(original: number) : number {
+  private scaled(original: number): number {
     return original * this.tweenedTransform.scale;
   }
 
@@ -272,7 +272,7 @@ export default class OperatorFlow extends Vue {
     const minX = min(this.nodes, (d) => d.x)!;
     const maxX = max(this.nodes, (d) => d.x)!;
 
-    let offset = this.scaled(this.rootRectOffsetX);
+    const offset = this.scaled(this.rootRectOffsetX);
     let nudge = 0;
     if (offset < this.chartCenter) {
       nudge = this.inverseScaled(this.chartCenter);
@@ -336,14 +336,11 @@ export default class OperatorFlow extends Vue {
   }
 
   private beforeDestroy() {
-    window.removeEventListener('resize', this.handleResize)
+    window.removeEventListener('resize', this.handleResize);
   }
 
   private handleResize() {
     this.chartCenter = this.$refs.chartWrapper.clientWidth / 2;
-  }
-
-  private created() {
   }
 
   private zoom(amount: number) {

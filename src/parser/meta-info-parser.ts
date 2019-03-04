@@ -119,8 +119,7 @@ export class MetaInfoParser {
       perThread.ActualRewinds = Convert.GetInt(threadElement, 'ActualRewinds');
       perThread.ActualRowsRead = Convert.GetInt(threadElement, 'ActualRowsRead');
       perThread.ActualScans = Convert.GetInt(threadElement, 'ActualScans');
-
-
+      perThread.ActualJoinType = Convert.GetString(threadElement, 'ActualJoinType') as ShowPlan.PhysicalOp;
 
       return perThread;
     };

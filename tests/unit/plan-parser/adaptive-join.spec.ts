@@ -17,6 +17,9 @@ describe('adaptive-join.sqlplan', function() {
 
     const adaptiveJoin = showplan.QueryPlan!.RelOp.Action as ShowPlan.AdaptiveJoin;
 
+    expect(showplan.QueryPlan!.RelOp.AdaptiveThresholdRows).to.equal(11.4837);
+    expect(showplan.QueryPlan!.RelOp.EstimatedJoinType).to.equal('Hash Match');
+    expect(showplan.QueryPlan!.RelOp.RunTimeInformation!.RunTimeCountersPerThread[0].ActualJoinType).to.equal('Hash Match');
     expect(adaptiveJoin.HashKeysBuild![0].Column).to.equal('ProductID');
     expect(adaptiveJoin.HashKeysBuild![0].Table).to.equal('[TransactionHistory]');
     expect(adaptiveJoin.HashKeysProbe![0].Column).to.equal('ProductID');

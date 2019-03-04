@@ -1,19 +1,27 @@
 <template>
   <div>
-      <div v-if="adaptiveJoin.adaptiveJoinKeysBuild !== undefined && adaptiveJoin.adaptiveJoinKeysBuild.length > 0" class="content">
+      <div v-if="operation.AdaptiveThresholdRows !== undefined" class="content">
+        <h4>Adaptive Join</h4>
+        <ul class="small">
+          <li>Threshold Rows: <strong>{{ operation.AdaptiveThresholdRows }} </strong></li>
+          <li>Estimated Join Type: <strong> {{ operation.EstimatedJoinType }} </strong></li>
+          <li v-if="operation.RunTimeInformation !== undefined">Actual Join Type: <strong>{{ operation.RunTimeInformation.RunTimeCountersPerThread[0].ActualJoinType }}</strong></li>
+        </ul>
+      </div>
+      <div v-if="adaptiveJoin.HashKeysBuild !== undefined && adaptiveJoin.HashKeysBuild.length > 0" class="content">
         <h4>Hash Keys Build</h4>
         <ul class="small">
-          <li v-for="(column, index) in adaptiveJoin.adaptiveJoinKeysBuild" :key="index"><sql-string :sql="column.toString()" :expandedColumns="expandedChildColumns"></sql-string></li>
+          <li v-for="(column, index) in adaptiveJoin.HashKeysBuild" :key="index"><sql-string :sql="column.toString()" :expandedColumns="expandedChildColumns"></sql-string></li>
         </ul>
       </div>
       <div v-if="adaptiveJoin.BuildResidual !== undefined" class="content">
         <h4>Build Residual</h4>
         <div class="small"><sql-string :sql="adaptiveJoin.BuildResidual.ScalarOperator.ScalarString" :expandedColumns="expandedChildColumns"></sql-string></div>
       </div>
-      <div class="content" v-if="adaptiveJoin.adaptiveJoinKeysProbe !== undefined && adaptiveJoin.adaptiveJoinKeysProbe.length > 0">
+      <div class="content" v-if="adaptiveJoin.HashKeysProbe !== undefined && adaptiveJoin.HashKeysProbe.length > 0">
         <h4>Hash Keys Probe</h4>
         <ul class="small">
-          <li v-for="(column, index) in adaptiveJoin.adaptiveJoinKeysProbe" :key="index"><sql-string :sql="column.toString()" :expandedColumns="expandedChildColumns"></sql-string></li>
+          <li v-for="(column, index) in adaptiveJoin.HashKeysProbe" :key="index"><sql-string :sql="column.toString()" :expandedColumns="expandedChildColumns"></sql-string></li>
         </ul>
       </div>
       <div v-if="adaptiveJoin.ProbeResidual !== undefined" class="content">
@@ -33,7 +41,10 @@
       <div v-if="adaptiveJoin.BitmapCreator !== undefined" class="content">
         Bitmap Creator: <strong>{{ adaptiveJoin.BitmapCreator }} </strong>
       </div>
-      <defined-values v-if="adaptiveJoin.DefinedValues !== undefined && adaptiveJoin.DefinedValues.length > 0" :definedValues="adaptiveJoin.DefinedValues" :expandedColumns="expandedChildColumns"></defined-values>
+      <!--
+        not sure how these apply
+        <defined-values v-if="adaptiveJoin.DefinedValues !== undefined && adaptiveJoin.DefinedValues.length > 0" :definedValues="adaptiveJoin.DefinedValues" :expandedColumns="expandedChildColumns"></defined-values>
+      -->
     </div>
 </template>
 

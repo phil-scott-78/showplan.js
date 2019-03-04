@@ -79,27 +79,6 @@ export default class DataFlow extends Vue {
   private scale = 1;
   private tweenedTransform = { scale: 1 };
 
-  @Watch('scale')
-  private scaleWatch(newValue:number, oldValue: number) {
-    let frameHandler: any;
-
-
-    function animate (currentTime: any) {
-      if (TWEEN.update(currentTime)) {
-        frameHandler =requestAnimationFrame(animate);
-      }
-    };
-
-    const tween = new TWEEN.Tween(this.tweenedTransform)
-      .to({ scale: newValue }, 75)
-      .onComplete(() => {
-        cancelAnimationFrame(frameHandler)
-      })
-      .start();
-
-    frameHandler = requestAnimationFrame(animate);
-  }
-
   @Emit('rel-op-selected')
   public statementSelected(op: number) {
     //
@@ -108,6 +87,27 @@ export default class DataFlow extends Vue {
   @Emit('rel-op-highlighted')
   public statementHighlighted(op: number | undefined) {
     //
+  }
+
+  @Watch('scale')
+  private scaleWatch(newValue: number, oldValue: number) {
+    let frameHandler: any;
+
+
+    function animate(currentTime: any) {
+      if (TWEEN.update(currentTime)) {
+        frameHandler = requestAnimationFrame(animate);
+      }
+    }
+
+    const tween = new TWEEN.Tween(this.tweenedTransform)
+      .to({ scale: newValue }, 75)
+      .onComplete(() => {
+        cancelAnimationFrame(frameHandler);
+      })
+      .start();
+
+    frameHandler = requestAnimationFrame(animate);
   }
 
   private get root(): HierarchyPointNode<ShowPlan.RelOp> {
