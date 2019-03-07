@@ -67,23 +67,18 @@ export class RelOp {
     // one would think this would simply be
     // return this.EstimateCPU + this.EstimateIO;
     // but in fact it's the subree cost subtracking the subtree cost of it's children
-
     if (!this.Action.RelOp.length) {
       return this.EstimatedTotalSubtreeCost;
     }
 
-    let sum = 0;
+    let sum = this.EstimatedTotalSubtreeCost;
     for (const relOp of this.Action.RelOp) {
-      sum += relOp.EstimatedTotalSubtreeCost;
+      sum -= relOp.EstimatedTotalSubtreeCost;
     }
 
-    const estimate = this.EstimatedTotalSubtreeCost - sum;
-    if (estimate > 0) {
-      return estimate;
-    }
-
-    return 0;
+    return Math.max(sum, 0);
   }
+
   public EstimateRebinds: number;
   public EstimateRewinds: number;
   public EstimateRows: number;
