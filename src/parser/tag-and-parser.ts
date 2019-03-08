@@ -1,9 +1,12 @@
-export class TagAndParser<T> {
-  public TagName: string;
-  public Action: (element: Element) => T;
+class TagAndParser<T> {
+    public TagName: string;
 
-  constructor(TagName: string, Action: (element: Element) => T) {
-    this.TagName = TagName;
-    this.Action = Action;
-  }
+    public Action: (element: Element) => T;
+
+    public constructor(TagName: string, Action: (element: Element) => T) {
+        this.TagName = TagName;
+        this.Action = Action;
+    }
 }
+
+export default TagAndParser;

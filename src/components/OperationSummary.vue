@@ -97,10 +97,13 @@
 </template>
 
 <script lang='ts'>
-import { Vue, Component, Prop} from 'vue-property-decorator';
-import { BaseStmtInfo, RelOp, ObjectType, ExpandedComputedColumn } from '@/parser/showplan';
+import { Vue, Component, Prop } from 'vue-property-decorator';
+import {
+    BaseStmtInfo, RelOp, ObjectType, ExpandedComputedColumn,
+} from '@/parser/showplan';
 import * as ShowPlan from '@/parser/showplan';
 
+import TreeView from 'vue-json-tree';
 import SortBy from './operations/SortByView.vue';
 import IndexScan from './operations/IndexScanView.vue';
 import FilterOp from './operations/FilterView.vue';
@@ -120,158 +123,158 @@ import Warnings from './operations/Warnings.vue';
 
 import { Group } from '@/parser/grouping';
 import { ColumnReferenceParser } from '@/parser/column-reference-parser';
-import TreeView from 'vue-json-tree';
 
 @Component({
-  components: {
-    SortBy,
-    IndexScan,
-    FilterOp,
-    ComputeScalarOp,
-    StreamAggregateOp,
-    HashOp,
-    BatchHashTableBuildOp,
-    ConcatOp,
-    TopOp,
-    NestedLoop,
-    UpdateOp,
-    InsertOp,
-    MergeJoinOp,
-    AdaptiveJoinOp,
-    Warnings,
-    TreeView,
-  },
+    components: {
+        SortBy,
+        IndexScan,
+        FilterOp,
+        ComputeScalarOp,
+        StreamAggregateOp,
+        HashOp,
+        BatchHashTableBuildOp,
+        ConcatOp,
+        TopOp,
+        NestedLoop,
+        UpdateOp,
+        InsertOp,
+        MergeJoinOp,
+        AdaptiveJoinOp,
+        Warnings,
+        TreeView,
+    },
 })
 export default class OperationSummary extends Vue {
   @Prop() public statement!: BaseStmtInfo;
+
   @Prop() public operation!: RelOp;
 
   public selectedTab: string = 'overview';
 
-  public get groupedOutput(): Array<Group<ShowPlan.ColumnReference>> {
-    return ColumnReferenceParser.Group(this.operation.OutputList);
+  public get groupedOutput(): Group<ShowPlan.ColumnReference>[] {
+      return ColumnReferenceParser.Group(this.operation.OutputList);
   }
 
   public get headingText(): string {
-    switch (this.operation.PhysicalOp) {
-      case 'Index Scan':
-      case 'Index Seek':
-        return this.operation.PhysicalOp + ' (NonClustered)';
-      default:
-        return this.operation.PhysicalOp;
-    }
+      switch (this.operation.PhysicalOp) {
+          case 'Index Scan':
+          case 'Index Seek':
+              return `${this.operation.PhysicalOp} (NonClustered)`;
+          default:
+              return this.operation.PhysicalOp;
+      }
   }
 
   public get additionalInfoComponent(): string | undefined {
-    if (this.operation.Action instanceof ShowPlan.Sort) {
-      return 'sort-by';
-    } else if (this.operation.Action instanceof ShowPlan.IndexScan) {
-      return 'index-scan';
-    } else if (this.operation.Action instanceof ShowPlan.Filter) {
-      return 'filter-op';
-    } else if (this.operation.Action instanceof ShowPlan.ComputeScalar) {
-      return 'compute-scalar-op';
-    } else if (this.operation.Action instanceof ShowPlan.StreamAggregate) {
-      return 'stream-aggregate-op';
-    } else if (this.operation.Action instanceof ShowPlan.Hash) {
-      return 'hash-op';
-    } else if (this.operation.Action instanceof ShowPlan.BatchHashTableBuild) {
-      return 'batch-hash-table-build-op';
-    } else if (this.operation.Action instanceof ShowPlan.Concat) {
-      return 'concat-op';
-    } else if (this.operation.Action instanceof ShowPlan.Top) {
-      return 'top-op';
-    } else if (this.operation.Action instanceof ShowPlan.NestedLoops) {
-      return 'nested-loop';
-    } else if (this.operation.Action instanceof ShowPlan.Update) {
-      return 'update-op';
-    } else if (this.operation.Action instanceof ShowPlan.CreateIndex) {
-      return 'insert-op';
-    } else if (this.operation.Action instanceof ShowPlan.Merge) {
-      return 'merge-join-op';
-    } else if (this.operation.Action instanceof ShowPlan.AdaptiveJoin) {
-      return 'adaptive-join-op';
-    }
+      if (this.operation.Action instanceof ShowPlan.Sort) {
+          return 'sort-by';
+      } if (this.operation.Action instanceof ShowPlan.IndexScan) {
+          return 'index-scan';
+      } if (this.operation.Action instanceof ShowPlan.Filter) {
+          return 'filter-op';
+      } if (this.operation.Action instanceof ShowPlan.ComputeScalar) {
+          return 'compute-scalar-op';
+      } if (this.operation.Action instanceof ShowPlan.StreamAggregate) {
+          return 'stream-aggregate-op';
+      } if (this.operation.Action instanceof ShowPlan.Hash) {
+          return 'hash-op';
+      } if (this.operation.Action instanceof ShowPlan.BatchHashTableBuild) {
+          return 'batch-hash-table-build-op';
+      } if (this.operation.Action instanceof ShowPlan.Concat) {
+          return 'concat-op';
+      } if (this.operation.Action instanceof ShowPlan.Top) {
+          return 'top-op';
+      } if (this.operation.Action instanceof ShowPlan.NestedLoops) {
+          return 'nested-loop';
+      } if (this.operation.Action instanceof ShowPlan.Update) {
+          return 'update-op';
+      } if (this.operation.Action instanceof ShowPlan.CreateIndex) {
+          return 'insert-op';
+      } if (this.operation.Action instanceof ShowPlan.Merge) {
+          return 'merge-join-op';
+      } if (this.operation.Action instanceof ShowPlan.AdaptiveJoin) {
+          return 'adaptive-join-op';
+      }
 
-    return undefined;
+      return undefined;
   }
 
   public get shallowOperation(): RelOp {
-    // clone the operation but remove the child relop collection
-    // for displaying in the 'raw' display
-    const shallow: RelOp = JSON.parse(JSON.stringify(this.operation, function(key, value) {
-      if (key === 'RelOp' || key === 'expandedComputedColumns') {
-        return;
-      }
+      // clone the operation but remove the child relop collection
+      // for displaying in the 'raw' display
+      const shallow: RelOp = JSON.parse(JSON.stringify(this.operation, (key, value) => {
+          if (key === 'RelOp' || key === 'expandedComputedColumns') {
+              return;
+          }
 
-      return value;
-    }));
+          return value;
+      }));
 
-    return shallow;
+      return shallow;
   }
 
   public get progressPercent(): string {
-    if (this.statement === undefined || this.statement!.StatementSubTreeCost === undefined) {
-     return 'progress-0';
-    }
+      if (this.statement === undefined || this.statement!.StatementSubTreeCost === undefined) {
+          return 'progress-0';
+      }
 
-    let percent = (this.operation.EstimateTotalCost / this.statement!.StatementSubTreeCost!) * 100;
-    if (percent < 10) {
-      percent = Math.round(percent);
-    } else {
-      percent = Math.round(percent / 5) * 5;
-    }
+      let percent = (this.operation.EstimateTotalCost / this.statement!.StatementSubTreeCost!) * 100;
+      if (percent < 10) {
+          percent = Math.round(percent);
+      } else {
+          percent = Math.round(percent / 5) * 5;
+      }
 
-    return 'progress-' + percent;
+      return `progress-${percent}`;
   }
 
   public get getSubHeadingText(): string {
-    switch (this.operation.PhysicalOp) {
-      case 'Index Scan':
-      case 'Index Seek':
-      case 'Clustered Index Scan':
-      case 'Clustered Index Seek':
-        return this.getShortName((this.operation.Action as ShowPlan.IndexScan).Object[0]);
-      default:
-        break;
-    }
+      switch (this.operation.PhysicalOp) {
+          case 'Index Scan':
+          case 'Index Seek':
+          case 'Clustered Index Scan':
+          case 'Clustered Index Seek':
+              return this.getShortName((this.operation.Action as ShowPlan.IndexScan).Object[0]);
+          default:
+              break;
+      }
 
-    return this.operation.LogicalOp;
+      return this.operation.LogicalOp;
   }
 
   private get expandedColumns(): ExpandedComputedColumn[] {
-    return this.operation.ExpandedComputedColumns;
+      return this.operation.ExpandedComputedColumns;
   }
 
   public get runtimeCountersSummary(): ShowPlan.RunTimeInformationTypeRunTimeCountersPerThread | undefined {
-    if (this.operation.RunTimeInformation === undefined || this.operation.RunTimeInformation.RunTimeCountersPerThread.length === 0) {
-      return undefined;
-    }
+      if (this.operation.RunTimeInformation === undefined || this.operation.RunTimeInformation.RunTimeCountersPerThread.length === 0) {
+          return undefined;
+      }
 
-    const summary = this.operation.RunTimeInformation.GetRunTimeCountersSummary();
-    if (summary === undefined) {
+      const summary = this.operation.RunTimeInformation.GetRunTimeCountersSummary();
+      if (summary === undefined) {
+          return summary;
+      }
+
+      // in the absense of these values SSMS shows 0
+      if (summary.ActualRebinds === undefined) {
+          summary.ActualRebinds = 0;
+      }
+
+      if (summary.ActualRewinds === undefined) {
+          summary.ActualRewinds = 0;
+      }
+
       return summary;
-    }
-
-    // in the absense of these values SSMS shows 0
-    if (summary.ActualRebinds === undefined) {
-      summary.ActualRebinds = 0;
-    }
-
-    if (summary.ActualRewinds === undefined) {
-      summary.ActualRewinds = 0;
-    }
-
-    return summary;
   }
 
   private getShortName(o: ObjectType) {
-    const table = o.Table + '.' + o.Index;
-    if (o.Alias === undefined) {
-      return table;
-    }
+      const table = `${o.Table}.${o.Index}`;
+      if (o.Alias === undefined) {
+          return table;
+      }
 
-    return table + ' ' + o.Alias;
+      return `${table} ${o.Alias}`;
   }
 }
 </script>

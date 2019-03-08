@@ -10,22 +10,24 @@
 </template>
 
 <script lang='ts'>
-import { Vue, Component, Prop, Watch } from 'vue-property-decorator';
+import {
+    Vue, Component, Prop, Watch,
+} from 'vue-property-decorator';
 import { RelOp, Sort, ExpandedComputedColumn } from '@/parser/showplan';
 import SqlString from './SqlString.vue';
 
 @Component({
-  components: { SqlString },
+    components: { SqlString },
 })
 export default class SortByView extends Vue {
   @Prop() public operation!: RelOp;
 
   private get sort(): Sort {
-    return this.operation.Action as Sort;
+      return this.operation.Action as Sort;
   }
 
   private get expandedChildColumns(): ExpandedComputedColumn[] {
-    return this.operation.GetChildExpandedComputedColumns();
+      return this.operation.GetChildExpandedComputedColumns();
   }
 }
 </script>

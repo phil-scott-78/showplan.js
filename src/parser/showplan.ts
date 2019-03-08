@@ -3,246 +3,277 @@ import '@/string-extensions';
 
 /** This is the root element */
 export class ShowPlanXML {
-  public Build: string;
-  public ClusteredMode?: boolean;
-  public Version: string;
-  public Batches: ShowPlanXMLTypeBatchSequenceTypeBatch[];
+    public Build: string;
 
-  constructor(
-    Build: string,
-    ClusteredMode: boolean,
-    Version: string,
-    Batches: ShowPlanXMLTypeBatchSequenceTypeBatch[],
-  ) {
-    this.Build = Build;
-    this.ClusteredMode = ClusteredMode;
-    this.Version = Version;
-    this.Batches = Batches;
-  }
+    public ClusteredMode?: boolean;
 
-  public GetStatementByGuid(guid: string): BaseStmtInfo | undefined {
-    for (const batch of this.Batches) {
-      for (const statement of batch.Statements) {
-        if (statement.Guid === guid) {
-           return statement;
-        }
-      }
+    public Version: string;
+
+    public Batches: ShowPlanXMLTypeBatchSequenceTypeBatch[];
+
+    public constructor(
+        Build: string,
+        ClusteredMode: boolean,
+        Version: string,
+        Batches: ShowPlanXMLTypeBatchSequenceTypeBatch[],
+    ) {
+        this.Build = Build;
+        this.ClusteredMode = ClusteredMode;
+        this.Version = Version;
+        this.Batches = Batches;
     }
 
-    return undefined;
-  }
-
-  public IsEstimatedPlan(): boolean {
-    for (const batch of this.Batches) {
-      for (const statement of batch.Statements) {
-        if (!(statement instanceof StmtSimple)) { continue; }
-        const queryPlan = (statement as StmtSimple).QueryPlan;
-        if (queryPlan === undefined) { continue; }
-
-        if (queryPlan.RelOp.RunTimeInformation !== undefined) {
-          return false;
+    public GetStatementByGuid(guid: string): BaseStmtInfo | undefined {
+        for (const batch of this.Batches) {
+            for (const statement of batch.Statements) {
+                if (statement.Guid === guid) {
+                    return statement;
+                }
+            }
         }
-      }
+
+        return undefined;
     }
 
-    return true;
-  }
+    public IsEstimatedPlan(): boolean {
+        for (const batch of this.Batches) {
+            for (const statement of batch.Statements) {
+                if (!(statement instanceof StmtSimple)) { continue; }
+                const queryPlan = (statement as StmtSimple).QueryPlan;
+                if (queryPlan === undefined) { continue; }
+
+                if (queryPlan.RelOp.RunTimeInformation !== undefined) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
 }
 
 export class RelOpAction {
-  public RelOp: RelOp[] = [];
-  public DefinedValues?: DefinedValue[];
+    public RelOp: RelOp[] = [];
+
+    public DefinedValues?: DefinedValue[];
 }
 
 export class RelOp {
-  public AdaptiveThresholdRows?: number;
-  public AvgRowSize: number;
-  public EstimateCPU: number;
-  public EstimatedExecutionMode?: ExecutionModeType;
-  public EstimatedJoinType?: PhysicalOp;
-  public EstimatedRowsRead?: number;
-  public EstimatedTotalSubtreeCost: number;
-  public EstimateIO: number;
-  public get EstimateTotalCost(): number {
+    public AdaptiveThresholdRows?: number;
+
+    public AvgRowSize: number;
+
+    public EstimateCPU: number;
+
+    public EstimatedExecutionMode?: ExecutionModeType;
+
+    public EstimatedJoinType?: PhysicalOp;
+
+    public EstimatedRowsRead?: number;
+
+    public EstimatedTotalSubtreeCost: number;
+
+    public EstimateIO: number;
+
+    public get EstimateTotalCost(): number {
     // one would think this would simply be
     // return this.EstimateCPU + this.EstimateIO;
     // but in fact it's the subree cost subtracking the subtree cost of it's children
-    if (!this.Action.RelOp.length) {
-      return this.EstimatedTotalSubtreeCost;
-    }
-
-    let sum = this.EstimatedTotalSubtreeCost;
-    for (const relOp of this.Action.RelOp) {
-      sum -= relOp.EstimatedTotalSubtreeCost;
-    }
-
-    return Math.max(sum, 0);
-  }
-
-  public EstimateRebinds: number;
-  public EstimateRewinds: number;
-  public EstimateRows: number;
-  public get ExpandedComputedColumns(): ExpandedComputedColumn[] {
-    if (this.expandedComputedColumns === undefined) {
-      this.expandedComputedColumns = this.GetExpandedComputedColumns();
-    }
-
-    return this.expandedComputedColumns!;
-  }
-  public GroupExecuted?: boolean;
-  public IsAdaptive?: boolean;
-  public LogicalOp: LogicalOpType;
-  public NodeId: number;
-  public Parallel: boolean;
-  public Partitioned?: boolean;
-  public PhysicalOp: PhysicalOp;
-  public RemoteDataAccess?: boolean;
-  public StatsCollectionId?: number;
-  public TableCardinality?: number;
-  public OutputList: ColumnReference[];
-  public RunTimeInformation?: RunTimeInformation;
-  public MemoryFractions?: MemoryFractions;
-  public Action: RelOpAction;
-  public Warnings?: Warnings;
-
-  public get SecondaryDesc(): string {
-    switch (this.PhysicalOp) {
-      case 'Index Scan':
-      case 'Index Seek':
-      case 'Clustered Index Scan':
-      case 'Clustered Index Seek':
-        return (this.Action as IndexScan).Object[0].Table!.replaceAll('[', '').replaceAll(']', '');
-      default:
-        break;
-    }
-
-    return this.LogicalOp;
-  }
-
-  public get ThirdLevelDesc(): string | undefined {
-    switch (this.PhysicalOp) {
-      case 'Index Scan':
-      case 'Index Seek':
-      case 'Clustered Index Scan':
-      case 'Clustered Index Seek':
-        return (this.Action as IndexScan).Object[0].Index!.replaceAll('[', '').replaceAll(']', '');
-      default:
-        break;
-    }
-
-    return undefined;
-  }
-
-  private expandedComputedColumns?: ExpandedComputedColumn[];
-
-  constructor(
-    Action: RelOpAction,
-    AvgRowSize: number,
-    EstimateCPU: number,
-    EstimatedTotalSubtreeCost: number,
-    EstimateIO: number,
-    EstimateRebinds: number,
-    EstimateRewinds: number,
-    EstimateRows: number,
-    LogicalOp: LogicalOpType,
-    NodeId: number,
-    Parallel: boolean,
-    PhysicalOperation: PhysicalOp,
-    OutputList: ColumnReference[],
-  ) {
-    this.Action = Action;
-    this.AvgRowSize = AvgRowSize;
-    this.EstimateCPU = EstimateCPU;
-    this.EstimatedTotalSubtreeCost = EstimatedTotalSubtreeCost;
-    this.EstimateIO = EstimateIO;
-    this.EstimateRebinds = EstimateRebinds;
-    this.EstimateRewinds = EstimateRewinds;
-    this.EstimateRows = EstimateRows;
-    this.LogicalOp = LogicalOp;
-    this.NodeId = NodeId;
-    this.Parallel = Parallel;
-    this.PhysicalOp = PhysicalOperation;
-    this.OutputList = OutputList;
-  }
-
-  public GetChildExpandedComputedColumns(): ExpandedComputedColumn[] {
-    let childExpanded: ExpandedComputedColumn[] = [];
-
-    for (const relOp of this.Action.RelOp) {
-      childExpanded = childExpanded.concat(relOp.ExpandedComputedColumns);
-    }
-
-    return childExpanded;
-  }
-
-  private GetExpandedComputedColumns(): ExpandedComputedColumn[] {
-    let childExpanded: ExpandedComputedColumn[] = [];
-
-    for (const relOp of this.Action.RelOp) {
-      childExpanded = childExpanded.concat(relOp.GetExpandedComputedColumns());
-    }
-
-    const expand = (definedValue: DefinedValue, childColumns: ExpandedComputedColumn[]): ExpandedComputedColumn | undefined => {
-      if (definedValue.ScalarOperator === undefined || definedValue.ScalarOperator.ScalarString === undefined) {
-        // if we can't find a scalar string we have nothing to expand
-        return undefined;
-      }
-
-      if (definedValue.ColumnReference === undefined || definedValue.ColumnReference.length !== 1) {
-        // don't mess with anything with multiple columns or nothing defined
-        return undefined;
-      }
-
-      const columnRef = definedValue.ColumnReference[0];
-
-      if (columnRef.Table !== undefined) {
-        // if we have a table name here then I have no idea what's happened. bail
-        return undefined;
-      }
-
-      let expanded = definedValue.ScalarOperator!.ScalarString!;
-      for (const child of childColumns) {
-        expanded = expanded.replaceAll(child.Column, child.Value);
-      }
-
-      return new ExpandedComputedColumn(columnRef.Column, expanded);
-    };
-
-
-    if (this.Action.DefinedValues !== undefined) {
-      for (const definedValue of this.Action.DefinedValues) {
-        const expandedChild = expand(definedValue, childExpanded);
-        if (expandedChild !== undefined) {
-          // not sure what happenes here with columns referencing themselves in later
-          if (childExpanded.findIndex((i) => i.Column === expandedChild.Column) === -1) {
-            childExpanded.push(expandedChild);
-          }
+        if (!this.Action.RelOp.length) {
+            return this.EstimatedTotalSubtreeCost;
         }
-      }
+
+        let sum = this.EstimatedTotalSubtreeCost;
+        for (const relOp of this.Action.RelOp) {
+            sum -= relOp.EstimatedTotalSubtreeCost;
+        }
+
+        return Math.max(sum, 0);
     }
 
+    public EstimateRebinds: number;
 
-    return childExpanded;
-  }
+    public EstimateRewinds: number;
+
+    public EstimateRows: number;
+
+    public get ExpandedComputedColumns(): ExpandedComputedColumn[] {
+        if (this.expandedComputedColumns === undefined) {
+            this.expandedComputedColumns = this.GetExpandedComputedColumns();
+        }
+
+        return this.expandedComputedColumns!;
+    }
+
+    public GroupExecuted?: boolean;
+
+    public IsAdaptive?: boolean;
+
+    public LogicalOp: LogicalOpType;
+
+    public NodeId: number;
+
+    public Parallel: boolean;
+
+    public Partitioned?: boolean;
+
+    public PhysicalOp: PhysicalOp;
+
+    public RemoteDataAccess?: boolean;
+
+    public StatsCollectionId?: number;
+
+    public TableCardinality?: number;
+
+    public OutputList: ColumnReference[];
+
+    public RunTimeInformation?: RunTimeInformation;
+
+    public MemoryFractions?: MemoryFractions;
+
+    public Action: RelOpAction;
+
+    public Warnings?: Warnings;
+
+    public get SecondaryDesc(): string {
+        switch (this.PhysicalOp) {
+            case 'Index Scan':
+            case 'Index Seek':
+            case 'Clustered Index Scan':
+            case 'Clustered Index Seek':
+                return (this.Action as IndexScan).Object[0].Table!.replaceAll('[', '').replaceAll(']', '');
+            default:
+                break;
+        }
+
+        return this.LogicalOp;
+    }
+
+    public get ThirdLevelDesc(): string | undefined {
+        switch (this.PhysicalOp) {
+            case 'Index Scan':
+            case 'Index Seek':
+            case 'Clustered Index Scan':
+            case 'Clustered Index Seek':
+                return (this.Action as IndexScan).Object[0].Index!.replaceAll('[', '').replaceAll(']', '');
+            default:
+                break;
+        }
+
+        return undefined;
+    }
+
+    private expandedComputedColumns?: ExpandedComputedColumn[];
+
+    public constructor(
+        Action: RelOpAction,
+        AvgRowSize: number,
+        EstimateCPU: number,
+        EstimatedTotalSubtreeCost: number,
+        EstimateIO: number,
+        EstimateRebinds: number,
+        EstimateRewinds: number,
+        EstimateRows: number,
+        LogicalOp: LogicalOpType,
+        NodeId: number,
+        Parallel: boolean,
+        PhysicalOperation: PhysicalOp,
+        OutputList: ColumnReference[],
+    ) {
+        this.Action = Action;
+        this.AvgRowSize = AvgRowSize;
+        this.EstimateCPU = EstimateCPU;
+        this.EstimatedTotalSubtreeCost = EstimatedTotalSubtreeCost;
+        this.EstimateIO = EstimateIO;
+        this.EstimateRebinds = EstimateRebinds;
+        this.EstimateRewinds = EstimateRewinds;
+        this.EstimateRows = EstimateRows;
+        this.LogicalOp = LogicalOp;
+        this.NodeId = NodeId;
+        this.Parallel = Parallel;
+        this.PhysicalOp = PhysicalOperation;
+        this.OutputList = OutputList;
+    }
+
+    public GetChildExpandedComputedColumns(): ExpandedComputedColumn[] {
+        let childExpanded: ExpandedComputedColumn[] = [];
+
+        for (const relOp of this.Action.RelOp) {
+            childExpanded = childExpanded.concat(relOp.ExpandedComputedColumns);
+        }
+
+        return childExpanded;
+    }
+
+    private GetExpandedComputedColumns(): ExpandedComputedColumn[] {
+        let childExpanded: ExpandedComputedColumn[] = [];
+
+        for (const relOp of this.Action.RelOp) {
+            childExpanded = childExpanded.concat(relOp.GetExpandedComputedColumns());
+        }
+
+        const expand = (definedValue: DefinedValue, childColumns: ExpandedComputedColumn[]): ExpandedComputedColumn | undefined => {
+            if (definedValue.ScalarOperator === undefined || definedValue.ScalarOperator.ScalarString === undefined) {
+                // if we can't find a scalar string we have nothing to expand
+                return undefined;
+            }
+
+            if (definedValue.ColumnReference === undefined || definedValue.ColumnReference.length !== 1) {
+                // don't mess with anything with multiple columns or nothing defined
+                return undefined;
+            }
+
+            const columnRef = definedValue.ColumnReference[0];
+
+            if (columnRef.Table !== undefined) {
+                // if we have a table name here then I have no idea what's happened. bail
+                return undefined;
+            }
+
+            let expanded = definedValue.ScalarOperator!.ScalarString!;
+            for (const child of childColumns) {
+                expanded = expanded.replaceAll(child.Column, child.Value);
+            }
+
+            return new ExpandedComputedColumn(columnRef.Column, expanded);
+        };
+
+
+        if (this.Action.DefinedValues !== undefined) {
+            for (const definedValue of this.Action.DefinedValues) {
+                const expandedChild = expand(definedValue, childExpanded);
+                if (expandedChild !== undefined) {
+                    // not sure what happenes here with columns referencing themselves in later
+                    if (childExpanded.findIndex(i => i.Column === expandedChild.Column) === -1) {
+                        childExpanded.push(expandedChild);
+                    }
+                }
+            }
+        }
+
+
+        return childExpanded;
+    }
 }
 
 export class ExpandedComputedColumn {
-  public Column: string;
-  public Value: string;
+    public Column: string;
 
-  constructor(column: string, value: string) {
-    this.Column = column;
-    this.Value = value;
-  }
+    public Value: string;
+
+    public constructor(column: string, value: string) {
+        this.Column = column;
+        this.Value = value;
+    }
 }
 
 export class Rowset extends RelOpAction {
-  public Object: ObjectType[];
+    public Object: ObjectType[];
 
-  constructor(object: ObjectType[]) {
-    super();
-    this.Object = object;
-  }
+    public constructor(object: ObjectType[]) {
+        super();
+        this.Object = object;
+    }
 }
 
 /** The Adaptive Join element replaces a adaptive concat with Hash Join and Nested loops as inputs. This element
@@ -250,46 +281,59 @@ export class Rowset extends RelOpAction {
  * AdaptiveJoin showplan element.
  */
 export class AdaptiveJoin extends RelOpAction {
-  public BitmapCreator?: boolean;
-  public Optimized: boolean;
-  public BuildResidual?: ScalarExpression;
-  public HashKeysBuild?: ColumnReference[];
-  public HashKeysProbe?: ColumnReference[];
-  public OuterReferences?: ColumnReference[];
-  public PartitionId?: ColumnReference;
-  public PassThru?: ScalarExpression;
-  public Predicate?: ScalarExpression;
-  public ProbeResidual?: ScalarExpression;
-  public StarJoinInfo?: StarJoinInfo;
+    public BitmapCreator?: boolean;
 
-  constructor(optimized: boolean) {
-    super();
-    this.Optimized = optimized;
-  }
+    public Optimized: boolean;
+
+    public BuildResidual?: ScalarExpression;
+
+    public HashKeysBuild?: ColumnReference[];
+
+    public HashKeysProbe?: ColumnReference[];
+
+    public OuterReferences?: ColumnReference[];
+
+    public PartitionId?: ColumnReference;
+
+    public PassThru?: ScalarExpression;
+
+    public Predicate?: ScalarExpression;
+
+    public ProbeResidual?: ScalarExpression;
+
+    public StarJoinInfo?: StarJoinInfo;
+
+    public constructor(optimized: boolean) {
+        super();
+        this.Optimized = optimized;
+    }
 }
 
 /** Warning information for plan-affecting type conversion */
 export class AffectingConvertWarning {
-  public ConvertIssue: AffectingConvertWarningTypeConvertIssue;
-  public Expression: string;
+    public ConvertIssue: AffectingConvertWarningTypeConvertIssue;
 
-  constructor(convertIssue: AffectingConvertWarningTypeConvertIssue, expression: string) {
-    this.ConvertIssue = convertIssue;
-    this.Expression = expression;
-  }
+    public Expression: string;
+
+    public constructor(convertIssue: AffectingConvertWarningTypeConvertIssue, expression: string) {
+        this.ConvertIssue = convertIssue;
+        this.Expression = expression;
+    }
 }
 
 export type AffectingConvertWarningTypeConvertIssue = 'Cardinality Estimate' | 'Seek Plan';
 
 export class Aggregate implements ScalarOp {
-  public AggType: string;
-  public Distinct: boolean;
-  public ScalarOperator?: Scalar[];
+    public AggType: string;
 
-  constructor(AggType: string, Distinct: boolean) {
-    this.AggType = AggType;
-    this.Distinct = Distinct;
-  }
+    public Distinct: boolean;
+
+    public ScalarOperator?: Scalar[];
+
+    public constructor(AggType: string, Distinct: boolean) {
+        this.AggType = AggType;
+        this.Distinct = Distinct;
+    }
 }
 
 export type ArithmeticOperation =
@@ -308,71 +352,99 @@ export type ArithmeticOperation =
   | 'SUB';
 
 export class Arithmetic implements ScalarOp {
-  public Operation: ArithmeticOperation;
-  public ScalarOperator: Scalar[];
+    public Operation: ArithmeticOperation;
 
-  constructor(Operation: ArithmeticOperation, ScalarOperator: Scalar[]) {
-    this.Operation = Operation;
-    this.ScalarOperator = ScalarOperator;
-  }
+    public ScalarOperator: Scalar[];
+
+    public constructor(Operation: ArithmeticOperation, ScalarOperator: Scalar[]) {
+        this.Operation = Operation;
+        this.ScalarOperator = ScalarOperator;
+    }
 }
 
 export class Assign implements ScalarOp {
-  public ColumnReference: ColumnReference;
-  public ScalarOperator: Scalar;
+    public ColumnReference: ColumnReference;
 
-  constructor(ColumnRef: ColumnReference, ScalarOperator: Scalar) {
-    this.ColumnReference = ColumnRef;
-    this.ScalarOperator = ScalarOperator;
-  }
+    public ScalarOperator: Scalar;
+
+    public constructor(ColumnRef: ColumnReference, ScalarOperator: Scalar) {
+        this.ColumnReference = ColumnRef;
+        this.ScalarOperator = ScalarOperator;
+    }
 }
 
 /** the type that contains the basic statement information */
 export class BaseStmtInfo {
-  public Batch?: ShowPlanXMLTypeBatchSequenceTypeBatch;
-  public BatchSqlHandle?: string;
-  public CardinalityEstimationModelVersion?: string;
-  public DatabaseContextSettingsId?: number;
-  public ParameterizedPlanHandle?: string;
-  public ParameterizedText?: string;
-  public ParentObjectId?: number;
-  public PlanGuideDB?: string;
-  public PlanGuideName?: string;
-  public QueryHash?: string;
-  public QueryPlanHash?: string;
-  public RetrievedFromCache?: string;
-  public SecurityPolicyApplied?: boolean;
-  public StatementCompId?: number;
-  public StatementEstRows?: number;
-  public StatementId?: number;
-  public StatementOptmEarlyAbortReason?: BaseStmtInfoTypeStatementOptmEarlyAbortReason;
-  public StatementOptmLevel?: string;
-  public StatementParameterizationType?: number;
-  public StatementSqlHandle?: string;
-  public StatementSubTreeCost?: number;
-  public StatementText?: string;
-  public StatementType?: string;
-  public TemplatePlanGuideDB?: string;
-  public TemplatePlanGuideName?: string;
-  public StatementSetOptions?: SetOptions;
-  public Guid: string = Guid.create().toString();
+    public Batch?: ShowPlanXMLTypeBatchSequenceTypeBatch;
 
-  public CostPercentOfBatch(): number | undefined {
-    if (this.Batch === undefined) {
-      return undefined;
+    public BatchSqlHandle?: string;
+
+    public CardinalityEstimationModelVersion?: string;
+
+    public DatabaseContextSettingsId?: number;
+
+    public ParameterizedPlanHandle?: string;
+
+    public ParameterizedText?: string;
+
+    public ParentObjectId?: number;
+
+    public PlanGuideDB?: string;
+
+    public PlanGuideName?: string;
+
+    public QueryHash?: string;
+
+    public QueryPlanHash?: string;
+
+    public RetrievedFromCache?: string;
+
+    public SecurityPolicyApplied?: boolean;
+
+    public StatementCompId?: number;
+
+    public StatementEstRows?: number;
+
+    public StatementId?: number;
+
+    public StatementOptmEarlyAbortReason?: BaseStmtInfoTypeStatementOptmEarlyAbortReason;
+
+    public StatementOptmLevel?: string;
+
+    public StatementParameterizationType?: number;
+
+    public StatementSqlHandle?: string;
+
+    public StatementSubTreeCost?: number;
+
+    public StatementText?: string;
+
+    public StatementType?: string;
+
+    public TemplatePlanGuideDB?: string;
+
+    public TemplatePlanGuideName?: string;
+
+    public StatementSetOptions?: SetOptions;
+
+    public Guid: string = Guid.create().toString();
+
+    public CostPercentOfBatch(): number | undefined {
+        if (this.Batch === undefined) {
+            return undefined;
+        }
+
+        if (this.StatementSubTreeCost === undefined) {
+            return undefined;
+        }
+
+        const total = this.Batch!.Statements
+            .filter(i => i.StatementSubTreeCost !== undefined)
+            .map(i => i.StatementSubTreeCost!)
+            .reduce((sum, current) => sum + current);
+
+        return this.StatementSubTreeCost! / total;
     }
-
-    if (this.StatementSubTreeCost === undefined) {
-      return undefined;
-    }
-
-    const total =  this.Batch!.Statements
-      .filter((i) => i.StatementSubTreeCost !== undefined)
-      .map((i) => i.StatementSubTreeCost!)
-      .reduce((sum, current) => sum + current);
-
-    return this.StatementSubTreeCost! / total;
-  }
 }
 
 export type BaseStmtInfoTypeStatementOptmEarlyAbortReason =
@@ -381,98 +453,112 @@ export type BaseStmtInfoTypeStatementOptmEarlyAbortReason =
   | 'GoodEnoughPlanFound';
 
 export class BatchHashTableBuild extends RelOpAction {
-  public BitmapCreator?: boolean;
+    public BitmapCreator?: boolean;
 }
 
 export class Bitmap extends RelOpAction {
-  public HashKeys: ColumnReference[];
+    public HashKeys: ColumnReference[];
 
-  public constructor(hashKeys: ColumnReference[]) {
-    super();
-    this.HashKeys = hashKeys;
-  }
+    public public constructor(hashKeys: ColumnReference[]) {
+        super();
+        this.HashKeys = hashKeys;
+    }
 }
 
 export type CloneAccessScope = 'Primary' | 'Secondary' | 'Both' | 'Either' | 'ExactMatch' | 'Local';
 
 export class CLRFunction {
-  public Assembly?: string;
-  public Class: string;
-  public Method?: string;
+    public Assembly?: string;
 
-  constructor($class: string) {
-    this.Class = $class;
-  }
+    public Class: string;
+
+    public Method?: string;
+
+    public constructor($class: string) {
+        this.Class = $class;
+    }
 }
 
 export class Collapse extends RelOpAction {
-  public GroupBy: ColumnReference[];
+    public GroupBy: ColumnReference[];
 
-  constructor(groupBy: ColumnReference[]) {
-    super();
-    this.GroupBy = groupBy;
-  }
+    public constructor(groupBy: ColumnReference[]) {
+        super();
+        this.GroupBy = groupBy;
+    }
 }
 
 export class ColumnGroup {
-  public Usage: ColumnGroupTypeUsage;
-  public Column: Column[];
+    public Usage: ColumnGroupTypeUsage;
 
-  constructor(usage: ColumnGroupTypeUsage, column: Column[]) {
-    this.Usage = usage;
-    this.Column = column;
-  }
+    public Column: Column[];
+
+    public constructor(usage: ColumnGroupTypeUsage, column: Column[]) {
+        this.Usage = usage;
+        this.Column = column;
+    }
 }
 
 export type ColumnGroupTypeUsage = 'EQUALITY' | 'INEQUALITY' | 'INCLUDE';
 
 export class ColumnReference {
-  public Alias?: string;
-  public Column: string;
-  public ComputedColumn?: boolean;
-  public Database?: string;
-  public ParameterCompiledValue?: string;
-  public ParameterDataType?: string;
-  public ParameterRuntimeValue?: string;
-  public Schema?: string;
-  public Server?: string;
-  public Table?: string;
-  public ScalarOperator?: Scalar;
+    public Alias?: string;
 
-  constructor(ColumnName: string) {
-    this.Column = ColumnName;
-  }
+    public Column: string;
 
-  public toString(): string {
-    let out = '';
-    if (this.Database !== undefined) {
-      out += this.Database + '.';
+    public ComputedColumn?: boolean;
+
+    public Database?: string;
+
+    public ParameterCompiledValue?: string;
+
+    public ParameterDataType?: string;
+
+    public ParameterRuntimeValue?: string;
+
+    public Schema?: string;
+
+    public Server?: string;
+
+    public Table?: string;
+
+    public ScalarOperator?: Scalar;
+
+    public constructor(ColumnName: string) {
+        this.Column = ColumnName;
     }
 
-    if (this.Schema !== undefined) {
-      out += this.Schema + '.';
-    }
-    if (this.Table !== undefined) {
-      out += this.Table + '.';
-    }
+    public toString(): string {
+        let out = '';
+        if (this.Database !== undefined) {
+            out += `${this.Database}.`;
+        }
 
-    out += this.Column;
+        if (this.Schema !== undefined) {
+            out += `${this.Schema}.`;
+        }
+        if (this.Table !== undefined) {
+            out += `${this.Table}.`;
+        }
 
-    if (this.Alias !== undefined) {
-      out += ' as ' + this.Alias;
+        out += this.Column;
+
+        if (this.Alias !== undefined) {
+            out += ` as ${this.Alias}`;
+        }
+        return out;
     }
-    return out;
-  }
 }
 
 export class Column {
-  public ColumnId: number;
-  public Name: string;
+    public ColumnId: number;
 
-  constructor(columnId: number, name: string) {
-    this.ColumnId = columnId;
-    this.Name = name;
-  }
+    public Name: string;
+
+    public constructor(columnId: number, name: string) {
+        this.ColumnId = columnId;
+        this.Name = name;
+    }
 }
 
 export type CompareOp =
@@ -491,85 +577,94 @@ export type CompareOp =
   | 'ONE NULL';
 
 export class CompareType implements ScalarOp {
-  public CompareOp: CompareOp;
-  public ScalarOperator: Scalar[];
+    public CompareOp: CompareOp;
 
-  constructor(compareOp: CompareOp, scalarOperator: Scalar[]) {
-    this.CompareOp = compareOp;
-    this.ScalarOperator = scalarOperator;
-  }
+    public ScalarOperator: Scalar[];
+
+    public constructor(compareOp: CompareOp, scalarOperator: Scalar[]) {
+        this.CompareOp = compareOp;
+        this.ScalarOperator = scalarOperator;
+    }
 }
 
 export class ComputeScalar extends RelOpAction {
-  public ComputeSequence?: boolean;
+    public ComputeSequence?: boolean;
 }
 
 export class Concat extends RelOpAction {}
 
 export class Conditional implements ScalarOp {
-  public Condition: ScalarExpression;
-  public Else: ScalarExpression;
-  public Then: ScalarExpression;
+    public Condition: ScalarExpression;
 
-  constructor(condition: ScalarExpression, $else: ScalarExpression, then: ScalarExpression) {
-    this.Condition = condition;
-    this.Else = $else;
-    this.Then = then;
-  }
+    public Else: ScalarExpression;
+
+    public Then: ScalarExpression;
+
+    public constructor(condition: ScalarExpression, $else: ScalarExpression, then: ScalarExpression) {
+        this.Condition = condition;
+        this.Else = $else;
+        this.Then = then;
+    }
 }
 
 export class ConstantScan extends RelOpAction {
-  public Values?: ScalarExpressionList[];
+    public Values?: ScalarExpressionList[];
 }
 
 export class Const implements ScalarOp {
-  public ConstValue: string;
+    public ConstValue: string;
 
-  constructor(constValue: string) {
-    this.ConstValue = constValue;
-  }
+    public constructor(constValue: string) {
+        this.ConstValue = constValue;
+    }
 }
 
 export class Convert implements ScalarOp {
-  public DataType: string;
-  public Implicit: boolean;
-  public Length?: number;
-  public Precision?: number;
-  public Scale?: number;
-  public Style: number;
-  public ScalarOperator: Scalar;
+    public DataType: string;
 
-  constructor(dataType: string, implicit: boolean, style: number, scalarOperator: Scalar) {
-    this.DataType = dataType;
-    this.Implicit = implicit;
-    this.Style = style;
-    this.ScalarOperator = scalarOperator;
-  }
+    public Implicit: boolean;
+
+    public Length?: number;
+
+    public Precision?: number;
+
+    public Scale?: number;
+
+    public Style: number;
+
+    public ScalarOperator: Scalar;
+
+    public constructor(dataType: string, implicit: boolean, style: number, scalarOperator: Scalar) {
+        this.DataType = dataType;
+        this.Implicit = implicit;
+        this.Style = style;
+        this.ScalarOperator = scalarOperator;
+    }
 }
 
 export class CreateIndex extends Rowset {}
 
 interface CursorPlan {
-  CursorActualType: CursorType;
-  CursorConcurrency: CursorPlanTypeCursorConcurrency;
-  CursorName: string;
-  CursorRequestedType: CursorType;
-  ForwardOnly: boolean;
-  /** The number of occure time depends on how we define the cursor
+    CursorActualType: CursorType;
+    CursorConcurrency: CursorPlanTypeCursorConcurrency;
+    CursorName: string;
+    CursorRequestedType: CursorType;
+    ForwardOnly: boolean;
+    /** The number of occure time depends on how we define the cursor
    * schema. In shiloh, the OPEN CURSOR and FETCH CURSOR doesn't show any plan and won't raise
    * error if the cursor doesn't exist. So we must keep the same behaivor, so the minOccurs is 0. If we allow
    * the declare cursor to be executed in showplan mode, then the open cursor and declare cursor will have
    * plan in showplan mode, the minOccurs will be 1
    */
-  Operation?: CursorPlanTypeOperation[];
+    Operation?: CursorPlanTypeOperation[];
 }
 
 type CursorPlanTypeCursorConcurrency = 'Read Only' | 'Pessimistic' | 'Optimistic';
 
 interface CursorPlanTypeOperation {
-  OperationType: CursorPlanTypeOperationTypeOperationType;
-  QueryPlan: QueryPlan;
-  UDF?: FunctionPlan[];
+    OperationType: CursorPlanTypeOperationTypeOperationType;
+    QueryPlan: QueryPlan;
+    UDF?: FunctionPlan[];
 }
 
 type CursorPlanTypeOperationTypeOperationType = 'FetchQuery' | 'PopulateQuery' | 'RefreshQuery';
@@ -577,82 +672,98 @@ type CursorPlanTypeOperationTypeOperationType = 'FetchQuery' | 'PopulateQuery' |
 export type CursorType = 'Dynamic' | 'FastForward' | 'Keyset' | 'SnapShot';
 
 export class DefinedValue {
-  public ColumnReference?: ColumnReference[];
-  public ScalarOperator?: Scalar;
-  public ValueVector?: ColumnReference[];
+    public ColumnReference?: ColumnReference[];
+
+    public ScalarOperator?: Scalar;
+
+    public ValueVector?: ColumnReference[];
 }
 
 export type ExecutionModeType = 'Row' | 'Batch';
 
 export class Filter extends RelOpAction {
-  public StartupExpression: boolean;
-  public Predicate: ScalarExpression;
-  public IsAssert?: boolean;
+    public StartupExpression: boolean;
 
-  constructor(StartupExpression: boolean, Predicate: ScalarExpression) {
-    super();
-    this.StartupExpression = StartupExpression;
-    this.Predicate = Predicate;
-  }
+    public Predicate: ScalarExpression;
+
+    public IsAssert?: boolean;
+
+    public constructor(StartupExpression: boolean, Predicate: ScalarExpression) {
+        super();
+        this.StartupExpression = StartupExpression;
+        this.Predicate = Predicate;
+    }
 }
 
 export class ForeignKeyReferenceCheck {
-  public IndexScan: IndexScan;
+    public IndexScan: IndexScan;
 
-  constructor(indexScan: IndexScan) {
-    this.IndexScan = indexScan;
-  }
+    public constructor(indexScan: IndexScan) {
+        this.IndexScan = indexScan;
+    }
 }
 
 export class ForeignKeyReferencesCheck extends RelOpAction {
-  public ForeignKeyReferencesCount?: number;
-  public NoMatchingIndexCount?: number;
-  public PartialMatchingIndexCount?: number;
-  public ForeignKeyReferenceCheck: ForeignKeyReferenceCheck[];
+    public ForeignKeyReferencesCount?: number;
 
-  constructor(foreignKeyReferenceCheck: ForeignKeyReferenceCheck[]) {
-    super();
-    this.ForeignKeyReferenceCheck = foreignKeyReferenceCheck;
-  }
+    public NoMatchingIndexCount?: number;
+
+    public PartialMatchingIndexCount?: number;
+
+    public ForeignKeyReferenceCheck: ForeignKeyReferenceCheck[];
+
+    public constructor(foreignKeyReferenceCheck: ForeignKeyReferenceCheck[]) {
+        super();
+        this.ForeignKeyReferenceCheck = foreignKeyReferenceCheck;
+    }
 }
 
 /** Shows the plan for the UDF or stored procedure */
 export interface FunctionPlan {
-  IsNativelyCompiled?: boolean;
-  ProcName: string;
-  Statements: BaseStmtInfo;
+    IsNativelyCompiled?: boolean;
+    ProcName: string;
+    Statements: BaseStmtInfo;
 }
 
 export class Generic extends RelOpAction {}
 
 interface GuessedSelectivity {
-  Spatial: ObjectType;
+    Spatial: ObjectType;
 }
 
 /** Hash spill details */
 export class HashSpillDetails {
-  public GrantedMemoryKb?: number;
-  public ReadsFromTempDb?: number;
-  public UsedMemoryKb?: number;
-  public WritesToTempDb?: number;
+    public GrantedMemoryKb?: number;
+
+    public ReadsFromTempDb?: number;
+
+    public UsedMemoryKb?: number;
+
+    public WritesToTempDb?: number;
 }
 
 export class Hash extends RelOpAction {
-  public BitmapCreator?: boolean;
-  public BuildResidual?: ScalarExpression;
-  public HashKeysBuild?: ColumnReference[];
-  public HashKeysProbe?: ColumnReference[];
-  public ProbeResidual?: ScalarExpression;
-  public StarJoinInfo?: StarJoinInfo;
+    public BitmapCreator?: boolean;
+
+    public BuildResidual?: ScalarExpression;
+
+    public HashKeysBuild?: ColumnReference[];
+
+    public HashKeysProbe?: ColumnReference[];
+
+    public ProbeResidual?: ScalarExpression;
+
+    public StarJoinInfo?: StarJoinInfo;
 }
 
 export class Ident implements ScalarOp {
-  public Table: string;
-  public ColumnReference?: ColumnReference;
+    public Table: string;
 
-  constructor(table: string) {
-    this.Table = table;
-  }
+    public ColumnReference?: ColumnReference;
+
+    public constructor(table: string) {
+        this.Table = table;
+    }
 }
 
 export type IndexKindType =
@@ -671,34 +782,48 @@ export type IndexKindType =
   | 'SecondarySelectiveXML';
 
 export class IndexScan extends Rowset {
-  public DynamicSeek?: boolean;
-  public ForcedIndex?: boolean;
-  public ForceScan?: boolean;
-  public ForceSeek?: boolean;
-  public ForceSeekColumnCount?: number;
-  public Lookup?: boolean;
-  public NoExpandHint?: boolean;
-  public Ordered: boolean;
-  public ScanDirection?: OrderType;
-  public Storage?: StorageType;
-  public IndexedViewInfo?: ObjectType[];
-  public PartitionId?: ColumnReference;
-  public Predicate?: ScalarExpression[];
-  public SeekPredicates?: SeekPredicates;
+    public DynamicSeek?: boolean;
 
-  constructor(object: ObjectType[], ordered: boolean) {
-    super(object);
-    this.Ordered = ordered;
-  }
+    public ForcedIndex?: boolean;
+
+    public ForceScan?: boolean;
+
+    public ForceSeek?: boolean;
+
+    public ForceSeekColumnCount?: number;
+
+    public Lookup?: boolean;
+
+    public NoExpandHint?: boolean;
+
+    public Ordered: boolean;
+
+    public ScanDirection?: OrderType;
+
+    public Storage?: StorageType;
+
+    public IndexedViewInfo?: ObjectType[];
+
+    public PartitionId?: ColumnReference;
+
+    public Predicate?: ScalarExpression[];
+
+    public SeekPredicates?: SeekPredicates;
+
+    public constructor(object: ObjectType[], ordered: boolean) {
+        super(object);
+        this.Ordered = ordered;
+    }
 }
 
 export class Intrinsic implements ScalarOp {
-  public FunctionName: string;
-  public ScalarOperator?: Scalar[];
+    public FunctionName: string;
 
-  constructor(functionName: string) {
-    this.FunctionName = functionName;
-  }
+    public ScalarOperator?: Scalar[];
+
+    public constructor(functionName: string) {
+        this.FunctionName = functionName;
+    }
 }
 
 export type LogicalOperationType =
@@ -798,23 +923,22 @@ export type LogicalOpType =
   | 'Window Spool'
   | 'Window Aggregate'
   | 'Key Lookup'
-  | 'Root'
-  ;
-
+  | 'Root';
 export class Logical implements ScalarOp {
-  public Operation: LogicalOperationType;
-  public ScalarOperator: Scalar[];
+    public Operation: LogicalOperationType;
 
-  constructor(operation: LogicalOperationType, scalarOperator: Scalar[]) {
-    this.Operation = operation;
-    this.ScalarOperator = scalarOperator;
-  }
+    public ScalarOperator: Scalar[];
+
+    public constructor(operation: LogicalOperationType, scalarOperator: Scalar[]) {
+        this.Operation = operation;
+        this.ScalarOperator = scalarOperator;
+    }
 }
 
 /** For memory consuming relational operators, show fraction of memory grant iterator will use */
 interface MemoryFractions {
-  Input: number;
-  Output: number;
+    Input: number;
+    Output: number;
 }
 
 /** Provide memory grant estimate as well as actual runtime memory grant information.
@@ -830,20 +954,28 @@ interface MemoryFractions {
  * MaxQueryMemory: Maximum memory in KB allowed for single query.
  */
 export class MemoryGrant {
-  public DesiredMemory?: number;
-  public GrantedMemory?: number;
-  public GrantWaitTime?: number;
-  public MaxQueryMemory?: number;
-  public MaxUsedMemory?: number;
-  public RequestedMemory?: number;
-  public RequiredMemory?: number;
-  public SerialDesiredMemory: number;
-  public SerialRequiredMemory: number;
+    public DesiredMemory?: number;
 
-  constructor(serialDesiredMemory: number, serialRequiredMemory: number) {
-    this.SerialDesiredMemory = serialDesiredMemory;
-    this.SerialRequiredMemory = serialRequiredMemory;
-  }
+    public GrantedMemory?: number;
+
+    public GrantWaitTime?: number;
+
+    public MaxQueryMemory?: number;
+
+    public MaxUsedMemory?: number;
+
+    public RequestedMemory?: number;
+
+    public RequiredMemory?: number;
+
+    public SerialDesiredMemory: number;
+
+    public SerialRequiredMemory: number;
+
+    public constructor(serialDesiredMemory: number, serialRequiredMemory: number) {
+        this.SerialDesiredMemory = serialDesiredMemory;
+        this.SerialRequiredMemory = serialRequiredMemory;
+    }
 }
 
 /** Provide warning information for memory grant.
@@ -853,138 +985,167 @@ export class MemoryGrant {
  * MaxUsedMemory: Maximum used memory grant in KB
  */
 export class MemoryGrantWarningInfo {
-  public GrantedMemory: number;
-  public GrantWarningKind: MemoryGrantWarningType;
-  public MaxUsedMemory: number;
-  public RequestedMemory: number;
+    public GrantedMemory: number;
 
-  constructor(grantedMemory: number, grantWarningKind: MemoryGrantWarningType, maxUsedMemory: number, requestedMemory: number) {
-    this.GrantedMemory = grantedMemory;
-    this.GrantWarningKind = grantWarningKind;
-    this.MaxUsedMemory = maxUsedMemory;
-    this.RequestedMemory = requestedMemory;
-  }
+    public GrantWarningKind: MemoryGrantWarningType;
+
+    public MaxUsedMemory: number;
+
+    public RequestedMemory: number;
+
+    public constructor(grantedMemory: number, grantWarningKind: MemoryGrantWarningType, maxUsedMemory: number, requestedMemory: number) {
+        this.GrantedMemory = grantedMemory;
+        this.GrantWarningKind = grantWarningKind;
+        this.MaxUsedMemory = maxUsedMemory;
+        this.RequestedMemory = requestedMemory;
+    }
 }
 
 export type MemoryGrantWarningType = 'Excessive Grant' | 'Used More Than Granted' | 'Grant Increase';
 
 export class Merge extends RelOpAction {
-  public ManyToMany?: boolean;
-  public InnerSideJoinColumns?: ColumnReference[];
-  public OuterSideJoinColumns?: ColumnReference[];
-  public PassThru?: ScalarExpression;
-  public Residual?: ScalarExpression;
-  public StarJoinInfo?: StarJoinInfo;
+    public ManyToMany?: boolean;
+
+    public InnerSideJoinColumns?: ColumnReference[];
+
+    public OuterSideJoinColumns?: ColumnReference[];
+
+    public PassThru?: ScalarExpression;
+
+    public Residual?: ScalarExpression;
+
+    public StarJoinInfo?: StarJoinInfo;
 }
 
 export class MissingIndexes {
-  public MissingIndexGroup: MissingIndexGroup[];
+    public MissingIndexGroup: MissingIndexGroup[];
 
-  constructor(missingIndexGroup: MissingIndexGroup[]) {
-    this.MissingIndexGroup = missingIndexGroup;
-  }
+    public constructor(missingIndexGroup: MissingIndexGroup[]) {
+        this.MissingIndexGroup = missingIndexGroup;
+    }
 }
 
 export class MissingIndexGroup {
-  public Impact: number;
-  public MissingIndex: MissingIndex[];
+    public Impact: number;
 
-  constructor(impact: number, missingIndex: MissingIndex[]) {
-    this.Impact = impact;
-    this.MissingIndex = missingIndex;
-  }
+    public MissingIndex: MissingIndex[];
+
+    public constructor(impact: number, missingIndex: MissingIndex[]) {
+        this.Impact = impact;
+        this.MissingIndex = missingIndex;
+    }
 }
 
 export class MissingIndex {
-  public Database: string;
-  public Schema: string;
-  public Table: string;
-  public ColumnGroup: ColumnGroup[];
+    public Database: string;
 
-  constructor(database: string, schema: string, table: string, columnGroup: ColumnGroup[]) {
-    this.Database = database;
-    this.Schema = schema;
-    this.Table = table;
-    this.ColumnGroup = columnGroup;
-  }
+    public Schema: string;
 
-  public toCreateIndexString(): string {
-    const equalityColumnNames = this.ColumnGroup.filter((i) => i.Usage === 'EQUALITY' || i.Usage === 'INEQUALITY' )[0].Column.map((col) => col.Name);
+    public Table: string;
 
-    const includeColumns = this.ColumnGroup.filter((i) => i.Usage === 'INCLUDE')[0];
-    let includeColumnNames: string[] | undefined;
-    if (includeColumns !== undefined) {
-      includeColumnNames = includeColumns.Column.map((col) => col.Name);
+    public ColumnGroup: ColumnGroup[];
+
+    public constructor(database: string, schema: string, table: string, columnGroup: ColumnGroup[]) {
+        this.Database = database;
+        this.Schema = schema;
+        this.Table = table;
+        this.ColumnGroup = columnGroup;
     }
 
-    const indexName = `IX_${this.Table}_${equalityColumnNames.join('_')}`;
-    let sql = `CREATE NONCLUSTERED INDEX ${indexName} ON ${this.Schema}.${this.Table} (${equalityColumnNames.join(', ')})`;
+    public toCreateIndexString(): string {
+        const equalityColumnNames = this.ColumnGroup.filter(i => i.Usage === 'EQUALITY' || i.Usage === 'INEQUALITY')[0].Column.map(col => col.Name);
 
-    if (includeColumnNames !== undefined) {
-      sql += ` INCLUDE (${includeColumnNames.join(', ')})`;
+        const includeColumns = this.ColumnGroup.filter(i => i.Usage === 'INCLUDE')[0];
+        let includeColumnNames: string[] | undefined;
+        if (includeColumns !== undefined) {
+            includeColumnNames = includeColumns.Column.map(col => col.Name);
+        }
+
+        const indexName = `IX_${this.Table}_${equalityColumnNames.join('_')}`;
+        let sql = `CREATE NONCLUSTERED INDEX ${indexName} ON ${this.Schema}.${this.Table} (${equalityColumnNames.join(', ')})`;
+
+        if (includeColumnNames !== undefined) {
+            sql += ` INCLUDE (${includeColumnNames.join(', ')})`;
+        }
+
+        return sql;
     }
-
-    return sql;
-  }
 }
 
 export class MultiAssign implements ScalarOp {
-  public Assigns?: Assign[];
+    public Assigns?: Assign[];
 
-  constructor(assigns?: Assign[]) {
-    this.Assigns = assigns;
-  }
+    public constructor(assigns?: Assign[]) {
+        this.Assigns = assigns;
+    }
 }
 
 export class NestedLoops extends RelOpAction {
-  public Optimized: boolean;
-  public WithOrderedPrefetch?: boolean;
-  public WithUnorderedPrefetch?: boolean;
-  public OuterReferences?: ColumnReference[];
-  public PartitionId?: ColumnReference;
-  public PassThru?: ScalarExpression;
-  public Predicate?: ScalarExpression;
-  public ProbeColumn?: ColumnReference;
+    public Optimized: boolean;
 
-  public StarJoinInfo?: StarJoinInfo;
+    public WithOrderedPrefetch?: boolean;
 
-  constructor(optimized: boolean) {
-    super();
-    this.Optimized = optimized;
-  }
+    public WithUnorderedPrefetch?: boolean;
+
+    public OuterReferences?: ColumnReference[];
+
+    public PartitionId?: ColumnReference;
+
+    public PassThru?: ScalarExpression;
+
+    public Predicate?: ScalarExpression;
+
+    public ProbeColumn?: ColumnReference;
+
+    public StarJoinInfo?: StarJoinInfo;
+
+    public constructor(optimized: boolean) {
+        super();
+        this.Optimized = optimized;
+    }
 }
 
 export class ObjectType {
-  public Alias?: string;
-  public CloneAccessScope?: CloneAccessScope;
-  public Database?: string;
-  public Filtered?: boolean;
-  public Index?: string;
-  public IndexKind?: IndexKindType;
-  public Schema?: string;
-  public Server?: string;
-  public Storage?: StorageType;
-  public Table?: string;
-  public TableReferenceId?: number;
+    public Alias?: string;
 
-  public getFullTableName(): string {
-    let out = '';
-    if (this.Database !== undefined) {
-      out += this.Database + '.';
-    }
+    public CloneAccessScope?: CloneAccessScope;
 
-    if (this.Schema !== undefined) {
-      out += this.Schema + '.';
-    }
-    if (this.Table !== undefined) {
-      out += this.Table;
-    }
+    public Database?: string;
 
-    if (this.Alias !== undefined) {
-      out += ' as ' + this.Alias;
+    public Filtered?: boolean;
+
+    public Index?: string;
+
+    public IndexKind?: IndexKindType;
+
+    public Schema?: string;
+
+    public Server?: string;
+
+    public Storage?: StorageType;
+
+    public Table?: string;
+
+    public TableReferenceId?: number;
+
+    public getFullTableName(): string {
+        let out = '';
+        if (this.Database !== undefined) {
+            out += `${this.Database}.`;
+        }
+
+        if (this.Schema !== undefined) {
+            out += `${this.Schema}.`;
+        }
+        if (this.Table !== undefined) {
+            out += this.Table;
+        }
+
+        if (this.Alias !== undefined) {
+            out += ` as ${this.Alias}`;
+        }
+        return out;
     }
-    return out;
-  }
 }
 /** Provide hardware-dependent properties that affect cost estimate (and hence, query plan choice), as seen by the Query Optimizer.
  * EstimatedAvailableMemoryGrant is an estimate of what amount of memory (KB) will be available for this query at the execution time to request a memory grant from.
@@ -993,81 +1154,95 @@ export class ObjectType {
  * MaxCompileMemory is the maximum memory in KB allowed for query optimizer to use during compilation.
  */
 export class OptimizerHardwareDependentProperties {
-  public EstimatedAvailableDegreeOfParallelism?: number;
-  public EstimatedAvailableMemoryGrant: number;
-  public EstimatedPagesCached: number;
-  public MaxCompileMemory?: number;
+    public EstimatedAvailableDegreeOfParallelism?: number;
 
-  constructor(EstimatedAvailableMemoryGrant: number, EstimatedPagesCached: number) {
-    this.EstimatedAvailableMemoryGrant = EstimatedAvailableMemoryGrant;
-    this.EstimatedPagesCached = EstimatedPagesCached;
-  }
+    public EstimatedAvailableMemoryGrant: number;
+
+    public EstimatedPagesCached: number;
+
+    public MaxCompileMemory?: number;
+
+    public constructor(EstimatedAvailableMemoryGrant: number, EstimatedPagesCached: number) {
+        this.EstimatedAvailableMemoryGrant = EstimatedAvailableMemoryGrant;
+        this.EstimatedPagesCached = EstimatedPagesCached;
+    }
 }
 /** List of statistics info used during query optimization */
 export class OptimizerStatsUsage {
-  public StatisticsInfo: StatsInfo[];
+    public StatisticsInfo: StatsInfo[];
 
-  constructor(statisticsInfo: StatsInfo[]) {
-    this.StatisticsInfo = statisticsInfo;
-  }
+    public constructor(statisticsInfo: StatsInfo[]) {
+        this.StatisticsInfo = statisticsInfo;
+    }
 }
 
 export class OrderBy {
-  public OrderByColumn: OrderByTypeOrderByColumn[];
+    public OrderByColumn: OrderByTypeOrderByColumn[];
 
-  constructor(orderByColumn: OrderByTypeOrderByColumn[]) {
-    this.OrderByColumn = orderByColumn;
-  }
+    public constructor(orderByColumn: OrderByTypeOrderByColumn[]) {
+        this.OrderByColumn = orderByColumn;
+    }
 }
 
 export class OrderByTypeOrderByColumn {
-  public Ascending: boolean;
-  public ColumnReference: ColumnReference;
+    public Ascending: boolean;
 
-  constructor(ascending: boolean, columnReference: ColumnReference) {
-    this.Ascending = ascending;
-    this.ColumnReference = columnReference;
-  }
+    public ColumnReference: ColumnReference;
 
-  public toString(): string {
-    if (this.Ascending) {
-      return this.ColumnReference.toString() + ' ASC';
+    public constructor(ascending: boolean, columnReference: ColumnReference) {
+        this.Ascending = ascending;
+        this.ColumnReference = columnReference;
     }
 
-    return this.ColumnReference.toString() + ' DESC';
-  }
+    public toString(): string {
+        if (this.Ascending) {
+            return `${this.ColumnReference.toString()} ASC`;
+        }
+
+        return `${this.ColumnReference.toString()} DESC`;
+    }
 }
 
 export type OrderType = 'BACKWARD' | 'FORWARD';
 
 export class Parallelism extends RelOpAction {
-  public InRow?: boolean;
-  public LocalParallelism?: boolean;
-  public PartitioningType?: PartitionType;
-  public Remoting?: boolean;
-  public Activation?: ParallelismTypeActivation;
-  public BrickRouting?: ParallelismTypeBrickRouting;
-  public HashKeys?: ColumnReference[];
-  public OrderBy?: OrderBy;
-  public PartitionColumns?: ColumnReference[];
-  public Predicate?: ScalarExpression;
-  public ProbeColumn?: ColumnReference;
+    public InRow?: boolean;
+
+    public LocalParallelism?: boolean;
+
+    public PartitioningType?: PartitionType;
+
+    public Remoting?: boolean;
+
+    public Activation?: ParallelismTypeActivation;
+
+    public BrickRouting?: ParallelismTypeBrickRouting;
+
+    public HashKeys?: ColumnReference[];
+
+    public OrderBy?: OrderBy;
+
+    public PartitionColumns?: ColumnReference[];
+
+    public Predicate?: ScalarExpression;
+
+    public ProbeColumn?: ColumnReference;
 }
 
 interface ParallelismTypeActivation {
-  Type: ParallelismTypeActivationType;
-  Object?: ObjectType;
+    Type: ParallelismTypeActivationType;
+    Object?: ObjectType;
 }
 
 type ParallelismTypeActivationType = 'CloneLocation' | 'Resource' | 'SingleBrick' | 'Region';
 
 interface ParallelismTypeBrickRouting {
-  FragmentIdColumn?: ColumnReference;
-  Object?: ObjectType;
+    FragmentIdColumn?: ColumnReference;
+    Object?: ObjectType;
 }
 
 interface Parameterization {
-  Object: ObjectType[];
+    Object: ObjectType[];
 }
 
 export type PartitionType =
@@ -1179,13 +1354,14 @@ export type PhysicalOp =
  * ElapsedTime: elapsed time in milliseconds
  */
 export class QueryExecTime {
-  public CpuTime: number;
-  public ElapsedTime: number;
+    public CpuTime: number;
 
-  constructor(cpuTime: number, elapsedTime: number) {
-    this.CpuTime = cpuTime;
-    this.ElapsedTime = elapsedTime;
-  }
+    public ElapsedTime: number;
+
+    public constructor(cpuTime: number, elapsedTime: number) {
+        this.CpuTime = cpuTime;
+        this.ElapsedTime = elapsedTime;
+    }
 }
 
 /** New Runtime information:
@@ -1203,253 +1379,318 @@ export class QueryExecTime {
  * NonParallelPlanReason
  */
 export class QueryPlan {
-  public CachedPlanSize?: number;
-  public CompileCPU?: number;
-  public CompileMemory?: number;
-  public CompileTime?: number;
-  public ContainsInterleavedExecutionCandidates?: boolean;
-  public DegreeOfParallelism?: number;
-  public EffectiveDegreeOfParallelism?: number;
-  public MemoryGrant?: number;
-  public NonParallelPlanReason?: string;
-  public UsePlan?: boolean;
-  public GuessedSelectivity?: GuessedSelectivity;
-  public MemoryGrantInfo?: MemoryGrant;
-  public MissingIndexes?: MissingIndexes;
-  public OptimizerHardwareDependentProperties?: OptimizerHardwareDependentProperties;
-  public OptimizerStatsUsage?: OptimizerStatsUsage;
-  public ParameterList?: ColumnReference[];
-  public QueryTimeStats?: QueryExecTime;
-  public RelOp: RelOp;
-  public ThreadStat?: ThreadStat;
-  public TraceFlags?: TraceFlagList[];
-  public UnmatchedIndexes?: UnmatchedIndexes;
-  public WaitStats?: WaitStatList;
-  public Warnings?: Warnings;
+    public CachedPlanSize?: number;
 
-  constructor(RelOperation: RelOp) {
-    this.RelOp = RelOperation;
-  }
+    public CompileCPU?: number;
+
+    public CompileMemory?: number;
+
+    public CompileTime?: number;
+
+    public ContainsInterleavedExecutionCandidates?: boolean;
+
+    public DegreeOfParallelism?: number;
+
+    public EffectiveDegreeOfParallelism?: number;
+
+    public MemoryGrant?: number;
+
+    public NonParallelPlanReason?: string;
+
+    public UsePlan?: boolean;
+
+    public GuessedSelectivity?: GuessedSelectivity;
+
+    public MemoryGrantInfo?: MemoryGrant;
+
+    public MissingIndexes?: MissingIndexes;
+
+    public OptimizerHardwareDependentProperties?: OptimizerHardwareDependentProperties;
+
+    public OptimizerStatsUsage?: OptimizerStatsUsage;
+
+    public ParameterList?: ColumnReference[];
+
+    public QueryTimeStats?: QueryExecTime;
+
+    public RelOp: RelOp;
+
+    public ThreadStat?: ThreadStat;
+
+    public TraceFlags?: TraceFlagList[];
+
+    public UnmatchedIndexes?: UnmatchedIndexes;
+
+    public WaitStats?: WaitStatList;
+
+    public Warnings?: Warnings;
+
+    public constructor(RelOperation: RelOp) {
+        this.RelOp = RelOperation;
+    }
 }
 
 export class ReceivePlan {
-  public Operation: ReceivePlanTypeOperation[];
+    public Operation: ReceivePlanTypeOperation[];
 
-  constructor(operation: ReceivePlanTypeOperation[]) {
-    this.Operation = operation;
-  }
+    public constructor(operation: ReceivePlanTypeOperation[]) {
+        this.Operation = operation;
+    }
 }
 
 export class ReceivePlanTypeOperation {
-  public OperationType: ReceivePlanTypeOperationTypeOperationType;
-  public QueryPlan: QueryPlan;
+    public OperationType: ReceivePlanTypeOperationTypeOperationType;
 
-  constructor(pperationType: ReceivePlanTypeOperationTypeOperationType, queryPlan: QueryPlan) {
-    this.OperationType = pperationType;
-    this.QueryPlan = queryPlan;
-  }
+    public QueryPlan: QueryPlan;
+
+    public constructor(pperationType: ReceivePlanTypeOperationTypeOperationType, queryPlan: QueryPlan) {
+        this.OperationType = pperationType;
+        this.QueryPlan = queryPlan;
+    }
 }
 
 export type ReceivePlanTypeOperationTypeOperationType = 'ReceivePlanSelect' | 'ReceivePlanUpdate';
 
 export class Remote extends RelOpAction {
-  public RemoteDestination?: string;
-  public RemoteObject?: string;
-  public RemoteSource?: string;
+    public RemoteDestination?: string;
+
+    public RemoteObject?: string;
+
+    public RemoteSource?: string;
 }
 
 export class RemoteFetch extends Remote {}
 
 export class RemoteModify extends Remote {
-  public SetPredicate?: ScalarExpression;
+    public SetPredicate?: ScalarExpression;
 }
 
 export class RemoteQuery extends Remote {
-  public RemoteQuery?: string;
+    public RemoteQuery?: string;
 }
 
 export class RemoteRange extends Remote {
-  public SeekPredicates?: SeekPredicates;
+    public SeekPredicates?: SeekPredicates;
 }
 
 export class Put extends RemoteQuery {
-  public ShuffleColumn?: string;
-  public ShuffleType?: string;
+    public ShuffleColumn?: string;
+
+    public ShuffleType?: string;
 }
 
 /** Additional information about a rollup. The highest level is the number of group by columns. */
 export class RollupInfo {
-  public HighestLevel: number;
-  public RollupLevel: RollupLevel[];
+    public HighestLevel: number;
 
-  constructor(highestLevel: number, rollupLevel: RollupLevel[]) {
-    this.HighestLevel = highestLevel;
-    this.RollupLevel = rollupLevel;
-  }
+    public RollupLevel: RollupLevel[];
+
+    public constructor(highestLevel: number, rollupLevel: RollupLevel[]) {
+        this.HighestLevel = highestLevel;
+        this.RollupLevel = rollupLevel;
+    }
 }
 
 /** A level that is output by the rollup.  Level 0 is the base aggregation, equivalent to the statement without 'WITH ROLLUP'.
  * The highest level is the grand total, or group by all.  Level 0 is always output, and at least one higher level.
  */
 export class RollupLevel {
-  public Level: number;
+    public Level: number;
 
-  constructor(level: number) {
-    this.Level = level;
-  }
+    public constructor(level: number) {
+        this.Level = level;
+    }
 }
 
 /** Runtime information provided from statistics_xml for each relational iterator */
 export class RunTimeInformation {
-  public RunTimeCountersPerThread: RunTimeInformationTypeRunTimeCountersPerThread[];
+    public RunTimeCountersPerThread: RunTimeInformationTypeRunTimeCountersPerThread[];
 
-  constructor(runTimeCountersPerThread: RunTimeInformationTypeRunTimeCountersPerThread[]) {
-    this.RunTimeCountersPerThread = runTimeCountersPerThread;
-  }
-
-  public GetRunTimeCountersSummary(): RunTimeInformationTypeRunTimeCountersPerThread | undefined {
-    if (this.RunTimeCountersPerThread.length === 0) {
-      return undefined;
+    public constructor(runTimeCountersPerThread: RunTimeInformationTypeRunTimeCountersPerThread[]) {
+        this.RunTimeCountersPerThread = runTimeCountersPerThread;
     }
 
-    function undefinedAdd(a: number | undefined, b: number | undefined): number | undefined {
-      if (a === undefined && b === undefined) {
-        return undefined;
-      }
+    public GetRunTimeCountersSummary(): RunTimeInformationTypeRunTimeCountersPerThread | undefined {
+        if (this.RunTimeCountersPerThread.length === 0) {
+            return undefined;
+        }
 
-      if (a === undefined && b !== undefined) {
-        return b;
-      }
+        function undefinedAdd(a: number | undefined, b: number | undefined): number | undefined {
+            if (a === undefined && b === undefined) {
+                return undefined;
+            }
 
-      if (a !== undefined && b === undefined) {
-        return a;
-      }
+            if (a === undefined && b !== undefined) {
+                return b;
+            }
 
-      return a! + b!;
+            if (a !== undefined && b === undefined) {
+                return a;
+            }
+
+            return a! + b!;
+        }
+
+        return this.RunTimeCountersPerThread.reduce((a, b) => {
+            const i = new RunTimeInformationTypeRunTimeCountersPerThread(
+                a.ActualEndOfScans + b.ActualEndOfScans,
+                a.ActualRows + b.ActualRows,
+                0,
+                a.ActualExecutions + b.ActualExecutions,
+            );
+
+            i.ActualCPUms = undefinedAdd(a.ActualCPUms, b.ActualCPUms);
+            i.ActualElapsedms = undefinedAdd(a.ActualElapsedms, b.ActualElapsedms);
+            i.ActualLobLogicalReads = undefinedAdd(a.ActualLobLogicalReads, b.ActualLobLogicalReads);
+            i.ActualLobPhysicalReads = undefinedAdd(a.ActualLobPhysicalReads, b.ActualLobPhysicalReads);
+            i.ActualLobReadAheads = undefinedAdd(a.ActualLobReadAheads, b.ActualLobReadAheads);
+            i.ActualLocallyAggregatedRows = undefinedAdd(a.ActualLocallyAggregatedRows, b.ActualLocallyAggregatedRows);
+            i.ActualLogicalReads = undefinedAdd(a.ActualLogicalReads, b.ActualLogicalReads);
+            i.ActualPhysicalReads = undefinedAdd(a.ActualPhysicalReads, b.ActualPhysicalReads);
+            i.ActualReadAheads = undefinedAdd(a.ActualReadAheads, b.ActualReadAheads);
+            i.ActualRebinds = undefinedAdd(a.ActualRebinds, b.ActualRebinds);
+            i.ActualRewinds = undefinedAdd(a.ActualRewinds, b.ActualRewinds);
+            i.ActualRowsRead = undefinedAdd(a.ActualRowsRead, b.ActualRowsRead);
+            i.ActualScans = undefinedAdd(a.ActualScans, b.ActualScans);
+
+            return i;
+        });
     }
-
-    return this.RunTimeCountersPerThread.reduce((a, b) => {
-      const i = new RunTimeInformationTypeRunTimeCountersPerThread(
-        a.ActualEndOfScans + b.ActualEndOfScans,
-        a.ActualRows + b.ActualRows,
-        0,
-        a.ActualExecutions + b.ActualExecutions);
-
-      i.ActualCPUms = undefinedAdd(a.ActualCPUms, b.ActualCPUms);
-      i.ActualElapsedms = undefinedAdd(a.ActualElapsedms, b.ActualElapsedms);
-      i.ActualLobLogicalReads = undefinedAdd(a.ActualLobLogicalReads, b.ActualLobLogicalReads);
-      i.ActualLobPhysicalReads = undefinedAdd(a.ActualLobPhysicalReads, b.ActualLobPhysicalReads);
-      i.ActualLobReadAheads = undefinedAdd(a.ActualLobReadAheads, b.ActualLobReadAheads);
-      i.ActualLocallyAggregatedRows = undefinedAdd(a.ActualLocallyAggregatedRows, b.ActualLocallyAggregatedRows);
-      i.ActualLogicalReads = undefinedAdd(a.ActualLogicalReads, b.ActualLogicalReads);
-      i.ActualPhysicalReads = undefinedAdd(a.ActualPhysicalReads, b.ActualPhysicalReads);
-      i.ActualReadAheads = undefinedAdd(a.ActualReadAheads, b.ActualReadAheads);
-      i.ActualRebinds = undefinedAdd(a.ActualRebinds, b.ActualRebinds);
-      i.ActualRewinds = undefinedAdd(a.ActualRewinds, b.ActualRewinds);
-      i.ActualRowsRead = undefinedAdd(a.ActualRowsRead, b.ActualRowsRead);
-      i.ActualScans = undefinedAdd(a.ActualScans, b.ActualScans);
-
-      return i;
-    });
-  }
 }
 
 export class RunTimeInformationTypeRunTimeCountersPerThread {
-  public ActualCPUms?: number;
-  public ActualElapsedms?: number;
-  public ActualEndOfScans: number;
-  public ActualExecutionMode?: ExecutionModeType;
-  public ActualExecutions: number;
-  public ActualJoinType?: PhysicalOp;
-  public ActualLobLogicalReads?: number;
-  public ActualLobPhysicalReads?: number;
-  public ActualLobReadAheads?: number;
-  public ActualLocallyAggregatedRows?: number;
-  public ActualLogicalReads?: number;
-  public ActualPhysicalReads?: number;
-  public ActualReadAheads?: number;
-  public ActualRebinds?: number;
-  public ActualRewinds?: number;
-  public ActualRows: number;
-  public ActualRowsRead?: number;
-  public ActualScans?: number;
-  public Batches?: number;
-  public BrickId?: number;
-  public CloseTime?: number;
-  public FirstActiveTime?: number;
-  public FirstRowTime?: number;
-  public InputMemoryGrant?: number;
-  public IsInterleavedExecuted?: boolean;
-  public LastActiveTime?: number;
-  public LastRowTime?: number;
-  public OpenTime?: number;
-  public OutputMemoryGrant?: number;
-  public SchedulerId?: number;
-  public SegmentReads?: number;
-  public SegmentSkips?: number;
-  public TaskAddr?: number;
-  public Thread: number;
-  public UsedMemoryGrant?: number;
+    public ActualCPUms?: number;
 
-  constructor(actualEndOfScans: number, actualRows: number, thread: number, actualExecutions: number) {
-    this.ActualEndOfScans = actualEndOfScans;
-    this.ActualRows = actualRows;
-    this.Thread = thread;
-    this.ActualExecutions = actualExecutions;
-  }
+    public ActualElapsedms?: number;
+
+    public ActualEndOfScans: number;
+
+    public ActualExecutionMode?: ExecutionModeType;
+
+    public ActualExecutions: number;
+
+    public ActualJoinType?: PhysicalOp;
+
+    public ActualLobLogicalReads?: number;
+
+    public ActualLobPhysicalReads?: number;
+
+    public ActualLobReadAheads?: number;
+
+    public ActualLocallyAggregatedRows?: number;
+
+    public ActualLogicalReads?: number;
+
+    public ActualPhysicalReads?: number;
+
+    public ActualReadAheads?: number;
+
+    public ActualRebinds?: number;
+
+    public ActualRewinds?: number;
+
+    public ActualRows: number;
+
+    public ActualRowsRead?: number;
+
+    public ActualScans?: number;
+
+    public Batches?: number;
+
+    public BrickId?: number;
+
+    public CloseTime?: number;
+
+    public FirstActiveTime?: number;
+
+    public FirstRowTime?: number;
+
+    public InputMemoryGrant?: number;
+
+    public IsInterleavedExecuted?: boolean;
+
+    public LastActiveTime?: number;
+
+    public LastRowTime?: number;
+
+    public OpenTime?: number;
+
+    public OutputMemoryGrant?: number;
+
+    public SchedulerId?: number;
+
+    public SegmentReads?: number;
+
+    public SegmentSkips?: number;
+
+    public TaskAddr?: number;
+
+    public Thread: number;
+
+    public UsedMemoryGrant?: number;
+
+    public constructor(actualEndOfScans: number, actualRows: number, thread: number, actualExecutions: number) {
+        this.ActualEndOfScans = actualEndOfScans;
+        this.ActualRows = actualRows;
+        this.Thread = thread;
+        this.ActualExecutions = actualExecutions;
+    }
 }
 
 /** Runtime partition information provided in statistics xml for each relational iterator that support partitioning */
 interface RunTimePartitionSummary {
-  PartitionsAccessed: RunTimePartitionSummaryTypePartitionsAccessed;
+    PartitionsAccessed: RunTimePartitionSummaryTypePartitionsAccessed;
 }
 
 export class RunTimePartitionSummaryTypePartitionsAccessed {
-  public PartitionCount: number;
-  public PartitionRange?: RunTimePartitionSummaryTypePartitionsAccessedTypePartitionRange[];
+    public PartitionCount: number;
 
-  constructor(PartitionCount: number) {
-    this.PartitionCount = PartitionCount;
-  }
+    public PartitionRange?: RunTimePartitionSummaryTypePartitionsAccessedTypePartitionRange[];
+
+    public constructor(PartitionCount: number) {
+        this.PartitionCount = PartitionCount;
+    }
 }
 
 export class RunTimePartitionSummaryTypePartitionsAccessedTypePartitionRange {
-  public End: number;
-  public Start: number;
+    public End: number;
 
-  constructor(End: number, Start: number) {
-    this.End = End;
-    this.Start = Start;
-  }
+    public Start: number;
+
+    public constructor(End: number, Start: number) {
+        this.End = End;
+        this.Start = Start;
+    }
 }
 
 export class ScalarExpressionList implements ScalarOp {
-  public ScalarOperator: Scalar[];
+    public ScalarOperator: Scalar[];
 
-  constructor(scalarOperator: Scalar[]) {
-    this.ScalarOperator = scalarOperator;
-  }
+    public constructor(scalarOperator: Scalar[]) {
+        this.ScalarOperator = scalarOperator;
+    }
 }
 
 export class ScalarExpression {
-  public ScalarOperator: Scalar;
+    public ScalarOperator: Scalar;
 
-  constructor(ScalarOperator: Scalar) {
-    this.ScalarOperator = ScalarOperator;
-  }
+    public constructor(ScalarOperator: Scalar) {
+        this.ScalarOperator = ScalarOperator;
+    }
 }
 
 export class ScalarInsert extends Rowset {
-  public DMLRequestSort?: boolean;
-  public SetPredicate?: ScalarExpression;
+    public DMLRequestSort?: boolean;
+
+    public SetPredicate?: ScalarExpression;
 }
 
 export class ScalarSequence implements ScalarOp {
-  public FunctionName: string;
+    public FunctionName: string;
 
-  constructor(functionName: string) {
-    this.FunctionName = functionName;
-  }
+    public constructor(functionName: string) {
+        this.FunctionName = functionName;
+    }
 }
 
 // tslint:disable-next-line:no-empty-interface
@@ -1462,220 +1703,247 @@ export class NotImplementedScalarOp implements ScalarOp {
 
 /** Scalar expression. If root of scalar tree contains semantically equivalent string representation of entire expression */
 export class Scalar {
-  public ScalarString?: string;
-  public Operation: ScalarOp;
+    public ScalarString?: string;
 
-  constructor(Operation: ScalarOp) {
-    this.Operation = Operation;
-  }
+    public Operation: ScalarOp;
+
+    public constructor(Operation: ScalarOp) {
+        this.Operation = Operation;
+    }
 }
 
 export class ScanRange {
-  public ScanType: CompareOp;
-  public RangeColumns: ColumnReference[];
-  public RangeExpressions: ScalarExpression[];
+    public ScanType: CompareOp;
 
-  constructor(scanType: CompareOp, rangeColumns: ColumnReference[], rangeExpressions: ScalarExpression[]) {
-    this.ScanType = scanType;
-    this.RangeColumns = rangeColumns;
-    this.RangeExpressions = rangeExpressions;
-  }
+    public RangeColumns: ColumnReference[];
 
-  public ScanTypeToString(): string {
-    switch (this.ScanType) {
-      case 'EQ': return '=';
-      case 'GE': return '>=';
-      case 'GT': return '>';
-      case 'LE': return '<=';
-      case 'LT': return '<';
-      case 'NE': return '!=';
-      default: return this.ScanType;
+    public RangeExpressions: ScalarExpression[];
+
+    public constructor(scanType: CompareOp, rangeColumns: ColumnReference[], rangeExpressions: ScalarExpression[]) {
+        this.ScanType = scanType;
+        this.RangeColumns = rangeColumns;
+        this.RangeExpressions = rangeExpressions;
     }
-  }
+
+    public ScanTypeToString(): string {
+        switch (this.ScanType) {
+            case 'EQ': return '=';
+            case 'GE': return '>=';
+            case 'GT': return '>';
+            case 'LE': return '<=';
+            case 'LT': return '<';
+            case 'NE': return '!=';
+            default: return this.ScanType;
+        }
+    }
 }
 
 export class SeekPredicateNew {
-  public SeekKeys: SeekPredicate[];
+    public SeekKeys: SeekPredicate[];
 
-  constructor(seekKeys: SeekPredicate[]) {
-    this.SeekKeys = seekKeys;
-  }
+    public constructor(seekKeys: SeekPredicate[]) {
+        this.SeekKeys = seekKeys;
+    }
 }
 
 export class SeekPredicatePart {
-  public SeekPredicateNew: SeekPredicateNew[];
+    public SeekPredicateNew: SeekPredicateNew[];
 
-  constructor(seekPredicateNew: SeekPredicateNew[]) {
-    this.SeekPredicateNew = seekPredicateNew;
-  }
+    public constructor(seekPredicateNew: SeekPredicateNew[]) {
+        this.SeekPredicateNew = seekPredicateNew;
+    }
 }
 
 export class SeekPredicates {
-  public SeekPredicate?: SeekPredicate[];
-  public SeekPredicateNew?: SeekPredicateNew[];
-  public SeekPredicatePart?: SeekPredicatePart[];
+    public SeekPredicate?: SeekPredicate[];
+
+    public SeekPredicateNew?: SeekPredicateNew[];
+
+    public SeekPredicatePart?: SeekPredicatePart[];
 }
 
 export class SeekPredicate {
-  public EndRange?: ScanRange;
-  public IsNotNull?: ColumnReference;
-  public Prefix?: ScanRange;
-  public StartRange?: ScanRange;
+    public EndRange?: ScanRange;
 
-  public toStrings(): Array<{key: string, value: string}> {
-    const result: Array<{key: string, value: string}> = [];
-    if (this.Prefix !== undefined) {
-      if (this.Prefix.RangeColumns.length === 1 && this.Prefix.RangeExpressions.length === 1) {
-        result.push({ key: 'Prefix', value: this.Prefix.RangeColumns[0].toString() + ' ' + this.Prefix.ScanTypeToString() + ' ' + this.Prefix.RangeExpressions[0].ScalarOperator.ScalarString });
-      }
+    public IsNotNull?: ColumnReference;
+
+    public Prefix?: ScanRange;
+
+    public StartRange?: ScanRange;
+
+    public toStrings(): {key: string; value: string}[] {
+        const result: {key: string; value: string}[] = [];
+        if (this.Prefix !== undefined) {
+            if (this.Prefix.RangeColumns.length === 1 && this.Prefix.RangeExpressions.length === 1) {
+                result.push({ key: 'Prefix', value: `${this.Prefix.RangeColumns[0].toString()} ${this.Prefix.ScanTypeToString()} ${this.Prefix.RangeExpressions[0].ScalarOperator.ScalarString}` });
+            }
+        }
+
+        if (this.StartRange !== undefined) {
+            if (this.StartRange.RangeColumns.length === 1 && this.StartRange.RangeExpressions.length === 1) {
+                result.push({ key: 'Start', value: `${this.StartRange.RangeColumns[0].toString()} ${this.StartRange.ScanTypeToString()} ${this.StartRange.RangeExpressions[0].ScalarOperator.ScalarString}` });
+            }
+        }
+
+        if (this.EndRange !== undefined) {
+            if (this.EndRange.RangeColumns.length === 1 && this.EndRange.RangeExpressions.length === 1) {
+                result.push({ key: 'End', value: `${this.EndRange.RangeColumns[0].toString()} ${this.EndRange.ScanTypeToString()} ${this.EndRange.RangeExpressions[0].ScalarOperator.ScalarString}` });
+            }
+        }
+
+        if (this.IsNotNull !== undefined) {
+            result.push({ key: 'Is Not Null', value: this.IsNotNull!.toString() });
+        }
+
+        return result;
     }
-
-    if (this.StartRange !== undefined) {
-      if (this.StartRange.RangeColumns.length === 1 && this.StartRange.RangeExpressions.length === 1) {
-        result.push({ key: 'Start', value: this.StartRange.RangeColumns[0].toString() + ' ' + this.StartRange.ScanTypeToString() + ' ' + this.StartRange.RangeExpressions[0].ScalarOperator.ScalarString });
-      }
-    }
-
-    if (this.EndRange !== undefined) {
-      if (this.EndRange.RangeColumns.length === 1 && this.EndRange.RangeExpressions.length === 1) {
-        result.push({ key: 'End', value: this.EndRange.RangeColumns[0].toString() + ' ' + this.EndRange.ScanTypeToString() + ' ' + this.EndRange.RangeExpressions[0].ScalarOperator.ScalarString });
-      }
-    }
-
-    if (this.IsNotNull !== undefined) {
-      result.push({ key: 'Is Not Null', value: this.IsNotNull!.toString() });
-    }
-
-    return result;
-  }
 }
 
 export class Segment extends RelOpAction {
-  public GroupBy: ColumnReference[];
-  public SegmentColumn: ColumnReference;
+    public GroupBy: ColumnReference[];
 
-  constructor(groupBy: ColumnReference[], segmentColumn: ColumnReference) {
-    super();
-    this.GroupBy = groupBy;
-    this.SegmentColumn = segmentColumn;
-  }
+    public SegmentColumn: ColumnReference;
 
+    public constructor(groupBy: ColumnReference[], segmentColumn: ColumnReference) {
+        super();
+        this.GroupBy = groupBy;
+        this.SegmentColumn = segmentColumn;
+    }
 }
 
 export class Sequence extends RelOpAction {}
 
 /** The set options that affects query cost */
 export class SetOptions {
-  public ANSI_NULLS?: boolean;
-  public ANSI_PADDING?: boolean;
-  public ANSI_WARNINGS?: boolean;
-  public ARITHABORT?: boolean;
-  public CONCAT_NULL_YIELDS_NULL?: boolean;
-  public NUMERIC_ROUNDABORT?: boolean;
-  public QUOTED_IDENTIFIER?: boolean;
+    public ANSI_NULLS?: boolean;
 
-  constructor(
-    ANSI_NULLS?: boolean,
-    ANSI_PADDING?: boolean,
-    ANSI_WARNINGS?: boolean,
-    ARITHABORT?: boolean,
-    CONCAT_NULL_YIELDS_NULL?: boolean,
-    NUMERIC_ROUNDABORT?: boolean,
-    QUOTED_IDENTIFIER?: boolean,
-  ) {
-    this.ANSI_NULLS = ANSI_NULLS;
-    this.ANSI_PADDING = ANSI_PADDING;
-    this.ANSI_WARNINGS = ANSI_WARNINGS;
-    this.ARITHABORT = ARITHABORT;
-    this.CONCAT_NULL_YIELDS_NULL = CONCAT_NULL_YIELDS_NULL;
-    this.NUMERIC_ROUNDABORT = NUMERIC_ROUNDABORT;
-    this.QUOTED_IDENTIFIER = QUOTED_IDENTIFIER;
-  }
+    public ANSI_PADDING?: boolean;
+
+    public ANSI_WARNINGS?: boolean;
+
+    public ARITHABORT?: boolean;
+
+    public CONCAT_NULL_YIELDS_NULL?: boolean;
+
+    public NUMERIC_ROUNDABORT?: boolean;
+
+    public QUOTED_IDENTIFIER?: boolean;
+
+    public constructor(
+        ANSI_NULLS?: boolean,
+        ANSI_PADDING?: boolean,
+        ANSI_WARNINGS?: boolean,
+        ARITHABORT?: boolean,
+        CONCAT_NULL_YIELDS_NULL?: boolean,
+        NUMERIC_ROUNDABORT?: boolean,
+        QUOTED_IDENTIFIER?: boolean,
+    ) {
+        this.ANSI_NULLS = ANSI_NULLS;
+        this.ANSI_PADDING = ANSI_PADDING;
+        this.ANSI_WARNINGS = ANSI_WARNINGS;
+        this.ARITHABORT = ARITHABORT;
+        this.CONCAT_NULL_YIELDS_NULL = CONCAT_NULL_YIELDS_NULL;
+        this.NUMERIC_ROUNDABORT = NUMERIC_ROUNDABORT;
+        this.QUOTED_IDENTIFIER = QUOTED_IDENTIFIER;
+    }
 }
 
 export class SetPredicateElement extends ScalarExpression {
-  public SetPredicateType?: SetPredicateType;
+    public SetPredicateType?: SetPredicateType;
 }
 
 export type SetPredicateType = 'Update' | 'Insert';
 
 export class ShowPlanXMLTypeBatchSequenceTypeBatch {
-  public Statements: BaseStmtInfo[];
+    public Statements: BaseStmtInfo[];
 
-  constructor(Statements: BaseStmtInfo[]) {
-    this.Statements = Statements;
+    public constructor(Statements: BaseStmtInfo[]) {
+        this.Statements = Statements;
 
-    for (const statement of this.Statements) {
-      statement.Batch = this;
-    }
-  }
-
-  public TotalCost(): number {
-    let sum = 0;
-    for (const child of this.Statements) {
-      if (child.StatementSubTreeCost !== undefined) {
-        sum += child.StatementSubTreeCost!;
-      }
+        for (const statement of this.Statements) {
+            statement.Batch = this;
+        }
     }
 
-    return sum;
-  }
+    public TotalCost(): number {
+        let sum = 0;
+        for (const child of this.Statements) {
+            if (child.StatementSubTreeCost !== undefined) {
+                sum += child.StatementSubTreeCost!;
+            }
+        }
+
+        return sum;
+    }
 }
 
 export class SimpleIteratorOneChild extends RelOpAction {}
 
 export class SimpleUpdate extends Rowset {
-  public DMLRequestSort?: boolean;
-  public SeekPredicate?: SeekPredicate;
-  public SeekPredicateNew?: SeekPredicateNew;
-  public SetPredicate?: ScalarExpression;
+    public DMLRequestSort?: boolean;
+
+    public SeekPredicate?: SeekPredicate;
+
+    public SeekPredicateNew?: SeekPredicateNew;
+
+    public SetPredicate?: ScalarExpression;
 }
 
 /** Sort spill details */
 export class SortSpillDetails {
-  public GrantedMemoryKb?: number;
-  public ReadsFromTempDb?: number;
-  public UsedMemoryKb?: number;
-  public WritesToTempDb?: number;
+    public GrantedMemoryKb?: number;
+
+    public ReadsFromTempDb?: number;
+
+    public UsedMemoryKb?: number;
+
+    public WritesToTempDb?: number;
 }
 
 export class Sort extends RelOpAction {
-  public Distinct: boolean;
-  public OrderBy: OrderBy;
-  public PartitionId?: ColumnReference;
+    public Distinct: boolean;
 
-  constructor(distinct: boolean, orderBy: OrderBy) {
-    super();
-    this.Distinct = distinct;
-    this.OrderBy = orderBy;
-  }
+    public OrderBy: OrderBy;
+
+    public PartitionId?: ColumnReference;
+
+    public constructor(distinct: boolean, orderBy: OrderBy) {
+        super();
+        this.Distinct = distinct;
+        this.OrderBy = orderBy;
+    }
 }
 
 /** Spill warning information */
 export class SpillToTempDb {
-  public SpilledThreadCount?: number;
-  public SpillLevel?: number;
+    public SpilledThreadCount?: number;
+
+    public SpillLevel?: number;
 }
 
 export class Split extends RelOpAction {
-  public ActionColumn?: ColumnReference;
+    public ActionColumn?: ColumnReference;
 }
 
 export class Spool extends RelOpAction {
-  public PrimaryNodeId?: number;
-  public Stack?: boolean;
-  public SeekPredicate?: SeekPredicate;
-  public SeekPredicateNew?: SeekPredicateNew;
+    public PrimaryNodeId?: number;
+
+    public Stack?: boolean;
+
+    public SeekPredicate?: SeekPredicate;
+
+    public SeekPredicateNew?: SeekPredicateNew;
 }
 
 /** Additional information about Star Join structure. */
 export class StarJoinInfo {
-  public OperationType: StarJoinInfoTypeOperationType;
-  public Root?: boolean;
+    public OperationType: StarJoinInfoTypeOperationType;
 
-  constructor(operationType: StarJoinInfoTypeOperationType) {
-    this.OperationType = operationType;
-  }
+    public Root?: boolean;
+
+    public constructor(operationType: StarJoinInfoTypeOperationType) {
+        this.OperationType = operationType;
+    }
 }
 
 export type StarJoinInfoTypeOperationType =
@@ -1694,96 +1962,108 @@ export type StarJoinInfoTypeOperationType =
  * LastUpdate : date when the statistics was updated
  */
 export class StatsInfo {
-  public Database?: string;
-  public LastUpdate?: Date;
-  public ModificationCount: number;
-  public SamplingPercent: number;
-  public Schema?: string;
-  public Statistics: string;
-  public Table?: string;
+    public Database?: string;
 
-  constructor(modificationCount: number, samplingPercent: number, statistics: string) {
-    this.ModificationCount = modificationCount;
-    this.SamplingPercent = samplingPercent;
-    this.Statistics = statistics;
-  }
+    public LastUpdate?: Date;
+
+    public ModificationCount: number;
+
+    public SamplingPercent: number;
+
+    public Schema?: string;
+
+    public Statistics: string;
+
+    public Table?: string;
+
+    public constructor(modificationCount: number, samplingPercent: number, statistics: string) {
+        this.ModificationCount = modificationCount;
+        this.SamplingPercent = samplingPercent;
+        this.Statistics = statistics;
+    }
 }
 
 /** Complex statement type that is constructed by a condition, a then clause and an optional else clause. */
 export class StmtCond extends BaseStmtInfo {
-  public Condition: StmtCondTypeCondition;
-  public Else?: StmtCondTypeElse;
-  public Then: StmtCondTypeThen;
+    public Condition: StmtCondTypeCondition;
 
-  constructor(condition: StmtCondTypeCondition, then: StmtCondTypeThen) {
-    super();
-    this.Condition = condition;
-    this.Then = then;
-  }
+    public Else?: StmtCondTypeElse;
+
+    public Then: StmtCondTypeThen;
+
+    public constructor(condition: StmtCondTypeCondition, then: StmtCondTypeThen) {
+        super();
+        this.Condition = condition;
+        this.Then = then;
+    }
 }
 
 export class StmtCondTypeCondition {
-  public QueryPlan?: QueryPlan;
-  public UDF?: FunctionPlan[];
+    public QueryPlan?: QueryPlan;
+
+    public UDF?: FunctionPlan[];
 }
 
 export class StmtCondTypeElse {
-  public Statements: BaseStmtInfo;
+    public Statements: BaseStmtInfo;
 
-  constructor(statements: BaseStmtInfo) {
-    this.Statements = statements;
-  }
+    public constructor(statements: BaseStmtInfo) {
+        this.Statements = statements;
+    }
 }
 export class StmtCondTypeThen {
-  public Statements: BaseStmtInfo;
+    public Statements: BaseStmtInfo;
 
-  constructor(statements: BaseStmtInfo) {
-    this.Statements = statements;
-  }
+    public constructor(statements: BaseStmtInfo) {
+        this.Statements = statements;
+    }
 }
 
 /** The cursor type that might have one or more cursor operations, used in DECLARE CURSOR, OPEN CURSOR and FETCH CURSOR */
 export class StmtCursor extends BaseStmtInfo {
-  public CursorPlan: CursorPlan;
+    public CursorPlan: CursorPlan;
 
-  constructor(cursorPlan: CursorPlan) {
-    super();
-    this.CursorPlan = cursorPlan;
-  }
+    public constructor(cursorPlan: CursorPlan) {
+        super();
+        this.CursorPlan = cursorPlan;
+    }
 }
 
 /** The cursor type that might have one or more cursor operations, used in DECLARE CURSOR, OPEN CURSOR and FETCH CURSOR */
 export class StmtReceive extends BaseStmtInfo {
-  public ReceivePlan: ReceivePlan;
+    public ReceivePlan: ReceivePlan;
 
-  constructor(receivePlan: ReceivePlan) {
-    super();
-    this.ReceivePlan = receivePlan;
-  }
+    public constructor(receivePlan: ReceivePlan) {
+        super();
+        this.ReceivePlan = receivePlan;
+    }
 }
 
 /** The simple statement that may or may not contain query plan, UDF plan or Stored Procedure plan */
 export class StmtSimple extends BaseStmtInfo {
-  public QueryPlan?: QueryPlan;
-  public StoredProc?: FunctionPlan;
-  public UDF?: FunctionPlan[];
+    public QueryPlan?: QueryPlan;
+
+    public StoredProc?: FunctionPlan;
+
+    public UDF?: FunctionPlan[];
 }
 
 /** Use database statement */
 export class StmtUseDb extends BaseStmtInfo {
-  public Database: string;
+    public Database: string;
 
-  constructor(Database: string) {
-    super();
-    this.Database = Database;
-  }
+    public constructor(Database: string) {
+        super();
+        this.Database = Database;
+    }
 }
 
 export type StorageType = 'RowStore' | 'ColumnStore' | 'MemoryOptimized';
 
 export class StreamAggregate extends RelOpAction {
-  public GroupBy?: ColumnReference[];
-  public RollupInfo?: RollupInfo;
+    public GroupBy?: ColumnReference[];
+
+    public RollupInfo?: RollupInfo;
 }
 
 export type SubqueryOperationType =
@@ -1803,43 +2083,54 @@ export type SubqueryOperationType =
   | 'NE ANY';
 
 export class Subquery implements ScalarOp {
-  public Operation: SubqueryOperationType;
-  public ScalarOperator?: Scalar;
-  public RelOp: RelOp;
+    public Operation: SubqueryOperationType;
 
-  constructor(operation: SubqueryOperationType, relop: RelOp) {
-    this.Operation = operation;
-    this.RelOp = relop;
-  }
+    public ScalarOperator?: Scalar;
+
+    public RelOp: RelOp;
+
+    public constructor(operation: SubqueryOperationType, relop: RelOp) {
+        this.Operation = operation;
+        this.RelOp = relop;
+    }
 }
 
 export class Switch extends Concat {
-  public Predicate?: ScalarExpression;
+    public Predicate?: ScalarExpression;
 }
 
 export class TableScan extends Rowset {
-  public ForcedIndex?: boolean;
-  public ForceScan?: boolean;
-  public NoExpandHint?: boolean;
-  public Ordered: boolean;
-  public Storage?: StorageType;
-  public IndexedViewInfo?: ObjectType[];
-  public PartitionId?: ColumnReference;
-  public Predicate?: ScalarExpression;
+    public ForcedIndex?: boolean;
 
-  constructor(object: ObjectType[], ordered: boolean) {
-    super(object);
-    this.Ordered = ordered;
-  }
+    public ForceScan?: boolean;
+
+    public NoExpandHint?: boolean;
+
+    public Ordered: boolean;
+
+    public Storage?: StorageType;
+
+    public IndexedViewInfo?: ObjectType[];
+
+    public PartitionId?: ColumnReference;
+
+    public Predicate?: ScalarExpression;
+
+    public constructor(object: ObjectType[], ordered: boolean) {
+        super(object);
+        this.Ordered = ordered;
+    }
 }
 
 /** Typical user defined table valued function doesn't have a relational child element. If a relational child
  * is present then the operator is a special internal table valued function that hosts native code.
  */
 export class TableValuedFunction extends RelOpAction {
-  public Object?: ObjectType;
-  public ParameterList?: ScalarExpressionList;
-  public Predicate?: ScalarExpression;
+    public Object?: ObjectType;
+
+    public ParameterList?: ScalarExpressionList;
+
+    public Predicate?: ScalarExpression;
 }
 
 /** Information on how parallel threads are reserved on NUMA node
@@ -1847,13 +2138,14 @@ export class TableValuedFunction extends RelOpAction {
  * ReservedThreads: number of reserved parallel thread on this NUMA node
  */
 export class ThreadReservation {
-  public NodeId: number;
-  public ReservedThreads: number;
+    public NodeId: number;
 
-  constructor(NodeId: number, ReservedThreads: number) {
-    this.NodeId = NodeId;
-    this.ReservedThreads = ReservedThreads;
-  }
+    public ReservedThreads: number;
+
+    public constructor(NodeId: number, ReservedThreads: number) {
+        this.NodeId = NodeId;
+        this.ReservedThreads = ReservedThreads;
+    }
 }
 
 /** Information on parallel thread usage.
@@ -1863,102 +2155,124 @@ export class ThreadReservation {
  * Then follows a list of one or more ThreadReservation elements.
  */
 export class ThreadStat {
-  public Branches: number;
-  public UsedThreads?: number;
-  public ThreadReservation?: ThreadReservation[];
+    public Branches: number;
 
-  constructor(Branches: number) {
-    this.Branches = Branches;
-  }
+    public UsedThreads?: number;
+
+    public ThreadReservation?: ThreadReservation[];
+
+    public constructor(Branches: number) {
+        this.Branches = Branches;
+    }
 }
 
 export class TopSort extends Sort {
-  public Rows: number;
-  public WithTies?: boolean;
+    public Rows: number;
 
-  constructor(rows: number, distinct: boolean, orderBy: OrderBy) {
-    super(distinct, orderBy);
-    this.Rows = rows;
-  }
+    public WithTies?: boolean;
+
+    public constructor(rows: number, distinct: boolean, orderBy: OrderBy) {
+        super(distinct, orderBy);
+        this.Rows = rows;
+    }
 }
 
 export class Top extends RelOpAction {
-  public IsPercent?: boolean;
-  public RowCount?: boolean;
-  public Rows?: number;
-  public WithTies?: boolean;
-  public OffsetExpression?: ScalarExpression;
-  public TieColumns?: ColumnReference[];
-  public TopExpression?: ScalarExpression;
+    public IsPercent?: boolean;
+
+    public RowCount?: boolean;
+
+    public Rows?: number;
+
+    public WithTies?: boolean;
+
+    public OffsetExpression?: ScalarExpression;
+
+    public TieColumns?: ColumnReference[];
+
+    public TopExpression?: ScalarExpression;
 }
 
 /** Collection of trace flags used in SQL engine. */
 interface TraceFlagList {
-  IsCompileTime: boolean;
-  TraceFlag: TraceFlag[];
+    IsCompileTime: boolean;
+    TraceFlag: TraceFlag[];
 }
 
 export type TraceFlagScopeType = 'Global' | 'Session';
 
 /** Describe a trace flag used in SQL engine. */
 interface TraceFlag {
-  Scope: TraceFlagScopeType;
-  Value: number;
+    Scope: TraceFlagScopeType;
+    Value: number;
 }
 
 export class UDAggregate implements ScalarOp {
-  public Distinct: boolean;
-  public ScalarOperator?: Scalar[];
-  public UDAggObject?: ObjectType;
+    public Distinct: boolean;
 
-  constructor(distinct: boolean) {
-    this.Distinct = distinct;
-  }
+    public ScalarOperator?: Scalar[];
+
+    public UDAggObject?: ObjectType;
+
+    public constructor(distinct: boolean) {
+        this.Distinct = distinct;
+    }
 }
 
 export class UDF implements ScalarOp {
-  public FunctionName: string;
-  public IsClrFunction?: boolean;
-  public CLRFunction?: CLRFunction;
-  public ScalarOperator?: Scalar[];
+    public FunctionName: string;
 
-  constructor(functionName: string) {
-    this.FunctionName = functionName;
-  }
+    public IsClrFunction?: boolean;
+
+    public CLRFunction?: CLRFunction;
+
+    public ScalarOperator?: Scalar[];
+
+    public constructor(functionName: string) {
+        this.FunctionName = functionName;
+    }
 }
 
 export class UDTMethod implements ScalarOp {
-  public CLRFunction?: CLRFunction;
-  public ScalarOperator?: Scalar[];
+    public CLRFunction?: CLRFunction;
+
+    public ScalarOperator?: Scalar[];
 }
 
 export class UDX extends RelOpAction {
-  public UDXName: string;
-  public UsedUDXColumns?: ColumnReference[];
+    public UDXName: string;
 
-  constructor(udxName: string) {
-    super();
-    this.UDXName = udxName;
-  }
+    public UsedUDXColumns?: ColumnReference[];
+
+    public constructor(udxName: string) {
+        super();
+        this.UDXName = udxName;
+    }
 }
 
 interface UnmatchedIndexes {
-  Parameterization: Parameterization;
+    Parameterization: Parameterization;
 }
 
 export class Update extends Rowset {
-  public DMLRequestSort?: boolean;
-  public WithOrderedPrefetch?: boolean;
-  public WithUnorderedPrefetch?: boolean;
-  public ActionColumn?: ColumnReference;
-  public OriginalActionColumn?: ColumnReference;
-  public ProbeColumn?: ColumnReference;
-  public SetPredicate?: SetPredicateElement[];
+    public DMLRequestSort?: boolean;
+
+    public WithOrderedPrefetch?: boolean;
+
+    public WithUnorderedPrefetch?: boolean;
+
+    public ActionColumn?: ColumnReference;
+
+    public OriginalActionColumn?: ColumnReference;
+
+    public ProbeColumn?: ColumnReference;
+
+    public SetPredicate?: SetPredicateElement[];
 }
 
 /** A list of query wait statistics. */
 export class WaitStatList {
-  public Wait?: WaitStat[];
+    public Wait?: WaitStat[];
 }
 
 /** Wait statistics during one query execution.
@@ -1967,42 +2281,55 @@ export class WaitStatList {
  * WaitCount: Number of waits
  */
 export class WaitStat {
-  public WaitCount: number;
-  public WaitTimeMs: number;
-  public WaitType: string;
+    public WaitCount: number;
 
-  constructor(waitCount: number, waitTimeMs: number, waitType: string) {
-    this.WaitCount = waitCount;
-    this.WaitTimeMs = waitTimeMs;
-    this.WaitType = waitType;
-  }
+    public WaitTimeMs: number;
+
+    public WaitType: string;
+
+    public constructor(waitCount: number, waitTimeMs: number, waitType: string) {
+        this.WaitCount = waitCount;
+        this.WaitTimeMs = waitTimeMs;
+        this.WaitType = waitType;
+    }
 }
 
 /** Query wait information */
 export class WaitWarning {
-  public WaitTime?: number;
-  public WaitType: WaitWarningTypeWaitType;
+    public WaitTime?: number;
 
-  constructor(waitType: WaitWarningTypeWaitType) {
-    this.WaitType = waitType;
-  }
+    public WaitType: WaitWarningTypeWaitType;
+
+    public constructor(waitType: WaitWarningTypeWaitType) {
+        this.WaitType = waitType;
+    }
 }
 
 export type WaitWarningTypeWaitType = 'Memory Grant';
 
 /** List of all possible iterator or query specific warnings (e.g. hash spilling, no join predicate) */
 export class Warnings {
-  public FullUpdateForOnlineIndexBuild?: boolean;
-  public NoJoinPredicate?: boolean;
-  public SpatialGuess?: boolean;
-  public UnmatchedIndexes?: boolean;
-  public ColumnsWithNoStatistics?: ColumnReference[];
-  public HashSpillDetails?: HashSpillDetails[];
-  public MemoryGrantWarning?: MemoryGrantWarningInfo[];
-  public PlanAffectingConvert?: AffectingConvertWarning[];
-  public SortSpillDetails?: SortSpillDetails[];
-  public SpillToTempDb?: SpillToTempDb[];
-  public Wait?: WaitWarning[];
+    public FullUpdateForOnlineIndexBuild?: boolean;
+
+    public NoJoinPredicate?: boolean;
+
+    public SpatialGuess?: boolean;
+
+    public UnmatchedIndexes?: boolean;
+
+    public ColumnsWithNoStatistics?: ColumnReference[];
+
+    public HashSpillDetails?: HashSpillDetails[];
+
+    public MemoryGrantWarning?: MemoryGrantWarningInfo[];
+
+    public PlanAffectingConvert?: AffectingConvertWarning[];
+
+    public SortSpillDetails?: SortSpillDetails[];
+
+    public SpillToTempDb?: SpillToTempDb[];
+
+    public Wait?: WaitWarning[];
 }
 export class WindowAggregate extends RelOpAction {}
 

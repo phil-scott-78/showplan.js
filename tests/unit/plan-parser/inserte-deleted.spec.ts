@@ -1,47 +1,44 @@
-import { ShowPlanParser } from '@/parser/showplan-parser';
+import ShowPlanParser from '@/parser/showplan-parser';
 import * as ShowPlan from '@/parser/showplan';
 import { expect } from 'chai';
-
-
 import * as fs from 'fs';
 
-describe('inserted-deleted.sqlplan', function() {
-  let plan: ShowPlan.ShowPlanXML;
+describe('inserted-deleted.sqlplan', () => {
+    let plan: ShowPlan.ShowPlanXML;
 
-  before(function() {
-    const file = 'tests/unit/plan-parser/plans/inserted-deleted-scan.sqlplan';
-    const data = fs.readFileSync(file, 'utf16le');
-    const parse = new ShowPlanParser();
-    plan = parse.Parse(data);
-  });
+    before(() => {
+        const file = 'tests/unit/plan-parser/plans/inserted-deleted-scan.sqlplan';
+        const data = fs.readFileSync(file, 'utf16le');
+        plan = ShowPlanParser.Parse(data);
+    });
 
-  it('first statement can parse', function() {
-    const statement = plan.Batches[0].Statements[0] as ShowPlan.StmtSimple;
-    expect(statement.QueryPlan!.RelOp.PhysicalOp).to.equal('Table Update');
-    expect(statement.QueryPlan!.RelOp.Action).to.be.instanceof(ShowPlan.Update);
-  });
+    it('first statement can parse', () => {
+        const statement = plan.Batches[0].Statements[0] as ShowPlan.StmtSimple;
+        expect(statement.QueryPlan!.RelOp.PhysicalOp).to.equal('Table Update');
+        expect(statement.QueryPlan!.RelOp.Action).to.be.instanceof(ShowPlan.Update);
+    });
 
-  it('second statement can parse as inserted scan', function() {
-    const statement = plan.Batches[0].Statements[1] as ShowPlan.StmtSimple;
-    const op = statement.QueryPlan!
-      .RelOp.Action // compute scalar
-      .RelOp[0].Action // compute scalar
-      .RelOp[0].Action // streamaggregate
-      .RelOp[0];
+    it('second statement can parse as inserted scan', () => {
+        const statement = plan.Batches[0].Statements[1] as ShowPlan.StmtSimple;
+        const op = statement.QueryPlan!
+            .RelOp.Action // compute scalar
+            .RelOp[0].Action // compute scalar
+            .RelOp[0].Action // streamaggregate
+            .RelOp[0];
 
-    expect(op.PhysicalOp).to.equal('Inserted Scan');
-    expect(op.Action).to.be.instanceof(ShowPlan.Rowset);
-  });
+        expect(op.PhysicalOp).to.equal('Inserted Scan');
+        expect(op.Action).to.be.instanceof(ShowPlan.Rowset);
+    });
 
-  it('third statement can parse as deleted scan', function() {
-    const statement = plan.Batches[0].Statements[2] as ShowPlan.StmtSimple;
-    const op = statement.QueryPlan!
-      .RelOp.Action // compute scalar
-      .RelOp[0].Action // compute scalar
-      .RelOp[0].Action // streamaggregate
-      .RelOp[0];
+    it('third statement can parse as deleted scan', () => {
+        const statement = plan.Batches[0].Statements[2] as ShowPlan.StmtSimple;
+        const op = statement.QueryPlan!
+            .RelOp.Action // compute scalar
+            .RelOp[0].Action // compute scalar
+            .RelOp[0].Action // streamaggregate
+            .RelOp[0];
 
-    expect(op.PhysicalOp).to.equal('Deleted Scan');
-    expect(op.Action).to.be.instanceof(ShowPlan.Rowset);
-  });
+        expect(op.PhysicalOp).to.equal('Deleted Scan');
+        expect(op.Action).to.be.instanceof(ShowPlan.Rowset);
+    });
 });

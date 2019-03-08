@@ -49,8 +49,12 @@
 </template>
 
 <script lang='ts'>
-import { Vue, Component, Prop, Watch, Emit } from 'vue-property-decorator';
-import { BaseStmtInfo, RelOp, StmtSimple, ShowPlanXML } from '@/parser/showplan';
+import {
+    Vue, Component, Prop, Watch, Emit,
+} from 'vue-property-decorator';
+import {
+    BaseStmtInfo, RelOp, StmtSimple, ShowPlanXML,
+} from '@/parser/showplan';
 
 import SmoothReflow from './SmoothReflow.vue';
 import CostAnalysis from './visualizations/CostAnalysis.vue';
@@ -65,82 +69,87 @@ import StatisticsList from './StatisticsList.vue';
 import QueryParameters from './QueryParameters.vue';
 
 @Component({
-  components: {
-    SmoothReflow, CostAnalysis, OperatorFlow, DataFlow, HighlightSqlStatement, OperationSummary, SelectPlan, MissingIndexes, StatementOverview, StatisticsList, QueryParameters,
-  },
-  data() {
-    return {
-      selectedOpId: undefined,
-      highlightedOpId: undefined,
-    };
-  },
+    components: {
+        SmoothReflow, CostAnalysis, OperatorFlow, DataFlow, HighlightSqlStatement, OperationSummary, SelectPlan, MissingIndexes, StatementOverview, StatisticsList, QueryParameters,
+    },
+    data() {
+        return {
+            selectedOpId: undefined,
+            highlightedOpId: undefined,
+        };
+    },
 })
 export default class Statement extends Vue {
   @Prop() public statement!: BaseStmtInfo;
+
   @Prop() public showPlan!: ShowPlanXML;
+
   private operationMap: Map<number, RelOp> = new Map<number, RelOp>();
 
   private selectedOpId: number | undefined;
+
   private highlightedOpId: number | undefined;
+
   private selectedOverviewTab: string = 'highlight-sql-statement';
+
   private selectVisualizationTab: string = 'operator-flow';
 
 
   @Emit('showplan-statement-changed')
   public statementSelected(statementGuid: string) {
-    //
+      //
   }
 
   public selectChanged(statementGuid: string) {
-    this.statementSelected(statementGuid);
+      this.statementSelected(statementGuid);
   }
 
   public mounted() {
-    this.buidlMap(this.statement);
+      this.buidlMap(this.statement);
   }
 
   @Watch('statement')
   private OnStatementChanged(val: BaseStmtInfo, oldVal: BaseStmtInfo) {
-    this.buidlMap(val);
+      this.buidlMap(val);
   }
 
   private buidlMap(val: BaseStmtInfo) {
-    this.selectedOpId = undefined;
-    this.operationMap = new Map<number, RelOp>();
+      this.selectedOpId = undefined;
+      this.operationMap = new Map<number, RelOp>();
 
-    const statement = val as StmtSimple;
-    if (statement.QueryPlan === undefined) {
-      return;
-    }
-
-    const addChildren = (map: Map<number, RelOp>, op: RelOp) => {
-      map.set(op.NodeId, op);
-      for (const childOp of op.Action.RelOp) {
-        addChildren(map, childOp);
+      const statement = val as StmtSimple;
+      if (statement.QueryPlan === undefined) {
+          return;
       }
-    };
 
-    addChildren(this.operationMap, statement.QueryPlan!.RelOp);
+      const addChildren = (map: Map<number, RelOp>, op: RelOp) => {
+          map.set(op.NodeId, op);
+          for (const childOp of op.Action.RelOp) {
+              addChildren(map, childOp);
+          }
+      };
+
+      addChildren(this.operationMap, statement.QueryPlan!.RelOp);
   }
 
   private get displayedOp(): RelOp | undefined {
-    if (this.highlightedOpId !== undefined) {
-      return this.operationMap.get(this.highlightedOpId);
-    }
+      if (this.highlightedOpId !== undefined) {
+          return this.operationMap.get(this.highlightedOpId);
+      }
 
-    if (this.selectedOpId === undefined) {
-      return undefined;
-    }
+      if (this.selectedOpId === undefined) {
+          return undefined;
+      }
 
-    return this.operationMap.get(this.selectedOpId);
+      return this.operationMap.get(this.selectedOpId);
   }
 
   private relOpSelected(op: number) {
-    this.selectedOpId = op;
+      this.selectedOpId = op;
   }
 
   private relOpHighlighted(op: number) {
-    this.highlightedOpId = op;
+      this.highlightedOpId = op;
   }
 }
 </script>
@@ -161,7 +170,6 @@ export default class Statement extends Vue {
       max-width:33%;
     }
   }
-
 
 
   h1 {

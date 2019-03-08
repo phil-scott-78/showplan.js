@@ -8,20 +8,22 @@
 </template>
 
 <script lang='ts'>
-import { Vue, Component, Prop, Watch } from 'vue-property-decorator';
+import {
+    Vue, Component, Prop, Watch,
+} from 'vue-property-decorator';
 import { RelOp, BatchHashTableBuild } from '@/parser/showplan';
 
 import DefinedValues from './DefinedValues.vue';
 import SqlString from './SqlString.vue';
 
 @Component({
-  components: { DefinedValues, SqlString },
+    components: { DefinedValues, SqlString },
 })
 export default class BatchHashTableBuildView extends Vue {
   @Prop() public operation!: RelOp;
 
   private get batchHashTableBuild(): BatchHashTableBuild {
-    return this.operation.Action as BatchHashTableBuild;
+      return this.operation.Action as BatchHashTableBuild;
   }
 }
 </script>

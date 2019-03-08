@@ -6,19 +6,21 @@
 </template>
 
 <script lang='ts'>
-import { Vue, Component, Prop, Watch, Emit } from 'vue-property-decorator';
+import {
+    Vue, Component, Prop, Watch, Emit,
+} from 'vue-property-decorator';
 
 @Component({
 })
 export default class ZoomButtons extends Vue {
   @Emit('zoom-out')
-  private zoomOut() {
+    private zoomOut() {
     //
-  }
+    }
 
   @Emit('zoom-in')
   private zoomIn() {
-    //
+      //
   }
 }
 </script>

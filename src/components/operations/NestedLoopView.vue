@@ -21,22 +21,24 @@
 </template>
 
 <script lang='ts'>
-import { Vue, Component, Prop, Watch } from 'vue-property-decorator';
+import {
+    Vue, Component, Prop, Watch,
+} from 'vue-property-decorator';
 import { RelOp, NestedLoops, ExpandedComputedColumn } from '@/parser/showplan';
 import SqlString from './SqlString.vue';
 
 @Component({
-  components: { SqlString },
+    components: { SqlString },
 })
 export default class NestedLoopView extends Vue {
   @Prop() public operation!: RelOp;
 
   private get nestedLoop(): NestedLoops {
-    return this.operation.Action as NestedLoops;
+      return this.operation.Action as NestedLoops;
   }
 
   private get expandedChildColumns(): ExpandedComputedColumn[] {
-    return this.operation.GetChildExpandedComputedColumns();
+      return this.operation.GetChildExpandedComputedColumns();
   }
 }
 </script>

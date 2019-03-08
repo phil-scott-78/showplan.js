@@ -19,7 +19,9 @@
 </template>
 
 <script lang='ts'>
-import { Vue, Component, Prop, Watch } from 'vue-property-decorator';
+import {
+    Vue, Component, Prop, Watch,
+} from 'vue-property-decorator';
 import { BaseStmtInfo } from '@/parser/showplan';
 
 import { formatDistance } from 'date-fns';
@@ -30,7 +32,7 @@ export default class StatisticsList extends Vue {
   @Prop() public statement!: BaseStmtInfo;
 
   public formatDistance(date: Date): string {
-    return formatDistance(date, Date.now());
+      return formatDistance(date, Date.now());
   }
 }
 </script>

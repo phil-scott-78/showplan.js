@@ -21,7 +21,9 @@
 </template>
 
 <script lang='ts'>
-import { Vue, Component, Prop, Watch } from 'vue-property-decorator';
+import {
+    Vue, Component, Prop, Watch,
+} from 'vue-property-decorator';
 import { RelOp, Update, ExpandedComputedColumn } from '@/parser/showplan';
 
 import SqlString from './SqlString.vue';
@@ -34,11 +36,11 @@ export default class UpdateView extends Vue {
   @Prop() public operation!: RelOp;
 
   private get update(): Update {
-    return this.operation.Action as Update;
+      return this.operation.Action as Update;
   }
 
   private get expandedChildColumns(): ExpandedComputedColumn[] {
-    return this.operation.GetChildExpandedComputedColumns();
+      return this.operation.GetChildExpandedComputedColumns();
   }
 }
 </script>

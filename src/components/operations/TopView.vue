@@ -8,31 +8,33 @@
 </template>
 
 <script lang='ts'>
-import { Vue, Component, Prop, Watch } from 'vue-property-decorator';
+import {
+    Vue, Component, Prop, Watch,
+} from 'vue-property-decorator';
 import { RelOp, Top } from '@/parser/showplan';
 import SqlString from './SqlString.vue';
 
 @Component({
-  components: { SqlString },
+    components: { SqlString },
 })
 export default class TopView extends Vue {
   @Prop() public operation!: RelOp;
 
   private get top(): Top {
-    return this.operation.Action as Top;
+      return this.operation.Action as Top;
   }
 
   private get topString(): string | undefined {
-    if (this.top.TopExpression === undefined) {
-      return undefined;
-    }
+      if (this.top.TopExpression === undefined) {
+          return undefined;
+      }
 
-    let out = 'TOP ' + this.top.TopExpression!.ScalarOperator.ScalarString;
-    if (this.top.IsPercent) {
-      out = out + ' PERCENT';
-    }
+      let out = `TOP ${this.top.TopExpression!.ScalarOperator.ScalarString}`;
+      if (this.top.IsPercent) {
+          out = `${out} PERCENT`;
+      }
 
-    return out;
+      return out;
   }
 }
 </script>

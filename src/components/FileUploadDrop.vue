@@ -19,42 +19,43 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Emit } from 'vue-property-decorator';
+import {
+    Component, Prop, Vue, Emit,
+} from 'vue-property-decorator';
 
 @Component({
-  components: { },
+    components: { },
 })
 export default class FileUploadDrop extends Vue {
+    private showPasteTextBox: boolean = false;
 
-  private showPasteTextBox: boolean = false;
+    public filesChange(fileList: FileList) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const text = reader.result as string;
+            this.emitShowPlanChanged(text);
+        };
 
-  public filesChange(fileList: FileList) {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const text = reader.result as string;
-      this.emitShowPlanChanged(text);
-    };
-
-    reader.readAsText(fileList[0]);
-  }
-
-  public togglePaste(showPaste: boolean) {
-    this.showPasteTextBox = showPaste;
-  }
-
-  public onPaste(e: ClipboardEvent) {
-    const clipboardContents = e.clipboardData.getData('text');
-    if (clipboardContents === undefined) {
-      return;
+        reader.readAsText(fileList[0]);
     }
 
-    this.emitShowPlanChanged(clipboardContents);
-  }
+    public togglePaste(showPaste: boolean) {
+        this.showPasteTextBox = showPaste;
+    }
+
+    public onPaste(e: ClipboardEvent) {
+        const clipboardContents = e.clipboardData.getData('text');
+        if (clipboardContents === undefined) {
+            return;
+        }
+
+        this.emitShowPlanChanged(clipboardContents);
+    }
 
   @Emit('showplan-changed')
-  public emitShowPlanChanged(showPlan: string) {
+    public emitShowPlanChanged(showPlan: string) {
     //
-  }
+    }
 }
 </script>
 

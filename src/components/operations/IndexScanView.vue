@@ -45,7 +45,9 @@
 </template>
 
 <script lang='ts'>
-import { Vue, Component, Prop, Watch } from 'vue-property-decorator';
+import {
+    Vue, Component, Prop, Watch,
+} from 'vue-property-decorator';
 import { RelOp, ExpandedComputedColumn, IndexScan } from '@/parser/showplan';
 
 import SqlString from './SqlString.vue';
@@ -58,11 +60,11 @@ export default class IndexScanView extends Vue {
   @Prop() public operation!: RelOp;
 
   private get indexScan(): IndexScan {
-    return this.operation.Action as IndexScan;
+      return this.operation.Action as IndexScan;
   }
 
   private get expandedChildColumns(): ExpandedComputedColumn[] {
-    return this.operation.GetChildExpandedComputedColumns();
+      return this.operation.GetChildExpandedComputedColumns();
   }
 }
 </script>

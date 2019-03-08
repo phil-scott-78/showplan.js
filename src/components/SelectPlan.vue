@@ -35,56 +35,57 @@ import SqlString from '@/components/operations/SqlString.vue';
 import * as ShowPlan from '@/parser/showplan';
 
 @Component({
-  components: { Dropdown, SqlString },
+    components: { Dropdown, SqlString },
 })
 export default class SelectPlan extends Vue {
   @Prop() public showPlan!: ShowPlan.ShowPlanXML;
+
   public selectedStatement: string | undefined;
 
   public $refs!: {
-    drop: any,
+      drop: any;
   };
 
   private show: boolean = false;
 
   @Emit('showplan-statement-changed')
   public statementSelected(statementGuid: string) {
-    //
+      //
   }
 
   public showDrop(e: MouseEvent) {
-    const target = e.target;
-    this.$refs.drop.$emit('show', target);
-    this.$nextTick(() => {
-      if (this.show) {
-        this.$emit('show', target);
-      }
-    });
+      const { target } = e;
+      this.$refs.drop.$emit('show', target);
+      this.$nextTick(() => {
+          if (this.show) {
+              this.$emit('show', target);
+          }
+      });
   }
 
   public selectChanged(statementGuid: string) {
-    this.statementSelected(statementGuid);
-    this.$refs.drop.$emit('show', false);
+      this.statementSelected(statementGuid);
+      this.$refs.drop.$emit('show', false);
   }
 
   @Watch('showPlan', { immediate: true, deep: false })
   public onShowPlanChange(val: ShowPlan.ShowPlanXML, oldVal: ShowPlan.ShowPlanXML) {
-    let firstItem: string | undefined;
-    for (const batch of val.Batches) {
-      for (const statement of batch.Statements) {
-        if (firstItem === undefined) {
-          firstItem = statement.Guid;
-        }
+      let firstItem: string | undefined;
+      for (const batch of val.Batches) {
+          for (const statement of batch.Statements) {
+              if (firstItem === undefined) {
+                  firstItem = statement.Guid;
+              }
 
-        if (statement.StatementType !== 'USE DATABASE') {
-          this.selectedStatement = statement.Guid;
-          this.statementSelected(this.selectedStatement);
-          return;
-        }
+              if (statement.StatementType !== 'USE DATABASE') {
+                  this.selectedStatement = statement.Guid;
+                  this.statementSelected(this.selectedStatement);
+                  return;
+              }
+          }
       }
-    }
 
-    return firstItem;
+      return firstItem;
   }
 }
 </script>

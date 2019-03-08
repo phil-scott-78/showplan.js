@@ -28,24 +28,26 @@
 </template>
 
 <script lang='ts'>
-import { Vue, Component, Prop, Watch } from 'vue-property-decorator';
+import {
+    Vue, Component, Prop, Watch,
+} from 'vue-property-decorator';
 import { RelOp, Hash, ExpandedComputedColumn } from '@/parser/showplan';
 
 import DefinedValues from './DefinedValues.vue';
 import SqlString from './SqlString.vue';
 
 @Component({
-  components: { DefinedValues, SqlString },
+    components: { DefinedValues, SqlString },
 })
 export default class HashView extends Vue {
   @Prop() public operation!: RelOp;
 
   private get hash(): Hash {
-    return this.operation.Action as Hash;
+      return this.operation.Action as Hash;
   }
 
   private get expandedChildColumns(): ExpandedComputedColumn[] {
-    return this.operation.GetChildExpandedComputedColumns();
+      return this.operation.GetChildExpandedComputedColumns();
   }
 }
 </script>

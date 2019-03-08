@@ -44,16 +44,17 @@
 </template>
 
 <script lang='ts'>
-import { Vue, Component, Prop, Watch } from 'vue-property-decorator';
+import {
+    Vue, Component, Prop, Watch,
+} from 'vue-property-decorator';
 import { BaseStmtInfo } from '@/parser/showplan';
 import BoolPill from './BoolPill.vue';
 
 @Component({
-  components: { BoolPill },
+    components: { BoolPill },
 })
 export default class StatementOverview extends Vue {
   @Prop() public statement!: BaseStmtInfo;
-
 }
 </script>
 

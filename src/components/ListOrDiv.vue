@@ -13,13 +13,17 @@
 
 
 <script lang='ts'>
-import { Vue, Component, Prop, Watch } from 'vue-property-decorator';
+import {
+    Vue, Component, Prop, Watch,
+} from 'vue-property-decorator';
 
 @Component({
 })
 export default class ListOrDiv extends Vue {
   @Prop() public data!: any[];
-  @Prop({default: 'small'}) public listClass!: string;
-  @Prop({default: 'small'}) public divClass!: string;
+
+  @Prop({ default: 'small' }) public listClass!: string;
+
+  @Prop({ default: 'small' }) public divClass!: string;
 }
 </script>

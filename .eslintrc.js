@@ -35,5 +35,6 @@ module.exports = {
     },
     rules: {
         'max-len': [1, 260, 2],
+        'linebreak-style': 0,
     },
 };

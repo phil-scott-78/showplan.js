@@ -16,36 +16,39 @@
 </template>
 
 <script lang='ts'>
-import { Vue, Component, Prop, Watch, Emit } from 'vue-property-decorator';
+import {
+    Vue, Component, Prop, Watch, Emit,
+} from 'vue-property-decorator';
 import { ShowPlanXML } from '@/parser/showplan';
 
 @Component({
 })
 export default class Header extends Vue {
   @Prop() public currentPlan!: ShowPlanXML | undefined;
+
   @Prop() public darkMode!: boolean;
 
   public loadSample() {
-    const request = new XMLHttpRequest();
-    request.onload = (ev) => {
-      if (request.status === 200) {
-        this.planChanged(request.responseText);
-      }
-    };
-    request.open('GET', 'users-with-post-count-and-comment-count.xml');
-    request.send();
+      const request = new XMLHttpRequest();
+      request.onload = (ev) => {
+          if (request.status === 200) {
+              this.planChanged(request.responseText);
+          }
+      };
+      request.open('GET', 'users-with-post-count-and-comment-count.xml');
+      request.send();
   }
 
   public toggleThemeClicked() {
-    this.toggleTheme();
+      this.toggleTheme();
   }
 
   @Emit('plan-changed') public planChanged(plan: string | undefined) {
-    //
+      //
   }
 
   @Emit('toggle-theme') public toggleTheme() {
-    //
+      //
   }
 }
 </script>

@@ -13,18 +13,20 @@
 </template>
 
 <script lang='ts'>
-import { Vue, Component, Prop, Watch } from 'vue-property-decorator';
+import {
+    Vue, Component, Prop, Watch,
+} from 'vue-property-decorator';
 import { RelOp, CreateIndex, ExpandedComputedColumn } from '@/parser/showplan';
 import SqlString from './SqlString.vue';
 
 @Component({
-  components: { SqlString },
+    components: { SqlString },
 })
 export default class FilterView extends Vue {
   @Prop() public operation!: RelOp;
 
   private get createIndex(): CreateIndex {
-    return this.operation.Action as CreateIndex;
+      return this.operation.Action as CreateIndex;
   }
 }
 </script>
