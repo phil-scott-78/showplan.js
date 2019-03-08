@@ -3,11 +3,11 @@
   <a class="icon" @click="showDrop"><font-awesome-icon icon="chevron-circle-down" title="Switch Plans"></font-awesome-icon></a>
   <dropdown ref="drop">
     <div class="selectPlan">
-      <div v-for="(batch, batchIndex) in showPlan.Batches" v-bind:key="batchIndex" class="batch">
+      <div v-for="(batch, batchIndex) in showPlan.Batches" :key="batchIndex" class="batch">
         <h4 v-if="showPlan.Batches.length > 1">{{ batchIndex + 1 | ordinal }} Batch</h4>
         <h4 v-else>Switch Plan</h4>
         <ul>
-          <li v-for="(statement) in batch.Statements" v-bind:key="statement.Guid" v-on:click="selectChanged(statement.Guid)">
+          <li v-for="(statement) in batch.Statements" :key="statement.Guid" @click="selectChanged(statement.Guid)">
               <div class="text">
                 <sql-string v-if="statement.StatementText !== undefined" :sql="statement.StatementText.trim().substring(0,100)"></sql-string>
                 <span v-else>(unknown query statement text)</span>

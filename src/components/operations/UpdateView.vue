@@ -11,7 +11,7 @@
   </div>
   <div v-if="update.SetPredicate !== undefined" class="content max-height">
     <h4>Set Predicate</h4>
-    <list-or-div v-bind:data="update.SetPredicate">
+    <list-or-div :data="update.SetPredicate">
       <template slot-scope="{ item }">
         <sql-string :sql="'SET ' +  item.ScalarOperator.ScalarString" :expandedColumns="expandedChildColumns"></sql-string>
       </template>

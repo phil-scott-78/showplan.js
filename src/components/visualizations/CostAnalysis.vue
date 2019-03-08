@@ -3,7 +3,7 @@
     <svg :width="width" :height="width" :viewBox="viewBox">
       <g>
         <g>
-          <g class="slice" v-for="(line, index) in lines" :key="index" :title="line.data.LogicalOp" v-on:mouseout="hover(undefined)" v-on:mouseover="hover(line)" v-on:click="operationClicked(line)">
+          <g class="slice" v-for="(line, index) in lines" :key="index" :title="line.data.LogicalOp" @mouseout="hover(undefined)" @mouseover="hover(line)" @click="operationClicked(line)">
             <path :d="arc(line)" class="main-arc" :stroke="getStroke(line)" :stroke-opacity="getStrokeOpacity(line)" :fill-opacity="getOpacity(line)" :fill="getFill(line)"></path>
             <path :d="middleArc(line)" class="hidden-arc" :id="'hiddenTextArc' + index + statement.QueryHash"></path>
             <polygon v-if="line.data.Warnings !== undefined" :transform="getIconLocation(line)"  fill="var(--orange)" stroke="var(--alt-background)" points="0,-5 -5,5 5,5"></polygon>

@@ -1,16 +1,16 @@
 <template>
   <div class="opSummary card">
     <div class="content header">
-      <div class="progress-circle" v-bind:class="progressPercent" style="float:right">
+      <div class="progress-circle" :class="progressPercent" style="float:right">
         <div class="progress-number">{{ operation.EstimateTotalCost / statement.StatementSubTreeCost | filterPercent }}</div>
       </div>
       <h3>{{ headingText }}</h3>
-      <div class="meta" v-if="getSubHeadingText !== undefined" v-bind:title="getSubHeadingText | stripBrackets">{{ getSubHeadingText | stripBrackets }}</div>
+      <div class="meta" v-if="getSubHeadingText !== undefined" :title="getSubHeadingText | stripBrackets">{{ getSubHeadingText | stripBrackets }}</div>
     </div>
     <div v-if="selectedTab === 'overview'">
       <warnings v-if="operation.Warnings !== undefined" :warnings="operation.Warnings"></warnings>
 
-      <component v-if="additionalInfoComponent !== undefined" v-bind:is="additionalInfoComponent" :operation="operation"></component>
+      <component v-if="additionalInfoComponent !== undefined" :is="additionalInfoComponent" :operation="operation"></component>
 
       <div class="content">
         <ul class="stats">
@@ -34,11 +34,11 @@
       </div>
       <div class="content max-height">
         <h4>Output</h4>
-        <div class="small" v-for="(key, index) in groupedOutput" v-bind:key="index">
+        <div class="small" v-for="(key, index) in groupedOutput" :key="index">
           <span v-if="key.key !== ''"><sql-string :sql="key.key"></sql-string></span>
           <span v-else>Computed</span>
           <ul class="comma-list">
-            <li v-for="(member, memberIndex) in key.members" v-bind:key="memberIndex"><sql-string :sql="member.Column" :expandedColumns="expandedColumns"></sql-string></li>
+            <li v-for="(member, memberIndex) in key.members" :key="memberIndex"><sql-string :sql="member.Column" :expandedColumns="expandedColumns"></sql-string></li>
           </ul>
         </div>
       </div>

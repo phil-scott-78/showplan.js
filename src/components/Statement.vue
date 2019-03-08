@@ -15,7 +15,7 @@
 
   <div class="card" style="margin-bottom:2rem">
     <smooth-reflow>
-      <component v-bind:is="selectedOverviewTab" :statement="statement"></component>
+      <component :is="selectedOverviewTab" :statement="statement"></component>
     </smooth-reflow>
     <div class="footer">
       <div class="buttons">
@@ -30,7 +30,7 @@
 
   <div v-if="statement.QueryPlan !== undefined" class="queryplan">
     <div class="visualization card">
-      <component v-bind:is="selectVisualizationTab" width="600" :statement="statement" :selectedNode="displayedOp" @rel-op-selected="relOpSelected" @rel-op-highlighted="relOpHighlighted"></component>
+      <component :is="selectVisualizationTab" width="600" :statement="statement" :selectedNode="displayedOp" @rel-op-selected="relOpSelected" @rel-op-highlighted="relOpHighlighted"></component>
       <div class="footer">
         <div class="buttons">
           <a @click="selectVisualizationTab='operator-flow'" :class="{ 'selected': selectVisualizationTab === 'operator-flow' }">Operator Flow</a>
