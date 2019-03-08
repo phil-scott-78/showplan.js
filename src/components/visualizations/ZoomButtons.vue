@@ -7,7 +7,7 @@
 
 <script lang='ts'>
 import {
-    Vue, Component, Prop, Watch, Emit,
+    Vue, Component, Emit,
 } from 'vue-property-decorator';
 
 @Component({

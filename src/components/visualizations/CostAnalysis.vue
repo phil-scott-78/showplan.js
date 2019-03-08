@@ -23,7 +23,7 @@
 
 <script lang='ts'>
 import {
-    Vue, Component, Prop, Watch, Emit,
+    Vue, Component, Prop, Emit,
 } from 'vue-property-decorator';
 
 import * as ShowPlan from '@/parser/showplan';
@@ -31,9 +31,8 @@ import { hierarchy, partition, HierarchyRectangularNode } from 'd3-hierarchy';
 import { arc } from 'd3-shape';
 import { path } from 'd3-path';
 import {
-    scaleLinear, scaleSqrt, scaleLog, scalePow,
+    scaleLinear, scaleSqrt,
 } from 'd3-scale';
-import { normalize } from 'path';
 import { ParentRelOp } from '@/components/visualizations/FakeParent';
 import { GetOperationColor } from '@/components/visualizations/VizColors';
 
@@ -246,7 +245,7 @@ export default class CostAnalysis extends Vue {
 
 
       // fudge a minimum size so that everything at least shows up as a sliver
-      const minSize = this.queryPlan!.RelOp.EstimatedTotalSubtreeCost / 180;
+      const minSize = this.queryPlan.RelOp.EstimatedTotalSubtreeCost / 180;
 
       const noop: ShowPlan.RelOp = new ParentRelOp();
       noop.Action.RelOp[0] = vm.queryPlan.RelOp;

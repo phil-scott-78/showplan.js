@@ -6,10 +6,10 @@
 
 <script lang='ts'>
 import {
-    Vue, Component, Prop, Watch,
+    Vue, Component, Prop,
 } from 'vue-property-decorator';
-import { SqlFormatter } from './formatter';
-import { BaseStmtInfo, StmtSimple } from '@/parser/showplan';
+import SqlFormatter from './formatter';
+import { BaseStmtInfo } from '@/parser/showplan';
 
 @Component({
 })
@@ -18,7 +18,7 @@ export default class HighlightSqlStatement extends Vue {
 
   public formattedCode(): string {
       if (this.fullStatementText !== undefined) {
-          return new SqlFormatter().formatSql(this.fullStatementText);
+          return SqlFormatter.formatSql(this.fullStatementText);
       }
 
       return '';
@@ -29,7 +29,7 @@ export default class HighlightSqlStatement extends Vue {
           return undefined;
       }
 
-      return this.statement.StatementText!.trim();
+      return this.statement.StatementText.trim();
   }
 }
 </script>

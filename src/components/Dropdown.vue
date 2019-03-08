@@ -146,6 +146,8 @@ export default {
                 case 'right':
                     l = right < scrollLeft ? left : right;
                     break;
+                default:
+                    break;
             }
             this.styleSheet.top = `${t}px`;
             this.styleSheet.left = `${l}px`;

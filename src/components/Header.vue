@@ -17,7 +17,7 @@
 
 <script lang='ts'>
 import {
-    Vue, Component, Prop, Watch, Emit,
+    Vue, Component, Prop, Emit,
 } from 'vue-property-decorator';
 import { ShowPlanXML } from '@/parser/showplan';
 

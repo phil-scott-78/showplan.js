@@ -45,7 +45,7 @@
 
 <script lang='ts'>
 import {
-    Vue, Component, Prop, Watch,
+    Vue, Component, Prop,
 } from 'vue-property-decorator';
 import { BaseStmtInfo } from '@/parser/showplan';
 import BoolPill from './BoolPill.vue';

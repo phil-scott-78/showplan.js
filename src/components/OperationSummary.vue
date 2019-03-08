@@ -98,9 +98,6 @@
 
 <script lang='ts'>
 import { Vue, Component, Prop } from 'vue-property-decorator';
-import {
-    BaseStmtInfo, RelOp, ObjectType, ExpandedComputedColumn,
-} from '@/parser/showplan';
 import * as ShowPlan from '@/parser/showplan';
 
 import TreeView from 'vue-json-tree';
@@ -122,7 +119,7 @@ import AdaptiveJoinOp from './operations/AdaptiveJoinView.vue';
 import Warnings from './operations/Warnings.vue';
 
 import { Group } from '@/parser/grouping';
-import { ColumnReferenceParser } from '@/parser/column-reference-parser';
+import ColumnReferenceParser from '@/parser/column-reference-parser';
 
 @Component({
     components: {
@@ -145,9 +142,9 @@ import { ColumnReferenceParser } from '@/parser/column-reference-parser';
     },
 })
 export default class OperationSummary extends Vue {
-  @Prop() public statement!: BaseStmtInfo;
+  @Prop() public statement!: ShowPlan.BaseStmtInfo;
 
-  @Prop() public operation!: RelOp;
+  @Prop() public operation!: ShowPlan.RelOp;
 
   public selectedTab: string = 'overview';
 
@@ -199,10 +196,10 @@ export default class OperationSummary extends Vue {
       return undefined;
   }
 
-  public get shallowOperation(): RelOp {
+  public get shallowOperation(): ShowPlan.RelOp {
       // clone the operation but remove the child relop collection
       // for displaying in the 'raw' display
-      const shallow: RelOp = JSON.parse(JSON.stringify(this.operation, (key, value) => {
+      const shallow: ShowPlan.RelOp = JSON.parse(JSON.stringify(this.operation, (key, value) => {
           if (key === 'RelOp' || key === 'expandedComputedColumns') {
               return;
           }
@@ -214,11 +211,11 @@ export default class OperationSummary extends Vue {
   }
 
   public get progressPercent(): string {
-      if (this.statement === undefined || this.statement!.StatementSubTreeCost === undefined) {
+      if (this.statement === undefined || this.statement.StatementSubTreeCost === undefined) {
           return 'progress-0';
       }
 
-      let percent = (this.operation.EstimateTotalCost / this.statement!.StatementSubTreeCost!) * 100;
+      let percent = (this.operation.EstimateTotalCost / this.statement.StatementSubTreeCost!) * 100;
       if (percent < 10) {
           percent = Math.round(percent);
       } else {
@@ -242,7 +239,7 @@ export default class OperationSummary extends Vue {
       return this.operation.LogicalOp;
   }
 
-  private get expandedColumns(): ExpandedComputedColumn[] {
+  private get expandedColumns(): ShowPlan.ExpandedComputedColumn[] {
       return this.operation.ExpandedComputedColumns;
   }
 
@@ -268,7 +265,7 @@ export default class OperationSummary extends Vue {
       return summary;
   }
 
-  private getShortName(o: ObjectType) {
+  private getShortName(o: ShowPlan.ObjectType) {
       const table = `${o.Table}.${o.Index}`;
       if (o.Alias === undefined) {
           return table;

@@ -109,10 +109,9 @@ export default class App extends Vue {
             return;
         }
 
-        import('@/parser/showplan-parser').then((showPlanParser) => {
+        import('@/parser/showplan-parser').then((ShowPlanParser) => {
             try {
-                const parser = new showPlanParser.ShowPlanParser();
-                this.showPlanChanged(parser.Parse(plan));
+                this.showPlanChanged(ShowPlanParser.default.Parse(plan));
             } catch (e) {
                 this.errorMessage = e.message;
             }

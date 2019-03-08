@@ -55,17 +55,15 @@ import {
 } from 'vue-property-decorator';
 import * as ShowPlan from '@/parser/showplan';
 import {
-    hierarchy, tree, cluster, HierarchyPointNode, HierarchyPointLink,
+    hierarchy, tree, HierarchyPointNode, HierarchyPointLink,
 } from 'd3-hierarchy';
-import {
-    linkRadial, linkHorizontal, pointRadial, linkVertical,
-} from 'd3-shape';
-import { scalePow, scaleLog, scaleLinear } from 'd3-scale';
+import { linkVertical } from 'd3-shape';
+import { scaleLinear } from 'd3-scale';
 import { min, max } from 'd3-array';
 import * as TWEEN from '@tweenjs/tween.js';
 import ZoomButtons from './ZoomButtons.vue';
 import {
-    Colors, GetOperationType, GetOperationColor, GetStateValue, GetStateValueOptions,
+    GetOperationColor, GetStateValue, GetStateValueOptions,
 } from '@/components/visualizations/VizColors';
 import { ParentRelOp, ParentRelOpAction } from './FakeParent';
 

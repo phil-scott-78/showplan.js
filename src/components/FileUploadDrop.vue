@@ -20,7 +20,7 @@
 
 <script lang="ts">
 import {
-    Component, Prop, Vue, Emit,
+    Component, Vue, Emit,
 } from 'vue-property-decorator';
 
 @Component({
@@ -31,7 +31,7 @@ export default class FileUploadDrop extends Vue {
 
     public filesChange(fileList: FileList) {
         const reader = new FileReader();
-        reader.onload = (e) => {
+        reader.onload = () => {
             const text = reader.result as string;
             this.emitShowPlanChanged(text);
         };
@@ -52,9 +52,9 @@ export default class FileUploadDrop extends Vue {
         this.emitShowPlanChanged(clipboardContents);
     }
 
-  @Emit('showplan-changed')
-    public emitShowPlanChanged(showPlan: string) {
-    //
+    @Emit('showplan-changed')
+    public emitShowPlanChanged(showPlan: string): string {
+        return showPlan;
     }
 }
 </script>
