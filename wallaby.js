@@ -1,49 +1,49 @@
 module.exports = function (w) {
     return {
-      files: [
-        'src/**/*.ts',
-        'src/**/*.vue',
-        'tests/**/*.sqlplan',
-        'package.json',
-        'tsconfig.json'
-      ],
+        files: [
+            'src/**/*.ts',
+            'src/**/*.vue',
+            'tests/**/*.sqlplan',
+            'package.json',
+            'tsconfig.json',
+        ],
 
-      tests: [
-        'tests/**/*.ts'
-      ],
+        tests: [
+            'tests/**/*.ts',
+        ],
 
-      compilers: {
-        '**/*.ts': w.compilers.typeScript({
-          module: 'commonjs' // it is set to 'esnext' in tsconfig.json for dynamic components
-        })
-      },
+        compilers: {
+            '**/*.ts': w.compilers.typeScript({
+                module: 'commonjs', // it is set to 'esnext' in tsconfig.json for dynamic components
+            }),
+        },
 
-      env: {
-        type: 'node',
-        runner: 'node'
-      },
+        env: {
+            type: 'node',
+            runner: 'node',
+        },
 
-      testFramework: 'mocha',
+        testFramework: 'mocha',
 
-      setup: () => {
-        require('jsdom-global')();
-        const Vue = require('vue');
-        Vue.config.productionTip = false;
+        setup: () => {
+            require('jsdom-global')();
+            const Vue = require('vue');
+            Vue.config.productionTip = false;
 
-        if (global._tsconfigPathsRegistered) {
-          return;
-        }
-        const tsConfigPaths = require('tsconfig-paths');
-        const tsconfig = require('./tsconfig.json');
-        tsConfigPaths.register({
-          baseUrl: tsconfig.compilerOptions.baseUrl,
-          paths: tsconfig.compilerOptions.paths
-        });
+            if (global._tsconfigPathsRegistered) {
+                return;
+            }
+            const tsConfigPaths = require('tsconfig-paths');
+            const tsconfig = require('./tsconfig.json');
+            tsConfigPaths.register({
+                baseUrl: tsconfig.compilerOptions.baseUrl,
+                paths: tsconfig.compilerOptions.paths,
+            });
 
 
-        global._tsconfigPathsRegistered = true;
-      },
+            global._tsconfigPathsRegistered = true;
+        },
 
-      debug: true
+        debug: true,
     };
-  };
+};
