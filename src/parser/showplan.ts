@@ -1,6 +1,9 @@
 import { Guid } from 'guid-typescript';
 import '@/string-extensions';
 
+/* eslint-disable no-use-before-define */
+/* eslint-disable @typescript-eslint/no-use-before-define */
+
 /** This is the root element */
 export class ShowPlanXML {
     public Build: string;
@@ -24,31 +27,23 @@ export class ShowPlanXML {
     }
 
     public GetStatementByGuid(guid: string): BaseStmtInfo | undefined {
-        for (const batch of this.Batches) {
-            for (const statement of batch.Statements) {
-                if (statement.Guid === guid) {
-                    return statement;
-                }
-            }
-        }
-
-        return undefined;
+        return this.Batches
+            .reduce((a, b) => a.concat(b.Statements), new Array<BaseStmtInfo>())
+            .find((i: { Guid: string }) => i.Guid === guid);
     }
 
     public IsEstimatedPlan(): boolean {
-        for (const batch of this.Batches) {
-            for (const statement of batch.Statements) {
-                if (!(statement instanceof StmtSimple)) { continue; }
-                const queryPlan = (statement as StmtSimple).QueryPlan;
-                if (queryPlan === undefined) { continue; }
+        return this.Batches
+            .reduce((a, b) => a.concat(b.Statements), new Array<BaseStmtInfo>())
+            .some((i) => {
+                if (i instanceof StmtSimple === false) return false;
 
-                if (queryPlan.RelOp.RunTimeInformation !== undefined) {
+                const queryPlan = (i as StmtSimple).QueryPlan;
+                if (queryPlan === undefined || queryPlan.RelOp.RunTimeInformation !== undefined) {
                     return false;
                 }
-            }
-        }
-
-        return true;
+                return true;
+            });
     }
 }
 
@@ -76,17 +71,17 @@ export class RelOp {
     public EstimateIO: number;
 
     public get EstimateTotalCost(): number {
-    // one would think this would simply be
-    // return this.EstimateCPU + this.EstimateIO;
-    // but in fact it's the subree cost subtracking the subtree cost of it's children
+        // one would think this would simply be
+        // return this.EstimateCPU + this.EstimateIO;
+        // but in fact it's the subree cost subtracking the subtree cost of it's children
         if (!this.Action.RelOp.length) {
             return this.EstimatedTotalSubtreeCost;
         }
 
         let sum = this.EstimatedTotalSubtreeCost;
-        for (const relOp of this.Action.RelOp) {
+        this.Action.RelOp.forEach((relOp) => {
             sum -= relOp.EstimatedTotalSubtreeCost;
-        }
+        });
 
         return Math.max(sum, 0);
     }
@@ -102,7 +97,7 @@ export class RelOp {
             this.expandedComputedColumns = this.GetExpandedComputedColumns();
         }
 
-        return this.expandedComputedColumns!;
+        return this.expandedComputedColumns;
     }
 
     public GroupExecuted?: boolean;
@@ -141,6 +136,7 @@ export class RelOp {
             case 'Index Seek':
             case 'Clustered Index Scan':
             case 'Clustered Index Seek':
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                 return (this.Action as IndexScan).Object[0].Table!.replaceAll('[', '').replaceAll(']', '');
             default:
                 break;
@@ -155,6 +151,7 @@ export class RelOp {
             case 'Index Seek':
             case 'Clustered Index Scan':
             case 'Clustered Index Seek':
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                 return (this.Action as IndexScan).Object[0].Index!.replaceAll('[', '').replaceAll(']', '');
             default:
                 break;
@@ -196,21 +193,15 @@ export class RelOp {
     }
 
     public GetChildExpandedComputedColumns(): ExpandedComputedColumn[] {
-        let childExpanded: ExpandedComputedColumn[] = [];
-
-        for (const relOp of this.Action.RelOp) {
-            childExpanded = childExpanded.concat(relOp.ExpandedComputedColumns);
-        }
-
-        return childExpanded;
+        return this.Action.RelOp.length === 0 ? [] : this.Action.RelOp
+            .map(i => i.ExpandedComputedColumns)
+            .reduce((prev, cur) => prev.concat(cur));
     }
 
     private GetExpandedComputedColumns(): ExpandedComputedColumn[] {
-        let childExpanded: ExpandedComputedColumn[] = [];
-
-        for (const relOp of this.Action.RelOp) {
-            childExpanded = childExpanded.concat(relOp.GetExpandedComputedColumns());
-        }
+        let childExpanded = (this.Action.RelOp.length === 0 ? [] : this.Action.RelOp
+            .map(i => i.GetExpandedComputedColumns())
+            .reduce((prev, cur) => prev.concat(cur)));
 
         const expand = (definedValue: DefinedValue, childColumns: ExpandedComputedColumn[]): ExpandedComputedColumn | undefined => {
             if (definedValue.ScalarOperator === undefined || definedValue.ScalarOperator.ScalarString === undefined) {
@@ -230,27 +221,22 @@ export class RelOp {
                 return undefined;
             }
 
-            let expanded = definedValue.ScalarOperator!.ScalarString!;
-            for (const child of childColumns) {
-                expanded = expanded.replaceAll(child.Column, child.Value);
-            }
+            let expanded = definedValue.ScalarOperator.ScalarString;
+            childColumns.forEach((i) => {
+                expanded = expanded.replaceAll(i.Column, i.Value);
+            });
 
             return new ExpandedComputedColumn(columnRef.Column, expanded);
         };
 
-
         if (this.Action.DefinedValues !== undefined) {
-            for (const definedValue of this.Action.DefinedValues) {
-                const expandedChild = expand(definedValue, childExpanded);
-                if (expandedChild !== undefined) {
-                    // not sure what happenes here with columns referencing themselves in later
-                    if (childExpanded.findIndex(i => i.Column === expandedChild.Column) === -1) {
-                        childExpanded.push(expandedChild);
-                    }
-                }
-            }
-        }
+            const definedValues = (this.Action.DefinedValues
+                .map(i => expand(i, childExpanded))
+                .filter(i => i !== undefined) as ExpandedComputedColumn[])
+                .filter(i => !childExpanded.some(child => child.Column === i.Column));
 
+            childExpanded = childExpanded.concat(definedValues);
+        }
 
         return childExpanded;
     }
@@ -438,12 +424,11 @@ export class BaseStmtInfo {
             return undefined;
         }
 
-        const total = this.Batch!.Statements
-            .filter(i => i.StatementSubTreeCost !== undefined)
-            .map(i => i.StatementSubTreeCost!)
+        const total = this.Batch.Statements
+            .map(i => (i.StatementSubTreeCost === undefined ? 0 : i.StatementSubTreeCost))
             .reduce((sum, current) => sum + current);
 
-        return this.StatementSubTreeCost! / total;
+        return this.StatementSubTreeCost / total;
     }
 }
 
@@ -459,7 +444,7 @@ export class BatchHashTableBuild extends RelOpAction {
 export class Bitmap extends RelOpAction {
     public HashKeys: ColumnReference[];
 
-    public public constructor(hashKeys: ColumnReference[]) {
+    public constructor(hashKeys: ColumnReference[]) {
         super();
         this.HashKeys = hashKeys;
     }
@@ -1346,8 +1331,7 @@ export type PhysicalOp =
   | 'Window Aggregate'
   | 'Window Spool'
   | 'Key Lookup'
-  | 'Root'
-  ;
+  | 'Root';
 
 /** Shows time statistics for single query execution.
  * CpuTime: CPU time in milliseconds
@@ -1502,61 +1486,6 @@ export class RollupLevel {
     }
 }
 
-/** Runtime information provided from statistics_xml for each relational iterator */
-export class RunTimeInformation {
-    public RunTimeCountersPerThread: RunTimeInformationTypeRunTimeCountersPerThread[];
-
-    public constructor(runTimeCountersPerThread: RunTimeInformationTypeRunTimeCountersPerThread[]) {
-        this.RunTimeCountersPerThread = runTimeCountersPerThread;
-    }
-
-    public GetRunTimeCountersSummary(): RunTimeInformationTypeRunTimeCountersPerThread | undefined {
-        if (this.RunTimeCountersPerThread.length === 0) {
-            return undefined;
-        }
-
-        function undefinedAdd(a: number | undefined, b: number | undefined): number | undefined {
-            if (a === undefined && b === undefined) {
-                return undefined;
-            }
-
-            if (a === undefined && b !== undefined) {
-                return b;
-            }
-
-            if (a !== undefined && b === undefined) {
-                return a;
-            }
-
-            return a! + b!;
-        }
-
-        return this.RunTimeCountersPerThread.reduce((a, b) => {
-            const i = new RunTimeInformationTypeRunTimeCountersPerThread(
-                a.ActualEndOfScans + b.ActualEndOfScans,
-                a.ActualRows + b.ActualRows,
-                0,
-                a.ActualExecutions + b.ActualExecutions,
-            );
-
-            i.ActualCPUms = undefinedAdd(a.ActualCPUms, b.ActualCPUms);
-            i.ActualElapsedms = undefinedAdd(a.ActualElapsedms, b.ActualElapsedms);
-            i.ActualLobLogicalReads = undefinedAdd(a.ActualLobLogicalReads, b.ActualLobLogicalReads);
-            i.ActualLobPhysicalReads = undefinedAdd(a.ActualLobPhysicalReads, b.ActualLobPhysicalReads);
-            i.ActualLobReadAheads = undefinedAdd(a.ActualLobReadAheads, b.ActualLobReadAheads);
-            i.ActualLocallyAggregatedRows = undefinedAdd(a.ActualLocallyAggregatedRows, b.ActualLocallyAggregatedRows);
-            i.ActualLogicalReads = undefinedAdd(a.ActualLogicalReads, b.ActualLogicalReads);
-            i.ActualPhysicalReads = undefinedAdd(a.ActualPhysicalReads, b.ActualPhysicalReads);
-            i.ActualReadAheads = undefinedAdd(a.ActualReadAheads, b.ActualReadAheads);
-            i.ActualRebinds = undefinedAdd(a.ActualRebinds, b.ActualRebinds);
-            i.ActualRewinds = undefinedAdd(a.ActualRewinds, b.ActualRewinds);
-            i.ActualRowsRead = undefinedAdd(a.ActualRowsRead, b.ActualRowsRead);
-            i.ActualScans = undefinedAdd(a.ActualScans, b.ActualScans);
-
-            return i;
-        });
-    }
-}
 
 export class RunTimeInformationTypeRunTimeCountersPerThread {
     public ActualCPUms?: number;
@@ -1637,6 +1566,62 @@ export class RunTimeInformationTypeRunTimeCountersPerThread {
     }
 }
 
+/** Runtime information provided from statistics_xml for each relational iterator */
+export class RunTimeInformation {
+    public RunTimeCountersPerThread: RunTimeInformationTypeRunTimeCountersPerThread[];
+
+    public constructor(runTimeCountersPerThread: RunTimeInformationTypeRunTimeCountersPerThread[]) {
+        this.RunTimeCountersPerThread = runTimeCountersPerThread;
+    }
+
+    public GetRunTimeCountersSummary(): RunTimeInformationTypeRunTimeCountersPerThread | undefined {
+        if (this.RunTimeCountersPerThread.length === 0) {
+            return undefined;
+        }
+
+        function undefinedAdd(a: number | undefined, b: number | undefined): number | undefined {
+            if (a !== undefined && b !== undefined) {
+                return a + b;
+            }
+
+            if (a === undefined && b !== undefined) {
+                return b;
+            }
+
+            if (a !== undefined && b === undefined) {
+                return a;
+            }
+
+            return undefined;
+        }
+
+        return this.RunTimeCountersPerThread.reduce((a, b) => {
+            const i = new RunTimeInformationTypeRunTimeCountersPerThread(
+                a.ActualEndOfScans + b.ActualEndOfScans,
+                a.ActualRows + b.ActualRows,
+                0,
+                a.ActualExecutions + b.ActualExecutions,
+            );
+
+            i.ActualCPUms = undefinedAdd(a.ActualCPUms, b.ActualCPUms);
+            i.ActualElapsedms = undefinedAdd(a.ActualElapsedms, b.ActualElapsedms);
+            i.ActualLobLogicalReads = undefinedAdd(a.ActualLobLogicalReads, b.ActualLobLogicalReads);
+            i.ActualLobPhysicalReads = undefinedAdd(a.ActualLobPhysicalReads, b.ActualLobPhysicalReads);
+            i.ActualLobReadAheads = undefinedAdd(a.ActualLobReadAheads, b.ActualLobReadAheads);
+            i.ActualLocallyAggregatedRows = undefinedAdd(a.ActualLocallyAggregatedRows, b.ActualLocallyAggregatedRows);
+            i.ActualLogicalReads = undefinedAdd(a.ActualLogicalReads, b.ActualLogicalReads);
+            i.ActualPhysicalReads = undefinedAdd(a.ActualPhysicalReads, b.ActualPhysicalReads);
+            i.ActualReadAheads = undefinedAdd(a.ActualReadAheads, b.ActualReadAheads);
+            i.ActualRebinds = undefinedAdd(a.ActualRebinds, b.ActualRebinds);
+            i.ActualRewinds = undefinedAdd(a.ActualRewinds, b.ActualRewinds);
+            i.ActualRowsRead = undefinedAdd(a.ActualRowsRead, b.ActualRowsRead);
+            i.ActualScans = undefinedAdd(a.ActualScans, b.ActualScans);
+
+            return i;
+        });
+    }
+}
+
 /** Runtime partition information provided in statistics xml for each relational iterator that support partitioning */
 interface RunTimePartitionSummary {
     PartitionsAccessed: RunTimePartitionSummaryTypePartitionsAccessed;
@@ -1693,7 +1678,7 @@ export class ScalarSequence implements ScalarOp {
     }
 }
 
-// tslint:disable-next-line:no-empty-interface
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface ScalarOp {}
 
 /** should not be used */
@@ -1792,7 +1777,7 @@ export class SeekPredicate {
         }
 
         if (this.IsNotNull !== undefined) {
-            result.push({ key: 'Is Not Null', value: this.IsNotNull!.toString() });
+            result.push({ key: 'Is Not Null', value: this.IsNotNull.toString() });
         }
 
         return result;
@@ -1858,22 +1843,18 @@ export class ShowPlanXMLTypeBatchSequenceTypeBatch {
     public Statements: BaseStmtInfo[];
 
     public constructor(Statements: BaseStmtInfo[]) {
-        this.Statements = Statements;
-
-        for (const statement of this.Statements) {
-            statement.Batch = this;
-        }
+        const batch = this;
+        this.Statements = Statements.map((i) => {
+            const newStatement = i;
+            newStatement.Batch = batch;
+            return newStatement;
+        });
     }
 
     public TotalCost(): number {
-        let sum = 0;
-        for (const child of this.Statements) {
-            if (child.StatementSubTreeCost !== undefined) {
-                sum += child.StatementSubTreeCost!;
-            }
-        }
-
-        return sum;
+        return this.Statements
+            .map(i => (i.StatementSubTreeCost === undefined ? 0 : i.StatementSubTreeCost))
+            .reduce((sum, current) => sum + current);
     }
 }
 

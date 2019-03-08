@@ -26,4 +26,10 @@ describe('multi-batch-with-multi-statements.sqlplan', () => {
         expect(statementSimple.CostPercentOfBatch()).to.equal(1 / 3);
         expect(statementSimple.QueryPlan!.RelOp.Action).instanceof(ShowPlan.Top);
     });
+
+    it('can find by guid', () => {
+        const firstGuid = plan.Batches[0].Statements[0].Guid;
+        expect(plan.GetStatementByGuid(firstGuid)).to.not.be.undefined;
+        expect(plan.GetStatementByGuid('')).to.be.undefined;
+    });
 });
