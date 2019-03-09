@@ -5,13 +5,12 @@ class QueryHelper {
         const children = node.childNodes;
 
         // tslint:disable-next-line:prefer-for-of
-        for (let nodeCounter = 0; nodeCounter < children.length; nodeCounter++) {
-            if (children[nodeCounter].nodeType !== 1) {
-                continue;
-            }
-            if ((children[nodeCounter] as Element).tagName === tagName) {
-                returnNodes[returnCounter] = children[nodeCounter] as Element;
-                returnCounter++;
+        for (let nodeCounter = 0; nodeCounter < children.length; nodeCounter += 1) {
+            if (children[nodeCounter].nodeType === 1) {
+                if ((children[nodeCounter] as Element).tagName === tagName) {
+                    returnNodes[returnCounter] = children[nodeCounter] as Element;
+                    returnCounter += 1;
+                }
             }
         }
 
@@ -24,13 +23,11 @@ class QueryHelper {
         const children = node.childNodes;
 
         // tslint:disable-next-line:prefer-for-of
-        for (let nodeCounter = 0; nodeCounter < children.length; nodeCounter++) {
-            if (children[nodeCounter].nodeType !== 1) {
-                continue;
+        for (let nodeCounter = 0; nodeCounter < children.length; nodeCounter += 1) {
+            if (children[nodeCounter].nodeType === 1) {
+                returnNodes[returnCounter] = children[nodeCounter] as Element;
+                returnCounter += 1;
             }
-
-            returnNodes[returnCounter] = children[nodeCounter] as Element;
-            returnCounter++;
         }
 
         return returnNodes;

@@ -16,16 +16,16 @@ class StatementParser {
         if (queryPlan.length > 0) {
             statement.QueryPlan = QueryPlanParser.Parse(queryPlan[0] as Element);
         }
-        if (udf.length > 0) { statement.UDF = this.ParseUDF(udf); }
-        if (storedProc.length > 0) { statement.StoredProc = this.ParseStoredProc(storedProc[0]); }
+        if (udf.length > 0) { statement.UDF = this.ParseUDF(); }
+        if (storedProc.length > 0) { statement.StoredProc = this.ParseStoredProc(); }
         return statement;
     }
 
-    private static ParseUDF(udf: HTMLCollectionOf<Element>): ShowPlan.FunctionPlan[] {
+    private static ParseUDF(): ShowPlan.FunctionPlan[] {
         return [];
     }
 
-    private static ParseStoredProc(storedProcElement: Node): ShowPlan.FunctionPlan | undefined {
+    private static ParseStoredProc(): ShowPlan.FunctionPlan | undefined {
         return undefined;
     }
 }

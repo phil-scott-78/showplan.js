@@ -89,7 +89,9 @@
     </div>
     <div class="footer">
       <div class="buttons">
-        <a @click="selectedTab='overview'" :class="{ 'selected': selectedTab === 'overview' }">Overview</a><a @click="selectedTab='advanced'" :class="{ 'selected': selectedTab === 'advanced' }">Advanced</a><a @click="selectedTab = 'raw'" :class="{ 'selected': selectedTab === 'raw' }">Raw</a>
+        <a @click="selectedTab='overview'" :class="{ 'selected': selectedTab === 'overview' }">Overview</a>
+        <a @click="selectedTab='advanced'" :class="{ 'selected': selectedTab === 'advanced' }">Advanced</a>
+        <a @click="selectedTab = 'raw'" :class="{ 'selected': selectedTab === 'raw' }">Raw</a>
       </div>
     </div>
   </div>
@@ -201,7 +203,7 @@ export default class OperationSummary extends Vue {
       // for displaying in the 'raw' display
       const shallow: ShowPlan.RelOp = JSON.parse(JSON.stringify(this.operation, (key, value) => {
           if (key === 'RelOp' || key === 'expandedComputedColumns') {
-              return;
+              return undefined;
           }
 
           return value;
@@ -215,7 +217,7 @@ export default class OperationSummary extends Vue {
           return 'progress-0';
       }
 
-      let percent = (this.operation.EstimateTotalCost / this.statement.StatementSubTreeCost!) * 100;
+      let percent = (this.operation.EstimateTotalCost / this.statement.StatementSubTreeCost) * 100;
       if (percent < 10) {
           percent = Math.round(percent);
       } else {

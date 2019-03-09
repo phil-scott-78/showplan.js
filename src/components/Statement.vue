@@ -21,9 +21,18 @@
       <div class="buttons">
         <a @click="selectedOverviewTab='highlight-sql-statement'" :class="{ 'selected': selectedOverviewTab === 'highlight-sql-statement' }">Query Text</a>
         <a @click="selectedOverviewTab='statement-overview'" :class="{ 'selected': selectedOverviewTab === 'statement-overview' }">Query Properties</a>
-        <a v-if="statement.QueryPlan != undefined && statement.QueryPlan.ParameterList !== undefined && statement.QueryPlan.ParameterList.length > 0" @click="selectedOverviewTab='query-parameters'" :class="{ 'selected': selectedOverviewTab === 'query-parameters' }">Query Parameters</a>
-        <a v-if="statement.QueryPlan != undefined && statement.QueryPlan.OptimizerStatsUsage !== undefined" @click="selectedOverviewTab='statistics-list'" :class="{ 'selected': selectedOverviewTab === 'statistics-list' }">Statistics Usage</a>
-        <a v-if="statement.QueryPlan != undefined && statement.QueryPlan.MissingIndexes !== undefined" @click="selectedOverviewTab='missing-indexes'" :class="{ 'selected': selectedOverviewTab === 'missing-indexes' }"> <font-awesome-icon style="color:var(--orange)" icon="exclamation-circle" /> Missing Indexes</a>
+        <span v-if="statement.QueryPlan != undefined">
+            <a v-if="statement.QueryPlan.ParameterList !== undefined && statement.QueryPlan.ParameterList.length > 0" @click="selectedOverviewTab='query-parameters'" :class="{ 'selected': selectedOverviewTab === 'query-parameters' }">
+                Query Parameters
+            </a>
+            <a v-if="statement.QueryPlan.OptimizerStatsUsage !== undefined" @click="selectedOverviewTab='statistics-list'" :class="{ 'selected': selectedOverviewTab === 'statistics-list' }">
+                Statistics Usage
+            </a>
+            <a v-if="statement.QueryPlan.MissingIndexes !== undefined" @click="selectedOverviewTab='missing-indexes'" :class="{ 'selected': selectedOverviewTab === 'missing-indexes' }">
+                <font-awesome-icon style="color:var(--orange)" icon="exclamation-circle" />
+                Missing Indexes
+            </a>
+        </span>
       </div>
     </div>
   </div>
@@ -94,14 +103,9 @@ export default class Statement extends Vue {
 
   private selectVisualizationTab: string = 'operator-flow';
 
-
   @Emit('showplan-statement-changed')
-  public statementSelected(statementGuid: string) {
-      //
-  }
-
   public selectChanged(statementGuid: string) {
-      this.statementSelected(statementGuid);
+      return statementGuid;
   }
 
   public mounted() {
@@ -109,7 +113,7 @@ export default class Statement extends Vue {
   }
 
   @Watch('statement')
-  private OnStatementChanged(val: BaseStmtInfo, oldVal: BaseStmtInfo) {
+  private OnStatementChanged(val: BaseStmtInfo) {
       this.buidlMap(val);
   }
 
@@ -124,12 +128,12 @@ export default class Statement extends Vue {
 
       const addChildren = (map: Map<number, RelOp>, op: RelOp) => {
           map.set(op.NodeId, op);
-          for (const childOp of op.Action.RelOp) {
+          op.Action.RelOp.forEach((childOp) => {
               addChildren(map, childOp);
-          }
+          });
       };
 
-      addChildren(this.operationMap, statement.QueryPlan!.RelOp);
+      addChildren(this.operationMap, statement.QueryPlan.RelOp);
   }
 
   private get displayedOp(): RelOp | undefined {

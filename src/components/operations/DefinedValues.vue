@@ -9,7 +9,7 @@
 
 <script lang='ts'>
 import {
-    Vue, Component, Prop, Watch,
+    Vue, Component, Prop,
 } from 'vue-property-decorator';
 import { DefinedValue, ExpandedComputedColumn } from '@/parser/showplan';
 
@@ -32,9 +32,9 @@ export default class DefinedValueView extends Vue {
       // if we have multiple column references but no scalar operator just return a list of columns
       if (definedValue.ColumnReference !== undefined && definedValue.ColumnReference.length > 1 && definedValue.ScalarOperator === undefined) {
           let columns = '';
-          for (const columnReference of definedValue.ColumnReference) {
+          definedValue.ColumnReference.forEach((columnReference) => {
               columns += `${columnReference.toString()}\r`;
-          }
+          });
           return columns;
       }
 
@@ -45,7 +45,10 @@ export default class DefinedValueView extends Vue {
           sql = `SET ${definedValue.ColumnReference[0].toString()} = `;
       }
 
-      sql += definedValue.ScalarOperator!.ScalarString;
+      if (definedValue.ScalarOperator !== undefined) {
+          sql += definedValue.ScalarOperator.ScalarString;
+      }
+
       return sql;
   }
 }

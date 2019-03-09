@@ -9,7 +9,7 @@
 
 <script lang='ts'>
 import {
-    Vue, Component, Prop, Watch,
+    Vue, Component, Prop,
 } from 'vue-property-decorator';
 import { RelOp, Top } from '@/parser/showplan';
 import SqlString from './SqlString.vue';
@@ -29,7 +29,7 @@ export default class TopView extends Vue {
           return undefined;
       }
 
-      let out = `TOP ${this.top.TopExpression!.ScalarOperator.ScalarString}`;
+      let out = `TOP ${this.top.TopExpression.ScalarOperator.ScalarString}`;
       if (this.top.IsPercent) {
           out = `${out} PERCENT`;
       }

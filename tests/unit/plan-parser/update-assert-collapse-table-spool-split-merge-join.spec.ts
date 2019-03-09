@@ -6,6 +6,9 @@ import * as fs from 'fs';
 describe('update-assert-collapse-table-spool-split-merge-join.sqlplan', () => {
     let showplan: ShowPlan.StmtSimple;
     let queryplan: ShowPlan.QueryPlan;
+    let firstSequence: ShowPlan.RelOp;
+    let secondSequence: ShowPlan.RelOp;
+    let thirdSequence: ShowPlan.RelOp;
 
     before(() => {
         const file = 'tests/unit/plan-parser/plans/update-assert-collapse-table-spool-split-merge-join.sqlplan';
@@ -13,6 +16,7 @@ describe('update-assert-collapse-table-spool-split-merge-join.sqlplan', () => {
         const plan = ShowPlanParser.Parse(data);
         showplan = plan.Batches[0].Statements[0] as ShowPlan.StmtSimple;
         queryplan = showplan.QueryPlan!;
+        [firstSequence, secondSequence, thirdSequence] = queryplan.RelOp.Action.RelOp;
     });
 
     it('plan should be an update statement', () => {
@@ -29,7 +33,7 @@ describe('update-assert-collapse-table-spool-split-merge-join.sqlplan', () => {
         let sequenceOp: ShowPlan.RelOp;
 
         before(() => {
-            sequenceOp = queryplan.RelOp.Action.RelOp[0];
+            sequenceOp = firstSequence;
         });
 
         it('first operation should be a table spool', () => {
@@ -75,7 +79,7 @@ describe('update-assert-collapse-table-spool-split-merge-join.sqlplan', () => {
         let sequenceOp: ShowPlan.RelOp;
 
         before(() => {
-            sequenceOp = queryplan.RelOp.Action.RelOp[1];
+            sequenceOp = secondSequence;
         });
 
         it('first operation is an update', () => {
@@ -149,7 +153,7 @@ describe('update-assert-collapse-table-spool-split-merge-join.sqlplan', () => {
         let sequenceOp: ShowPlan.RelOp;
 
         before(() => {
-            sequenceOp = queryplan.RelOp.Action.RelOp[2];
+            sequenceOp = thirdSequence;
         });
 
         it('first operation should be an assert', () => {

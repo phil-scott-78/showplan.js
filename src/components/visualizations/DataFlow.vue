@@ -45,16 +45,14 @@ import {
     hierarchy, cluster, HierarchyPointNode, HierarchyPointLink,
 } from 'd3-hierarchy';
 import {
-    linkRadial, linkHorizontal, pointRadial, linkVertical,
+    linkHorizontal,
 } from 'd3-shape';
-import { scalePow, scaleLog, scaleLinear } from 'd3-scale';
+import { scaleLinear } from 'd3-scale';
 import { min, max } from 'd3-array';
 import * as TWEEN from '@tweenjs/tween.js';
 import ZoomButtons from './ZoomButtons.vue';
-import {
-    Colors, GetOperationType, GetOperationColor, GetStateValue, GetStateValueOptions,
-} from '@/components/visualizations/VizColors';
-import { ParentRelOp, ParentRelOpAction } from './FakeParent';
+import { GetOperationColor } from '@/components/visualizations/VizColors';
+import { ParentRelOp } from './FakeParent';
 
 @Component({
     components: { ZoomButtons },
@@ -67,7 +65,11 @@ export default class DataFlow extends Vue {
     };
 
     private get queryPlan(): ShowPlan.QueryPlan {
-        return this.statement!.QueryPlan!;
+        if (this.statement === undefined || this.statement.QueryPlan === undefined) {
+            throw new Error('expected a stement with a queryplan but found none');
+        }
+
+        return this.statement.QueryPlan;
     }
 
     private get highlightedNode(): HierarchyPointNode<ShowPlan.RelOp> | undefined {
@@ -75,7 +77,9 @@ export default class DataFlow extends Vue {
             return undefined;
         }
 
-        return this.root.descendants().filter(i => i.data.NodeId === this.selectedNode!.NodeId)[0];
+        const nodeId = this.selectedNode.NodeId;
+        return this.root.descendants()
+            .filter(i => i.data.NodeId === nodeId)[0];
     }
 
   @Prop() public statement!: ShowPlan.StmtSimple;
@@ -91,27 +95,28 @@ export default class DataFlow extends Vue {
   private tweenedTransform = { scale: 1 };
 
   @Emit('rel-op-selected')
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public statementSelected(op: number) {
       //
   }
 
   @Emit('rel-op-highlighted')
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public statementHighlighted(op: number | undefined) {
       //
   }
 
   @Watch('scale')
-  private scaleWatch(newValue: number, oldValue: number) {
-      let frameHandler: any;
+  private scaleWatch(newValue: number) {
+      let frameHandler: number;
 
-
-      function animate(currentTime: any) {
+      function animate(currentTime: number) {
           if (TWEEN.update(currentTime)) {
               frameHandler = requestAnimationFrame(animate);
           }
       }
 
-      const tween = new TWEEN.Tween(this.tweenedTransform)
+      new TWEEN.Tween(this.tweenedTransform)
           .to({ scale: newValue }, 75)
           .onComplete(() => {
               cancelAnimationFrame(frameHandler);
@@ -128,7 +133,7 @@ export default class DataFlow extends Vue {
 
       return cluster<ShowPlan.RelOp>()
           .nodeSize([this.nodeHeight * 3, this.nodeWidth])
-          .separation((a, b) => 1)(hierarchy(noop, children => children.Action.RelOp));
+          .separation(() => 1)(hierarchy(noop, children => children.Action.RelOp));
   }
 
   private get links(): HierarchyPointLink<ShowPlan.RelOp>[] {
@@ -147,7 +152,7 @@ export default class DataFlow extends Vue {
   private linkPath(link: HierarchyPointLink<ShowPlan.RelOp>): string {
       return linkHorizontal<HierarchyPointLink<ShowPlan.RelOp>, HierarchyPointNode<ShowPlan.RelOp>>()
           .x(i => -1 * i.y)
-          .y(i => i.x)(link)!;
+          .y(i => i.x)(link) as string;
   }
 
   // node styling
@@ -168,16 +173,12 @@ export default class DataFlow extends Vue {
 
       const selectedColor = GetOperationColor(link.target.data.PhysicalOp);
 
-      for (const childNode of this.highlightedNode.descendants()) {
-          if (link.target.data.NodeId === childNode.data.NodeId) {
-              return selectedColor;
-          }
+      if (this.highlightedNode.descendants().some(childNode => link.target.data.NodeId === childNode.data.NodeId)) {
+          return selectedColor;
       }
 
-      for (const childNode of this.highlightedNode.ancestors()) {
-          if (link.target.data.NodeId === childNode.data.NodeId) {
-              return selectedColor;
-          }
+      if (this.highlightedNode.ancestors().some(childNode => link.target.data.NodeId === childNode.data.NodeId)) {
+          return selectedColor;
       }
 
       return notSelectedColor;
@@ -188,7 +189,7 @@ export default class DataFlow extends Vue {
           return 0;
       }
 
-      if (node.data.NodeId === this.highlightedNode!.data.NodeId) {
+      if (node.data.NodeId === this.highlightedNode.data.NodeId) {
           return 0.9;
       }
 
@@ -210,8 +211,10 @@ export default class DataFlow extends Vue {
   }
 
   private get rowWidthScale() {
-      const minRows = min(this.nodes, n => n.data.EstimateRows)!;
-      const maxRows = max(this.nodes, n => n.data.EstimateRows)!;
+      let maxRows = max(this.nodes, n => n.data.EstimateRows);
+      if (maxRows === undefined) {
+          maxRows = 20;
+      }
 
       return scaleLinear()
           .domain([1, maxRows])
@@ -224,16 +227,24 @@ export default class DataFlow extends Vue {
 
   // chart sizing and styling
   private get chartWidth(): number {
-      const minX = min(this.nodes, d => d.y)!;
-      const maxX = max(this.nodes, d => d.y)!;
+      const minX = min(this.nodes, d => d.y);
+      const maxX = max(this.nodes, d => d.y);
+
+      if (minX === undefined || maxX === undefined) {
+          throw new Error('could not find chart width');
+      }
 
       return maxX - minX + this.nodeWidth * 2;
   }
 
   private get chartHeight(): number {
       // invers the x and y
-      const minY = min(this.nodes, d => d.x)!;
-      const maxY = max(this.nodes, d => d.x)!;
+      const minY = min(this.nodes, d => d.x);
+      const maxY = max(this.nodes, d => d.x);
+
+      if (minY === undefined || maxY === undefined) {
+          throw new Error('could not find chart width');
+      }
 
       return maxY - minY + this.nodeHeight * 4;
   }
@@ -249,8 +260,15 @@ export default class DataFlow extends Vue {
 
   private get chartTransform() {
       // don't forget we are turning their x/y axis on the side
-      const offsetY = min(this.nodes, n => n.x)! * -1 + this.nodeHeight;
-      const offsetX = max(this.nodes, n => n.y)! + this.nodeWidth / 2;
+      const minY = min(this.nodes, d => d.x);
+      const maxX = max(this.nodes, d => d.y);
+
+      if (minY === undefined || maxX === undefined) {
+          throw new Error('could not find chart size');
+      }
+
+      const offsetY = minY * -1 + this.nodeHeight;
+      const offsetX = maxX + this.nodeWidth / 2;
       return `translate(${offsetX * this.tweenedTransform.scale}, ${offsetY * this.tweenedTransform.scale}) scale(${this.tweenedTransform.scale})`;
   }
 
@@ -269,7 +287,7 @@ export default class DataFlow extends Vue {
           return;
       }
 
-      this.statementHighlighted(op!.data.NodeId);
+      this.statementHighlighted(op.data.NodeId);
   }
 
   private operationClicked(op: HierarchyPointNode<ShowPlan.RelOp>) {

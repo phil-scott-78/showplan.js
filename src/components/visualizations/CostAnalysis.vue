@@ -40,7 +40,11 @@ import { GetOperationColor } from '@/components/visualizations/VizColors';
 })
 export default class CostAnalysis extends Vue {
     private get queryPlan(): ShowPlan.QueryPlan {
-        return this.statement!.QueryPlan!;
+        if (this.statement === undefined || this.statement.QueryPlan === undefined) {
+            throw Error('expected a statement with a queryplan');
+        }
+
+        return this.statement.QueryPlan;
     }
 
     private get highlightedNode(): HierarchyRectangularNode<ShowPlan.RelOp> | undefined {
@@ -48,7 +52,8 @@ export default class CostAnalysis extends Vue {
             return undefined;
         }
 
-        return this.root().descendants().filter(i => i.data.NodeId === this.selectedNode!.NodeId)[0];
+        const nodeId = this.selectedNode.NodeId;
+        return this.root().descendants().filter(i => i.data.NodeId === nodeId)[0];
     }
 
     private get viewBox(): string {
@@ -86,12 +91,12 @@ export default class CostAnalysis extends Vue {
 
   @Emit('rel-op-selected')
   public statementSelected(op: number) {
-      //
+      return op;
   }
 
   @Emit('rel-op-highlighted')
   public statementHighlighted(op: number | undefined) {
-      //
+      return op;
   }
 
   private textFits = (d: HierarchyRectangularNode<ShowPlan.RelOp>) => {
@@ -131,16 +136,13 @@ export default class CostAnalysis extends Vue {
           return 0.9;
       }
 
-      for (const childNode of this.highlightedNode.descendants()) {
-          if (node.data.NodeId === childNode.data.NodeId) {
-              return 0.7;
-          }
+      if (this.highlightedNode.descendants().some(childNode => node.data.NodeId === childNode.data.NodeId)) {
+          return 0.7;
       }
 
-      for (const childNode of this.highlightedNode.ancestors()) {
-          if (node.data.NodeId === childNode.data.NodeId) {
-              return 0.25;
-          }
+
+      if (this.highlightedNode.ancestors().some(childNode => node.data.NodeId === childNode.data.NodeId)) {
+          return 0.25;
       }
 
       return 0.1;
@@ -151,16 +153,12 @@ export default class CostAnalysis extends Vue {
           return 'var(--background)'; // this.colors[this.getOperationType(node.data.PhysicalOp)];
       }
 
-      for (const childNode of this.highlightedNode.descendants()) {
-          if (node.data.NodeId === childNode.data.NodeId) {
-              return 'var(--background)';
-          }
+      if (this.highlightedNode.descendants().some(childNode => node.data.NodeId === childNode.data.NodeId)) {
+          return 'var(--background)';
       }
 
-      for (const childNode of this.highlightedNode.ancestors()) {
-          if (node.data.NodeId === childNode.data.NodeId) {
-              return 'var(--background)';
-          }
+      if (this.highlightedNode.ancestors().some(childNode => node.data.NodeId === childNode.data.NodeId)) {
+          return 'var(--background)';
       }
 
       return GetOperationColor(node.data.PhysicalOp);
@@ -171,16 +169,12 @@ export default class CostAnalysis extends Vue {
           return 1; // this.colors[this.getOperationType(node.data.PhysicalOp)];
       }
 
-      for (const childNode of this.highlightedNode.descendants()) {
-          if (node.data.NodeId === childNode.data.NodeId) {
-              return 1;
-          }
+      if (this.highlightedNode.descendants().some(childNode => node.data.NodeId === childNode.data.NodeId)) {
+          return 1;
       }
 
-      for (const childNode of this.highlightedNode.ancestors()) {
-          if (node.data.NodeId === childNode.data.NodeId) {
-              return 11;
-          }
+      if (this.highlightedNode.ancestors().some(childNode => node.data.NodeId === childNode.data.NodeId)) {
+          return 1;
       }
 
       return 0.5;
@@ -193,16 +187,12 @@ export default class CostAnalysis extends Vue {
           return whiteLabel;
       }
 
-      for (const childNode of this.highlightedNode.descendants()) {
-          if (node.data.NodeId === childNode.data.NodeId) {
-              return whiteLabel;
-          }
+      if (this.highlightedNode.descendants().some(childNode => node.data.NodeId === childNode.data.NodeId)) {
+          return whiteLabel;
       }
 
-      for (const childNode of this.highlightedNode.ancestors()) {
-          if (node.data.NodeId === childNode.data.NodeId) {
-              return whiteLabel;
-          }
+      if (this.highlightedNode.ancestors().some(childNode => node.data.NodeId === childNode.data.NodeId)) {
+          return whiteLabel;
       }
 
       return GetOperationColor(node.data.PhysicalOp);
@@ -228,7 +218,7 @@ export default class CostAnalysis extends Vue {
           return;
       }
 
-      this.statementHighlighted(op!.data.NodeId);
+      this.statementHighlighted(op.data.NodeId);
   }
 
   private operationClicked(op: HierarchyRectangularNode<ShowPlan.RelOp>) {

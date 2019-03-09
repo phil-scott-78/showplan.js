@@ -13,7 +13,10 @@
                 <span v-else>(unknown query statement text)</span>
               </div>
               <div class="stats">
-                <span v-if="statement.QueryPlan !== undefined" class='stats'><span v-if="statement.StatementSubTreeCost !== undefined">Sub Tree Cost: <strong>{{ statement.StatementSubTreeCost }}</strong> ({{ statement.CostPercentOfBatch() | filterPercent }}) </span></span>
+                <span v-if="statement.QueryPlan !== undefined" class='stats'>
+                    <span v-if="statement.StatementSubTreeCost !== undefined">Sub Tree Cost: <strong>{{ statement.StatementSubTreeCost }}</strong> ({{ statement.CostPercentOfBatch() | filterPercent }})
+                    </span>
+                </span>
               </div>
           </li>
         </ul>
@@ -26,7 +29,7 @@
 <script lang="ts">
 import Vue from 'vue';
 import Component from 'vue-class-component';
-import { Emit, Prop, Watch } from 'vue-property-decorator';
+import { Emit, Prop } from 'vue-property-decorator';
 
 import Dropdown from '@/components/Dropdown.vue';
 
@@ -43,15 +46,11 @@ export default class SelectPlan extends Vue {
   public selectedStatement: string | undefined;
 
   public $refs!: {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       drop: any;
   };
 
   private show: boolean = false;
-
-  @Emit('showplan-statement-changed')
-  public statementSelected(statementGuid: string) {
-      //
-  }
 
   public showDrop(e: MouseEvent) {
       const { target } = e;
@@ -63,11 +62,12 @@ export default class SelectPlan extends Vue {
       });
   }
 
-  public selectChanged(statementGuid: string) {
-      this.statementSelected(statementGuid);
+  @Emit('showplan-statement-changed')
+  public selectChanged(statementGuid: string): string {
       this.$refs.drop.$emit('show', false);
+      return statementGuid;
   }
-
+    /*
   @Watch('showPlan', { immediate: true, deep: false })
   public onShowPlanChange(val: ShowPlan.ShowPlanXML, oldVal: ShowPlan.ShowPlanXML) {
       let firstItem: string | undefined;
@@ -87,6 +87,7 @@ export default class SelectPlan extends Vue {
 
       return firstItem;
   }
+  */
 }
 </script>
 

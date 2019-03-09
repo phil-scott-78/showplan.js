@@ -58,7 +58,7 @@ class QueryPlanParser {
             new TagAndParser('MergeInterval', element => this.ParseSimpleIteratorOneChild(element)),
             new TagAndParser('NestedLoops', element => this.ParseNestedLoop(element)),
             new TagAndParser('OnlineIndex', element => this.ParseCreateIndex(element)),
-            new TagAndParser('Parallelism', element => this.ParseParallelism(element)),
+            new TagAndParser('Parallelism', () => this.ParseParallelism()),
             new TagAndParser('ParameterTableScan', element => this.ParseRelOpBaseType(element)),
             new TagAndParser('PrintDataflow', element => this.ParseRelOpBaseType(element)), // i can't find this ANYWHERE online
             new TagAndParser('Put', element => this.ParsePut(element)),
@@ -97,13 +97,14 @@ class QueryPlanParser {
         let action: ShowPlan.RelOpAction | undefined;
         let actionElement: Element | undefined;
 
+        // eslint-disable-next-line
         for (const tagAndParser of tagsAndParsers) {
             const childNodes = QueryHelper.GetImmediateChildNodesByTagName(
                 relOpElement,
                 tagAndParser.TagName,
             );
             if (childNodes.length === 1) {
-                actionElement = childNodes[0];
+                [actionElement] = childNodes;
                 action = tagAndParser.Action(actionElement);
                 break;
             }
@@ -164,34 +165,42 @@ class QueryPlanParser {
         return thisOp;
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     private static ParseGeneric(element: Element): ShowPlan.Generic {
         return new ShowPlan.Generic();
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     private static ParseSequence(element: Element): ShowPlan.Sequence {
         return new ShowPlan.Sequence();
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     private static ParseConcat(element: Element): ShowPlan.Concat {
         return new ShowPlan.Concat();
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     private static ParseSimpleIteratorOneChild(element: Element): ShowPlan.SimpleIteratorOneChild {
         return new ShowPlan.SimpleIteratorOneChild();
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     private static ParseWindow(element: Element): ShowPlan.Window {
         return new ShowPlan.Window();
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     private static ParseWindowAggregate(element: Element): ShowPlan.WindowAggregate {
         return new ShowPlan.WindowAggregate();
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     private static ParseRelOpBaseType(element: Element): ShowPlan.RelOpAction {
         return new ShowPlan.RelOpAction();
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     private static ParseConstantScan(element: Element): ShowPlan.ConstantScan {
         const scan = new ShowPlan.ConstantScan();
         // todo parse values. I can't find an example of this though
@@ -209,7 +218,7 @@ class QueryPlanParser {
         const $switch = new ShowPlan.Switch();
         const predicateElements = QueryHelper.GetImmediateChildNodesByTagName(element, 'Predicate');
         if (predicateElements.length === 1) {
-            $switch.Predicate = predicateElements.map(i => ScalarExpressionParser.Parse(i))[0];
+            [$switch.Predicate] = predicateElements.map(i => ScalarExpressionParser.Parse(i));
         }
         return $switch;
     }
@@ -266,7 +275,7 @@ class QueryPlanParser {
         const split = new ShowPlan.Split();
         const actionColumns = ColumnReferenceParser.GetAllFromElement(element, 'ActionColumn');
         if (actionColumns.length === 1) {
-            split.ActionColumn = actionColumns[0];
+            [split.ActionColumn] = actionColumns;
         }
 
         return split;
@@ -486,7 +495,7 @@ class QueryPlanParser {
 
         const predicateElements = QueryHelper.GetImmediateChildNodesByTagName(element, 'Predicate');
         if (predicateElements.length === 1) {
-            scan.Predicate = predicateElements.map(i => ScalarExpressionParser.Parse(i))[0];
+            [scan.Predicate] = predicateElements.map(i => ScalarExpressionParser.Parse(i));
         }
 
         const partitionIdElement = QueryHelper.GetImmediateChildNodesByTagName(element, 'PartitionId');
@@ -587,7 +596,7 @@ class QueryPlanParser {
         return op;
     }
 
-    private static ParseParallelism(element: Element): ShowPlan.Parallelism {
+    private static ParseParallelism(): ShowPlan.Parallelism {
         return new ShowPlan.Parallelism();
     }
 

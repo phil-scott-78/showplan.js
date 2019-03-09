@@ -9,7 +9,7 @@
 
 <script lang='ts'>
 import {
-    Vue, Component, Prop, Watch,
+    Vue, Component, Prop,
 } from 'vue-property-decorator';
 import {
     RelOp, Concat, ColumnReference, ExpandedComputedColumn,
@@ -35,29 +35,11 @@ export default class ConcatVue extends Vue {
           return [];
       }
 
-      const out: ColumnReference[] = [];
-      for (const definedValue of this.concat.DefinedValues) {
-          if (definedValue.ColumnReference === undefined) {
-              continue;
-          }
-
-          for (const columnReference of definedValue.ColumnReference!) {
-              let foundInOutput = false;
-
-              for (const output of this.operation.OutputList) {
-                  if (output.toString() === columnReference.toString()) {
-                      foundInOutput = true;
-                      break;
-                  }
-              }
-
-              if (!foundInOutput) {
-                  out.push(columnReference);
-              }
-          }
-      }
-
-      return out;
+      return this.concat.DefinedValues
+          .filter(i => i.ColumnReference !== undefined)
+          .map(i => i.ColumnReference as ColumnReference[])
+          .reduce((prev, cur) => prev.concat(cur))
+          .filter(i => !this.operation.OutputList.some(output => output.toString() === i.toString()));
   }
 }
 </script>

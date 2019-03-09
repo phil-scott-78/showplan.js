@@ -13,7 +13,18 @@
             <g :transform="nodeTransform(node)" @mouseover="hover(node)" @mouseout="hover(undefined)" @click="operationClicked(node)">
               <g>
                 <g fill="var(--foreground)" text-anchor="middle">
-                  <rect class="background-rect" y="0" :x="-1 * nodeWidth / 2" :stroke="getNodeColor(node)" :width="nodeWidth" :height="nodeHeight" rx="5" ry="5" :fill="getBackgroundRectFill(node)" :fill-opacity="getBackgroundRectFillOpacity(node)" :stroke-opacity="getBackgroundRectStrokeOpacity(node)"></rect>
+                  <rect class="background-rect"
+                    :x="-1 * nodeWidth / 2"
+                    y="0"
+                    rx="5"
+                    ry="5"
+                    :width="nodeWidth"
+                    :height="nodeHeight"
+                    :stroke="getNodeColor(node)"
+                    :fill="getBackgroundRectFill(node)"
+                    :fill-opacity="getBackgroundRectFillOpacity(node)"
+                    :stroke-opacity="getBackgroundRectStrokeOpacity(node)">
+                    </rect>
                   <g style="font-size:.7rem">
                     <text v-if="node.data.NodeId === -1" dy="1.6em" style="font-weight:500;font-size:1.2rem">
                       {{ statement.StatementType }}
@@ -65,7 +76,7 @@ import ZoomButtons from './ZoomButtons.vue';
 import {
     GetOperationColor, GetStateValue, GetStateValueOptions,
 } from '@/components/visualizations/VizColors';
-import { ParentRelOp, ParentRelOpAction } from './FakeParent';
+import { ParentRelOp } from './FakeParent';
 
 @Component({
     components: { ZoomButtons },
@@ -78,7 +89,11 @@ export default class OperatorFlow extends Vue {
     };
 
     private get queryPlan(): ShowPlan.QueryPlan {
-        return this.statement!.QueryPlan!;
+        if (this.statement === undefined || this.statement.QueryPlan === undefined) {
+            throw new Error('expected a stement with a queryplan but found none');
+        }
+
+        return this.statement.QueryPlan;
     }
 
     private get highlightedNode(): HierarchyPointNode<ShowPlan.RelOp> | undefined {
@@ -86,7 +101,8 @@ export default class OperatorFlow extends Vue {
             return undefined;
         }
 
-        return this.root.descendants().filter(i => i.data.NodeId === this.selectedNode!.NodeId)[0];
+        const nodeId = this.selectedNode.NodeId;
+        return this.root.descendants().filter(i => i.data.NodeId === nodeId)[0];
     }
 
   @Prop() public statement!: ShowPlan.StmtSimple;
@@ -104,11 +120,13 @@ export default class OperatorFlow extends Vue {
   private tweenedTransform = { scale: 1 };
 
   @Emit('rel-op-selected')
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public statementSelected(op: number) {
       //
   }
 
   @Emit('rel-op-highlighted')
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public statementHighlighted(op: number | undefined) {
       //
   }
@@ -120,7 +138,7 @@ export default class OperatorFlow extends Vue {
 
       return tree<ShowPlan.RelOp>()
           .nodeSize([this.nodeWidth, this.nodeHeight * 2])
-          .separation((a, b) => 1.25)(hierarchy(noop, children => children.Action.RelOp));
+          .separation(() => 1.25)(hierarchy(noop, children => children.Action.RelOp));
   }
 
   @Watch('root')
@@ -131,16 +149,16 @@ export default class OperatorFlow extends Vue {
   }
 
   @Watch('scale')
-  private scaleWatch(newValue: number, oldValue: number) {
-      let frameHandler: any;
+  private scaleWatch(newValue: number) {
+      let frameHandler: number;
 
-      function animate(currentTime: any) {
+      function animate(currentTime: number) {
           if (TWEEN.update(currentTime)) {
               frameHandler = requestAnimationFrame(animate);
           }
       }
 
-      const tween = new TWEEN.Tween(this.tweenedTransform)
+      new TWEEN.Tween(this.tweenedTransform)
           .to({ scale: newValue }, 75)
           .onComplete(() => {
               cancelAnimationFrame(frameHandler);
@@ -168,7 +186,7 @@ export default class OperatorFlow extends Vue {
               source: [link.source.x, link.source.y + this.nodeHeight],
               target: [link.target.x, link.target.y],
           },
-      )!;
+      ) as string;
   }
 
   // node styling
@@ -176,8 +194,7 @@ export default class OperatorFlow extends Vue {
       return GetOperationColor(node.data.PhysicalOp);
   }
 
-  private getLineStrokeOpacity(link: HierarchyPointLink<ShowPlan.RelOp>): number {
-      const node = link.target;
+  private getLineStrokeOpacity(): number {
       return 1;
   }
 
@@ -238,7 +255,7 @@ export default class OperatorFlow extends Vue {
           return 'var(--background)';
       }
 
-      if (node.data.NodeId === this.highlightedNode!.data.NodeId) {
+      if (node.data.NodeId === this.highlightedNode.data.NodeId) {
           return GetOperationColor(node.data.PhysicalOp);
       }
 
@@ -254,7 +271,7 @@ export default class OperatorFlow extends Vue {
           return 1;
       }
 
-      if (node.data.NodeId === this.highlightedNode!.data.NodeId) {
+      if (node.data.NodeId === this.highlightedNode.data.NodeId) {
           return 0.3;
       }
 
@@ -279,8 +296,12 @@ export default class OperatorFlow extends Vue {
   }
 
   private get chartWidth(): number {
-      const minX = min(this.nodes, d => d.x)!;
-      const maxX = max(this.nodes, d => d.x)!;
+      const minX = min(this.nodes, d => d.x);
+      const maxX = max(this.nodes, d => d.x);
+
+      if (minX === undefined || maxX === undefined) {
+          throw new Error('could not find chart width');
+      }
 
       const offset = this.scaled(this.rootRectOffsetX);
       let nudge = 0;
@@ -292,8 +313,12 @@ export default class OperatorFlow extends Vue {
   }
 
   private get chartHeight(): number {
-      const minY = min(this.nodes, d => d.y)!;
-      const maxY = max(this.nodes, d => d.y)!;
+      const minY = min(this.nodes, d => d.y);
+      const maxY = max(this.nodes, d => d.y);
+
+      if (minY === undefined || maxY === undefined) {
+          throw new Error('could not find chart height');
+      }
 
       return maxY - minY + this.scaled(this.nodeHeight * 2);
   }
@@ -308,7 +333,12 @@ export default class OperatorFlow extends Vue {
   }
 
   private get rootRectOffsetX(): number {
-      const x = min(this.nodes, d => d.x)! * -1 + this.nodeWidth;
+      const minX = min(this.nodes, d => d.x);
+      if (minX === undefined) {
+          throw new Error('Could not find chart dimensions');
+      }
+
+      const x = minX * -1 + this.nodeWidth;
       return x;
   }
 
@@ -329,8 +359,11 @@ export default class OperatorFlow extends Vue {
   }
 
   private get rowWidthScale() {
-      const minRows = min(this.nodes, n => n.data.EstimateRows)!;
-      const maxRows = max(this.nodes, n => n.data.EstimateRows)!;
+      let minRows = min(this.nodes, n => n.data.EstimateRows);
+      let maxRows = max(this.nodes, n => n.data.EstimateRows);
+
+      if (minRows === undefined) minRows = 0;
+      if (maxRows === undefined) maxRows = 20;
 
       return scaleLinear()
           .domain([minRows, maxRows])
@@ -374,7 +407,7 @@ export default class OperatorFlow extends Vue {
           return;
       }
 
-      this.statementHighlighted(op!.data.NodeId);
+      this.statementHighlighted(op.data.NodeId);
   }
 
   private operationClicked(op: HierarchyPointNode<ShowPlan.RelOp>) {

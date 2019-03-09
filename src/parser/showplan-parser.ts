@@ -16,13 +16,13 @@ class ShowPlanParser {
 
             for (let childNodeIndex = 0; childNodeIndex < childNodes.length; childNodeIndex += 1) {
                 const childNode = childNodes[childNodeIndex];
-                if (childNode.nodeType !== 1) { continue; }
-
-                const result = action(childNode as Element);
-                if (result === undefined) { continue; }
-
-                results[resultsIndex] = result;
-                resultsIndex += 1;
+                if (childNode.nodeType === 1) {
+                    const result = action(childNode as Element);
+                    if (result !== undefined) {
+                        results[resultsIndex] = result;
+                        resultsIndex += 1;
+                    }
+                }
             }
         }
 
@@ -117,7 +117,7 @@ class ShowPlanParser {
         const batchElements = doc.documentElement.getElementsByTagName('Batch');
 
         const statements: ShowPlan.BaseStmtInfo[] = [];
-        for (let count = 0; count < batchElements.length; count++) {
+        for (let count = 0; count < batchElements.length; count += 1) {
             const batchElement = batchElements.item(count);
             if (batchElement !== null) {
                 const batchStatements = this.GetBatchFromElement(batchElement);

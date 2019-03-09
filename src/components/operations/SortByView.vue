@@ -11,7 +11,7 @@
 
 <script lang='ts'>
 import {
-    Vue, Component, Prop, Watch,
+    Vue, Component, Prop,
 } from 'vue-property-decorator';
 import { RelOp, Sort, ExpandedComputedColumn } from '@/parser/showplan';
 import SqlString from './SqlString.vue';

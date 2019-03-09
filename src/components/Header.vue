@@ -30,7 +30,7 @@ export default class Header extends Vue {
 
   public loadSample() {
       const request = new XMLHttpRequest();
-      request.onload = (ev) => {
+      request.onload = () => {
           if (request.status === 200) {
               this.planChanged(request.responseText);
           }
@@ -43,6 +43,7 @@ export default class Header extends Vue {
       this.toggleTheme();
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   @Emit('plan-changed') public planChanged(plan: string | undefined) {
       //
   }

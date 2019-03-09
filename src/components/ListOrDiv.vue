@@ -20,6 +20,7 @@ import {
 @Component({
 })
 export default class ListOrDiv extends Vue {
+  // eslint-disable-next-line
   @Prop() public data!: any[];
 
   @Prop({ default: 'small' }) public listClass!: string;
