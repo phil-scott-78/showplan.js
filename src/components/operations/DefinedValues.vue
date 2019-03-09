@@ -2,7 +2,15 @@
     <div class="content max-height">
         <h4>Scalar Operations</h4>
         <ul class="small">
-            <li v-for="(op, index) in definedValues" :key="index"><sql-string :sql="getSqlString(op)" :expandedColumns="expandedColumns"></sql-string></li>
+            <li
+                v-for="(op, index) in definedValues"
+                :key="index"
+            >
+                <sql-string
+                    :sql="getSqlString(op)"
+                    :expanded-columns="expandedColumns"
+                />
+            </li>
         </ul>
     </div>
 </template>

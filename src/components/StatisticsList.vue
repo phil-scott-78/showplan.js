@@ -1,11 +1,14 @@
 <template>
     <div class="content">
-        <table class="data" >
+        <table class="data">
             <thead>
                 <tr><th>Statistics</th><th>Schema</th><th>Database</th><th>Sampling</th><th>Modification Count</th><th>Last Update</th></tr>
             </thead>
             <tbody>
-                <tr v-for="(stats, index) in statement.QueryPlan.OptimizerStatsUsage.StatisticsInfo" :key="index">
+                <tr
+                    v-for="(stats, index) in statement.QueryPlan.OptimizerStatsUsage.StatisticsInfo"
+                    :key="index"
+                >
                     <td>{{ stats.Statistics }} </td>
                     <td>{{ stats.Schema }} </td>
                     <td>{{ stats.Database }} </td>

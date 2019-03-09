@@ -1,5 +1,9 @@
 <template>
-    <span v-if="value !== undefined" class="pill" :class="{ 'on': value === true }"><slot></slot></span>
+    <span
+        v-if="value !== undefined"
+        class="pill"
+        :class="{ 'on': value === true }"
+    ><slot /></span>
 </template>
 
 <script lang='ts'>

@@ -1,10 +1,31 @@
 <template>
-    <div id="app" :class="theme">
+    <div
+        id="app"
+        :class="theme"
+    >
         <div id="container">
-            <header-menu @plan-changed="planXmlChanged" @toggle-theme="toggleTheme" :darkMode="darkMode" :currentPlan="showPlan"></header-menu>
-            <div class="message warning" v-if="errorMessage !== undefined">{{ errorMessage }}</div>
-            <component :is="currentComponent" :statement="currentStatement" :showPlan="showPlan" @showplan-changed="planXmlChanged" @showplan-statement-changed="statementChanged"></component>
-            <p class="footer">Everything is ran in browser so no files will be uploaded. I can't afford the storage space anyways</p>
+            <header-menu
+                :dark-mode="darkMode"
+                :current-plan="showPlan"
+                @plan-changed="planXmlChanged"
+                @toggle-theme="toggleTheme"
+            />
+            <div
+                v-if="errorMessage !== undefined"
+                class="message warning"
+            >
+                {{ errorMessage }}
+            </div>
+            <component
+                :is="currentComponent"
+                :statement="currentStatement"
+                :show-plan="showPlan"
+                @showplan-changed="planXmlChanged"
+                @showplan-statement-changed="statementChanged"
+            />
+            <p class="footer">
+                Everything is ran in browser so no files will be uploaded. I can't afford the storage space anyways
+            </p>
         </div>
     </div>
 </template>

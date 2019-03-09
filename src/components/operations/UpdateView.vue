@@ -1,19 +1,31 @@
 <template>
     <div>
         <div v-if="update.Object !== undefined">
-            <div v-for="(object, index) in update.Object" :key="index" class="content">
+            <div
+                v-for="(object, index) in update.Object"
+                :key="index"
+                class="content"
+            >
                 <h4>{{ object.IndexKind }} Update</h4>
                 <ul class="small">
-                    <li><sql-string :sql="object.getFullTableName()"></sql-string></li>
-                    <li v-if="object.Index !== undefined"><sql-string :sql="object.Index"></sql-string></li>
+                    <li><sql-string :sql="object.getFullTableName()" /></li>
+                    <li v-if="object.Index !== undefined">
+                        <sql-string :sql="object.Index" />
+                    </li>
                 </ul>
             </div>
         </div>
-        <div v-if="update.SetPredicate !== undefined" class="content max-height">
+        <div
+            v-if="update.SetPredicate !== undefined"
+            class="content max-height"
+        >
             <h4>Set Predicate</h4>
             <list-or-div :data="update.SetPredicate">
                 <template slot-scope="{ item }">
-                    <sql-string :sql="'SET ' +  item.ScalarOperator.ScalarString" :expandedColumns="expandedChildColumns"></sql-string>
+                    <sql-string
+                        :sql="'SET ' + item.ScalarOperator.ScalarString"
+                        :expanded-columns="expandedChildColumns"
+                    />
                 </template>
             </list-or-div>
         </div>

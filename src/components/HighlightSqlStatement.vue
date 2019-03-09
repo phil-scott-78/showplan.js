@@ -1,6 +1,7 @@
 <template>
     <div class="content">
-        <pre><code v-html="formattedCode()"></code></pre>
+        <!-- eslint-disable-next-line vue/no-v-html -->
+        <pre><code v-html="formattedCode()" /></pre>
     </div>
 </template>
 

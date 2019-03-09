@@ -1,33 +1,92 @@
 <template>
     <div class="wrapper">
         <div class="zoom-buttons">
-            <zoom-buttons @zoom-in="zoom(.1)" @zoom-out="zoom(-.1)"></zoom-buttons>
+            <zoom-buttons
+                @zoom-in="zoom(.1)"
+                @zoom-out="zoom(-.1)"
+            />
         </div>
-        <div v-dragscroll ref="chartWrapper" class="chart-wrapper" >
-            <svg ref="chart" class="chart" :style="chartStyle">
-                <g ref="chartG" :transform="chartTransform">
-                    <g class="connector-link" v-for="(link, index) in links" :key="'link' + index" :stroke="getStrokeColor(link)" fill="none" :stroke-width="getLineStrokeWidth(link)" stroke-linecap="round" >
-                        <path :d="linkPath(link)"></path>
+        <div
+            ref="chartWrapper"
+            v-dragscroll
+            class="chart-wrapper"
+        >
+            <svg
+                ref="chart"
+                class="chart"
+                :style="chartStyle"
+            >
+                <g
+                    ref="chartG"
+                    :transform="chartTransform"
+                >
+                    <g
+                        v-for="(link, index) in links"
+                        :key="'link' + index"
+                        class="connector-link"
+                        :stroke="getStrokeColor(link)"
+                        fill="none"
+                        :stroke-width="getLineStrokeWidth(link)"
+                        stroke-linecap="round"
+                    >
+                        <path :d="linkPath(link)" />
                     </g>
-                    <g v-for="(node, index) in nodes" :key="'node' + index" >
-                        <g :transform="nodeTransform(node)" @mouseover="hover(node)" @mouseout="hover(undefined)" @click="operationClicked(node)">
+                    <g
+                        v-for="(node, index) in nodes"
+                        :key="'node' + index"
+                    >
+                        <g
+                            :transform="nodeTransform(node)"
+                            @mouseover="hover(node)"
+                            @mouseout="hover(undefined)"
+                            @click="operationClicked(node)"
+                        >
                             <g>
-                                <g fill="var(--foreground)" text-anchor="middle" >
-                                    <rect class="background-rect" y="1.6em" :x="-1 * nodeWidth / 2" :width="nodeWidth" :height="nodeHeight" rx="5" ry="5" stroke="var(--alt-border)"  fill="var(--alt-background)" :opacity="getBackgroundRectOpacity(node)"></rect>
-                                    <text dy="3em" style="font-size:.7rem">
+                                <g
+                                    fill="var(--foreground)"
+                                    text-anchor="middle"
+                                >
+                                    <rect
+                                        class="background-rect"
+                                        y="1.6em"
+                                        :x="-1 * nodeWidth / 2"
+                                        :width="nodeWidth"
+                                        :height="nodeHeight"
+                                        rx="5"
+                                        ry="5"
+                                        stroke="var(--alt-border)"
+                                        fill="var(--alt-background)"
+                                        :opacity="getBackgroundRectOpacity(node)"
+                                    />
+                                    <text
+                                        dy="3em"
+                                        style="font-size:.7rem"
+                                    >
                                         {{ (node.data.NodeId === -1) ? statement.StatementType : node.data.PhysicalOp }}
                                     </text>
-                                    <g style="font-size:.6rem" opacity=".5" >
-                                        <text v-if="node.data.NodeId !== -1 && node.data.SecondaryDesc != node.data.PhysicalOp" dy="5em">
+                                    <g
+                                        style="font-size:.6rem"
+                                        opacity=".5"
+                                    >
+                                        <text
+                                            v-if="node.data.NodeId !== -1 && node.data.SecondaryDesc != node.data.PhysicalOp"
+                                            dy="5em"
+                                        >
                                             {{ node.data.SecondaryDesc | maxLength }}
                                         </text>
-                                        <text v-if="node.data.NodeId !== -1 &&  node.data.ThirdLevelDesc !== undefined" dy="6em">
+                                        <text
+                                            v-if="node.data.NodeId !== -1 && node.data.ThirdLevelDesc !== undefined"
+                                            dy="6em"
+                                        >
                                             {{ node.data.ThirdLevelDesc | maxLength }}
                                         </text>
                                     </g>
                                 </g>
                             </g>
-                            <circle :r="getNodeSize(node)" :fill="getNodeColor(node)" ></circle>
+                            <circle
+                                :r="getNodeSize(node)"
+                                :fill="getNodeColor(node)"
+                            />
                         </g>
                     </g>
                 </g>

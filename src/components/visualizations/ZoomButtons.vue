@@ -1,7 +1,11 @@
 <template>
     <div>
-        <button @click="zoomOut"><font-awesome-icon :icon="['fa', 'search-minus']" /></button>
-        <button @click="zoomIn"><font-awesome-icon :icon="['fa', 'search-plus']" /></button>
+        <button @click="zoomOut">
+            <font-awesome-icon :icon="['fa', 'search-minus']" />
+        </button>
+        <button @click="zoomIn">
+            <font-awesome-icon :icon="['fa', 'search-plus']" />
+        </button>
     </div>
 </template>
 

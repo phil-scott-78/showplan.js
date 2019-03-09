@@ -1,16 +1,23 @@
 <template>
     <div class="content">
-        <table class="data" >
+        <table class="data">
             <thead>
                 <tr><th>Impact</th><th>Index</th></tr>
             </thead>
             <tbody>
-                <tr v-for="(indexGroup, indexGroupIndex) in statement.QueryPlan.MissingIndexes.MissingIndexGroup" :key="indexGroupIndex">
-                    <td>{{ indexGroup.Impact  | filterSigfig }}</td>
+                <tr
+                    v-for="(indexGroup, indexGroupIndex) in statement.QueryPlan.MissingIndexes.MissingIndexGroup"
+                    :key="indexGroupIndex"
+                >
+                    <td>{{ indexGroup.Impact | filterSigfig }}</td>
                     <td>
-                        <list-or-div :data="indexGroup.MissingIndex" list-class="" div-class="">
+                        <list-or-div
+                            :data="indexGroup.MissingIndex"
+                            list-class=""
+                            div-class=""
+                        >
                             <template slot-scope="{ item }">
-                                <code><sql-string :sql="item.toCreateIndexString()"></sql-string></code>
+                                <code><sql-string :sql="item.toCreateIndexString()" /></code>
                             </template>
                         </list-or-div>
                     </td>

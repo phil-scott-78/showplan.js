@@ -1,19 +1,54 @@
 <template>
     <div class="container">
         <!--UPLOAD-->
-        <form class="upload-form" enctype="multipart/form-data" novalidate>
-            <div v-if="showPasteTextBox === false" class="dropbox">
+        <form
+            class="upload-form"
+            enctype="multipart/form-data"
+            novalidate
+        >
+            <div
+                v-if="showPasteTextBox === false"
+                class="dropbox"
+            >
                 <div>
-                    <font-awesome-icon icon="cloud-upload-alt" size="6x"></font-awesome-icon>
+                    <font-awesome-icon
+                        icon="cloud-upload-alt"
+                        size="6x"
+                    />
                 </div>
                 <h4>Click or Drop .SQLPLAN</h4>
-                <input type="file" @change="filesChange($event.target.files);" class="input-file">
+                <input
+                    type="file"
+                    class="input-file"
+                    @change="filesChange($event.target.files);"
+                >
             </div>
-            <div v-else class="dropbox">
-                <textarea placeholder="Paste your plan" rows="10" id="planTextBox" ref="planTextBox" name="planTextBox" autofocus @paste="onPaste"></textarea>
+            <div
+                v-else
+                class="dropbox"
+            >
+                <textarea
+                    id="planTextBox"
+                    ref="planTextBox"
+                    placeholder="Paste your plan"
+                    rows="10"
+                    name="planTextBox"
+                    autofocus
+                    @paste="onPaste"
+                />
             </div>
-            <p v-if="showPasteTextBox === false" style="text-align:center">Or <a @click="togglePaste(true)">paste</a> a plan</p>
-            <p v-else style="text-align:center">Or <a @click="togglePaste(false)">upload</a> a plan</p>
+            <p
+                v-if="showPasteTextBox === false"
+                style="text-align:center"
+            >
+                Or <a @click="togglePaste(true)">paste</a> a plan
+            </p>
+            <p
+                v-else
+                style="text-align:center"
+            >
+                Or <a @click="togglePaste(false)">upload</a> a plan
+            </p>
         </form>
     </div>
 </template>

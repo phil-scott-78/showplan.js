@@ -1,19 +1,42 @@
 <template>
-    <span v-if="showPlan.Batches[0].Statements.length > 1" style="margin-left:.5rem;position:relative;font-size:1.3rem;verticle-align:middle">
-        <a class="icon" @click="showDrop"><font-awesome-icon icon="chevron-circle-down" title="Switch Plans"></font-awesome-icon></a>
+    <span
+        v-if="showPlan.Batches[0].Statements.length > 1"
+        style="margin-left:.5rem;position:relative;font-size:1.3rem;verticle-align:middle"
+    >
+        <a
+            class="icon"
+            @click="showDrop"
+        ><font-awesome-icon
+            icon="chevron-circle-down"
+            title="Switch Plans"
+        /></a>
         <dropdown ref="drop">
             <div class="selectPlan">
-                <div v-for="(batch, batchIndex) in showPlan.Batches" :key="batchIndex" class="batch">
+                <div
+                    v-for="(batch, batchIndex) in showPlan.Batches"
+                    :key="batchIndex"
+                    class="batch"
+                >
                     <h4 v-if="showPlan.Batches.length > 1">{{ batchIndex + 1 | ordinal }} Batch</h4>
                     <h4 v-else>Switch Plan</h4>
                     <ul>
-                        <li v-for="(statement) in batch.Statements" :key="statement.Guid" @click="selectChanged(statement.Guid)">
+                        <li
+                            v-for="(statement) in batch.Statements"
+                            :key="statement.Guid"
+                            @click="selectChanged(statement.Guid)"
+                        >
                             <div class="text">
-                                <sql-string v-if="statement.StatementText !== undefined" :sql="statement.StatementText.trim().substring(0,100)"></sql-string>
+                                <sql-string
+                                    v-if="statement.StatementText !== undefined"
+                                    :sql="statement.StatementText.trim().substring(0,100)"
+                                />
                                 <span v-else>(unknown query statement text)</span>
                             </div>
                             <div class="stats">
-                                <span v-if="statement.QueryPlan !== undefined" class='stats'>
+                                <span
+                                    v-if="statement.QueryPlan !== undefined"
+                                    class="stats"
+                                >
                                     <span v-if="statement.StatementSubTreeCost !== undefined">Sub Tree Cost: <strong>{{ statement.StatementSubTreeCost }}</strong> ({{ statement.CostPercentOfBatch() | filterPercent }})
                                     </span>
                                 </span>

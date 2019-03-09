@@ -2,7 +2,15 @@
     <div class="content">
         <h4>Concatenated Columns</h4>
         <ul class="small">
-            <li v-for="(column, index) in concatColumns" :key="index"><sql-string :sql="column.toString()" :expandedColumns="expandedChildColumns"></sql-string></li>
+            <li
+                v-for="(column, index) in concatColumns"
+                :key="index"
+            >
+                <sql-string
+                    :sql="column.toString()"
+                    :expanded-columns="expandedChildColumns"
+                />
+            </li>
         </ul>
     </div>
 </template>

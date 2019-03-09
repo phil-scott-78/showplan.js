@@ -1,24 +1,61 @@
 <template>
     <div class="chart-wrapper">
-        <svg :width="width" :height="width" :viewBox="viewBox">
+        <svg
+            :width="width"
+            :height="width"
+            :viewBox="viewBox"
+        >
             <g>
                 <g>
-                    <g class="slice" v-for="(line, index) in lines" :key="index" :title="line.data.LogicalOp"
-                       @mouseout="hover(undefined)" @mouseover="hover(line)" @click="operationClicked(line)">
-                        <path :d="arc(line)" class="main-arc" :stroke="getStroke(line)"
-                              :stroke-opacity="getStrokeOpacity(line)" :fill-opacity="getOpacity(line)"
-                              :fill="getFill(line)"></path>
-                        <path :d="middleArc(line)" class="hidden-arc"
-                              :id="'hiddenTextArc' + index + statement.QueryHash"></path>
-                        <polygon v-if="line.data.Warnings !== undefined" :transform="getIconLocation(line)"
-                                 fill="var(--orange)" stroke="var(--alt-background)" points="0,-5 -5,5 5,5"></polygon>
-                        <text v-if="line.data.NodeId == -1" text-anchor="middle" fill="var(--foreground)"
-                              alignment-baseline="middle" style="font-weight:normal;font-size:1.5rem">{{
-                                  statement.StatementType }}
+                    <g
+                        v-for="(line, index) in lines"
+                        :key="index"
+                        class="slice"
+                        :title="line.data.LogicalOp"
+                        @mouseout="hover(undefined)"
+                        @mouseover="hover(line)"
+                        @click="operationClicked(line)"
+                    >
+                        <path
+                            :d="arc(line)"
+                            class="main-arc"
+                            :stroke="getStroke(line)"
+                            :stroke-opacity="getStrokeOpacity(line)"
+                            :fill-opacity="getOpacity(line)"
+                            :fill="getFill(line)"
+                        />
+                        <path
+                            :id="'hiddenTextArc' + index + statement.QueryHash"
+                            :d="middleArc(line)"
+                            class="hidden-arc"
+                        />
+                        <polygon
+                            v-if="line.data.Warnings !== undefined"
+                            :transform="getIconLocation(line)"
+                            fill="var(--orange)"
+                            stroke="var(--alt-background)"
+                            points="0,-5 -5,5 5,5"
+                        />
+                        <text
+                            v-if="line.data.NodeId == -1"
+                            text-anchor="middle"
+                            fill="var(--foreground)"
+                            alignment-baseline="middle"
+                            style="font-weight:normal;font-size:1.5rem"
+                        >{{
+                            statement.StatementType }}
                         </text>
-                        <text v-else-if="textFits(line)" class="operationName" dominant-baseline="middle"
-                              :fill="getLabelColor(line)" :style="{ fontSize: (y(line.y1) - y(line.y0)) / 2 + 'px' }">
-                            <textPath startOffset="50%" :href="'#hiddenTextArc' + index + statement.QueryHash">
+                        <text
+                            v-else-if="textFits(line)"
+                            class="operationName"
+                            dominant-baseline="middle"
+                            :fill="getLabelColor(line)"
+                            :style="{ fontSize: (y(line.y1) - y(line.y0)) / 2 + 'px' }"
+                        >
+                            <textPath
+                                startOffset="50%"
+                                :href="'#hiddenTextArc' + index + statement.QueryHash"
+                            >
                                 {{ line.data.LogicalOp }}
                             </textPath>
                         </text>

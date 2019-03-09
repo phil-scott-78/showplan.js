@@ -1,5 +1,6 @@
 <template>
-    <span v-html="formatSql(sql)"></span>
+    <!-- eslint-disable-next-line vue/no-v-html -->
+    <span v-html="formatSql(sql)" />
 </template>
 
 <script lang='ts'>

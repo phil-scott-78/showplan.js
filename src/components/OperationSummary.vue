@@ -1,24 +1,46 @@
 <template>
     <div class="opSummary card">
         <div class="content header">
-            <div class="progress-circle" :class="progressPercent" style="float:right">
-                <div class="progress-number">{{ operation.EstimateTotalCost / statement.StatementSubTreeCost | filterPercent }}</div>
+            <div
+                class="progress-circle"
+                :class="progressPercent"
+                style="float:right"
+            >
+                <div class="progress-number">
+                    {{ operation.EstimateTotalCost / statement.StatementSubTreeCost | filterPercent }}
+                </div>
             </div>
             <h3>{{ headingText }}</h3>
-            <div class="meta" v-if="getSubHeadingText !== undefined" :title="getSubHeadingText | stripBrackets">{{ getSubHeadingText | stripBrackets }}</div>
+            <div
+                v-if="getSubHeadingText !== undefined"
+                class="meta"
+                :title="getSubHeadingText | stripBrackets"
+            >
+                {{ getSubHeadingText | stripBrackets }}
+            </div>
         </div>
         <div v-if="selectedTab === 'overview'">
-            <warnings v-if="operation.Warnings !== undefined" :warnings="operation.Warnings"></warnings>
+            <warnings
+                v-if="operation.Warnings !== undefined"
+                :warnings="operation.Warnings"
+            />
 
-            <component v-if="additionalInfoComponent !== undefined" :is="additionalInfoComponent" :operation="operation"></component>
+            <component
+                :is="additionalInfoComponent"
+                v-if="additionalInfoComponent !== undefined"
+                :operation="operation"
+            />
 
             <div class="content">
                 <ul class="stats">
-                    <li>Cost: <strong>{{ operation.EstimateTotalCost | filterSigfig}}</strong> (CPU: {{ operation.EstimateCPU | filterSigfig }}, IO: {{ operation.EstimateIO | filterSigfig }})</li>
+                    <li>Cost: <strong>{{ operation.EstimateTotalCost | filterSigfig }}</strong> (CPU: {{ operation.EstimateCPU | filterSigfig }}, IO: {{ operation.EstimateIO | filterSigfig }})</li>
                     <li>Subtree: <strong>{{ operation.EstimatedTotalSubtreeCost | filterSigfig }}</strong></li>
                 </ul>
             </div>
-            <div v-if="runtimeCountersSummary !== undefined && runtimeCountersSummary.ActualRows !== undefined" class="content">
+            <div
+                v-if="runtimeCountersSummary !== undefined && runtimeCountersSummary.ActualRows !== undefined"
+                class="content"
+            >
                 <ul class="stats">
                     <li>Actual Rows: <strong>{{ runtimeCountersSummary.ActualRows | filterInteger }}</strong></li>
                     <li>Row Size: <strong>{{ operation.AvgRowSize | filterBytes }}</strong></li>
@@ -34,11 +56,23 @@
             </div>
             <div class="content max-height">
                 <h4>Output</h4>
-                <div class="small" v-for="(key, index) in groupedOutput" :key="index">
-                    <span v-if="key.key !== ''"><sql-string :sql="key.key"></sql-string></span>
+                <div
+                    v-for="(key, index) in groupedOutput"
+                    :key="index"
+                    class="small"
+                >
+                    <span v-if="key.key !== ''"><sql-string :sql="key.key" /></span>
                     <span v-else>Computed</span>
                     <ul class="comma-list">
-                        <li v-for="(member, memberIndex) in key.members" :key="memberIndex"><sql-string :sql="member.Column" :expandedColumns="expandedColumns"></sql-string></li>
+                        <li
+                            v-for="(member, memberIndex) in key.members"
+                            :key="memberIndex"
+                        >
+                            <sql-string
+                                :sql="member.Column"
+                                :expanded-columns="expandedColumns"
+                            />
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -52,50 +86,84 @@
                 </ul>
             </div>
             <div v-if="runtimeCountersSummary !== undefined">
-                <div v-if="runtimeCountersSummary.ActualRebinds !== undefined" class="content">
+                <div
+                    v-if="runtimeCountersSummary.ActualRebinds !== undefined"
+                    class="content"
+                >
                     <ul class="stats">
                         <li>Actual Rebinds: <strong>{{ runtimeCountersSummary.ActualRebinds | filterInteger }}</strong></li>
                         <li>Actual Rewinds: <strong>{{ runtimeCountersSummary.ActualRewinds | filterInteger }}</strong></li>
                     </ul>
                 </div>
-                <div v-if="runtimeCountersSummary.ActualElapsedms !== undefined" class="content">
+                <div
+                    v-if="runtimeCountersSummary.ActualElapsedms !== undefined"
+                    class="content"
+                >
                     <ul class="stats">
                         <li>Elapsed: <strong>{{ runtimeCountersSummary.ActualElapsedms | filterInteger }}</strong>ms</li>
-                        <li v-if="runtimeCountersSummary.ActualCPUms !== undefined">CPU: <strong>{{ runtimeCountersSummary.ActualCPUms | filterInteger }}</strong>ms</li>
+                        <li v-if="runtimeCountersSummary.ActualCPUms !== undefined">
+                            CPU: <strong>{{ runtimeCountersSummary.ActualCPUms | filterInteger }}</strong>ms
+                        </li>
                     </ul>
                 </div>
-                <div v-if="runtimeCountersSummary.ActualLogicalReads !== undefined" class="content">
+                <div
+                    v-if="runtimeCountersSummary.ActualLogicalReads !== undefined"
+                    class="content"
+                >
                     <h4>Reads</h4>
                     <ul class="stats">
-                        <li v-if="runtimeCountersSummary.ActualLogicalReads !== undefined">Logical: <strong>{{ runtimeCountersSummary.ActualLogicalReads | filterInteger }}</strong></li>
-                        <li v-if="runtimeCountersSummary.ActualPhysicalReads !== undefined">Physical: <strong>{{ runtimeCountersSummary.ActualPhysicalReads | filterInteger }}</strong></li>
-                        <li v-if="runtimeCountersSummary.ActualReadAheads !== undefined">Read Aheads: <strong>{{ runtimeCountersSummary.ActualReadAheads | filterInteger }}</strong></li>
+                        <li v-if="runtimeCountersSummary.ActualLogicalReads !== undefined">
+                            Logical: <strong>{{ runtimeCountersSummary.ActualLogicalReads | filterInteger }}</strong>
+                        </li>
+                        <li v-if="runtimeCountersSummary.ActualPhysicalReads !== undefined">
+                            Physical: <strong>{{ runtimeCountersSummary.ActualPhysicalReads | filterInteger }}</strong>
+                        </li>
+                        <li v-if="runtimeCountersSummary.ActualReadAheads !== undefined">
+                            Read Aheads: <strong>{{ runtimeCountersSummary.ActualReadAheads | filterInteger }}</strong>
+                        </li>
                     </ul>
                 </div>
-                <div v-if="runtimeCountersSummary.ActualLobLogicalReads !== undefined" class="content">
+                <div
+                    v-if="runtimeCountersSummary.ActualLobLogicalReads !== undefined"
+                    class="content"
+                >
                     <h4>Large Object Reads</h4>
                     <ul class="stats">
-                        <li v-if="runtimeCountersSummary.ActualLobLogicalReads !== undefined">Logical: <strong>{{ runtimeCountersSummary.ActualLobLogicalReads | filterInteger }}</strong></li>
-                        <li v-if="runtimeCountersSummary.ActualLobPhysicalReads !== undefined">Physical: <strong>{{ runtimeCountersSummary.ActualLobPhysicalReads | filterInteger }}</strong></li>
-                        <li v-if="runtimeCountersSummary.ActualLobReadAheads !== undefined">Read Aheads: <strong>{{ runtimeCountersSummary.ActualLobReadAheads | filterInteger }}</strong></li>
+                        <li v-if="runtimeCountersSummary.ActualLobLogicalReads !== undefined">
+                            Logical: <strong>{{ runtimeCountersSummary.ActualLobLogicalReads | filterInteger }}</strong>
+                        </li>
+                        <li v-if="runtimeCountersSummary.ActualLobPhysicalReads !== undefined">
+                            Physical: <strong>{{ runtimeCountersSummary.ActualLobPhysicalReads | filterInteger }}</strong>
+                        </li>
+                        <li v-if="runtimeCountersSummary.ActualLobReadAheads !== undefined">
+                            Read Aheads: <strong>{{ runtimeCountersSummary.ActualLobReadAheads | filterInteger }}</strong>
+                        </li>
                     </ul>
                 </div>
             </div>
         </div>
         <div v-else>
             <div class="content raw-data">
-                <tree-view :data="shallowOperation"></tree-view>
+                <tree-view :data="shallowOperation" />
             </div>
         </div>
         <div class="footer">
             <div class="buttons">
-                <a @click="selectedTab='overview'" :class="{ 'selected': selectedTab === 'overview' }">Overview</a>
-                <a @click="selectedTab='advanced'" :class="{ 'selected': selectedTab === 'advanced' }">Advanced</a>
-                <a @click="selectedTab = 'raw'" :class="{ 'selected': selectedTab === 'raw' }">Raw</a>
+                <a
+                    :class="{ 'selected': selectedTab === 'overview' }"
+                    @click="selectedTab='overview'"
+                >Overview</a>
+                <a
+                    :class="{ 'selected': selectedTab === 'advanced' }"
+                    @click="selectedTab='advanced'"
+                >Advanced</a>
+                <a
+                    :class="{ 'selected': selectedTab === 'raw' }"
+                    @click="selectedTab = 'raw'"
+                >Raw</a>
             </div>
         </div>
     </div>
-
 </template>
 
 <script lang='ts'>

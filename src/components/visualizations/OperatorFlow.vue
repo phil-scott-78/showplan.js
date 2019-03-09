@@ -1,51 +1,100 @@
 <template>
     <div class="wrapper">
         <div class="zoom-buttons">
-            <zoom-buttons @zoom-in="zoom(.1)" @zoom-out="zoom(-.1)"></zoom-buttons>
+            <zoom-buttons
+                @zoom-in="zoom(.1)"
+                @zoom-out="zoom(-.1)"
+            />
         </div>
-        <div v-dragscroll ref="chartWrapper" class="chart-wrapper">
-            <svg ref="chart" :style="chartStyle" >
-                <g ref="chartG" :transform="chartTransform">
-                    <g class="connector-link" v-for="(link, index) in links" :key="'link' + index" :stroke="getStrokeColor(link)" fill="none" :stroke-width="getLineStrokeWidth(link)" stroke-linecap="round" >
-                        <path :d="linkPath(link)"></path>
+        <div
+            ref="chartWrapper"
+            v-dragscroll
+            class="chart-wrapper"
+        >
+            <svg
+                ref="chart"
+                :style="chartStyle"
+            >
+                <g
+                    ref="chartG"
+                    :transform="chartTransform"
+                >
+                    <g
+                        v-for="(link, index) in links"
+                        :key="'link' + index"
+                        class="connector-link"
+                        :stroke="getStrokeColor(link)"
+                        fill="none"
+                        :stroke-width="getLineStrokeWidth(link)"
+                        stroke-linecap="round"
+                    >
+                        <path :d="linkPath(link)" />
                     </g>
-                    <g v-for="(node, index) in nodes" :key="'node' + index" >
-                        <g :transform="nodeTransform(node)" @mouseover="hover(node)" @mouseout="hover(undefined)" @click="operationClicked(node)">
+                    <g
+                        v-for="(node, index) in nodes"
+                        :key="'node' + index"
+                    >
+                        <g
+                            :transform="nodeTransform(node)"
+                            @mouseover="hover(node)"
+                            @mouseout="hover(undefined)"
+                            @click="operationClicked(node)"
+                        >
                             <g>
-                                <g fill="var(--foreground)" text-anchor="middle">
-                                    <rect class="background-rect"
-                                          :x="-1 * nodeWidth / 2"
-                                          y="0"
-                                          rx="5"
-                                          ry="5"
-                                          :width="nodeWidth"
-                                          :height="nodeHeight"
-                                          :stroke="getNodeColor(node)"
-                                          :fill="getBackgroundRectFill(node)"
-                                          :fill-opacity="getBackgroundRectFillOpacity(node)"
-                                          :stroke-opacity="getBackgroundRectStrokeOpacity(node)">
-                                    </rect>
+                                <g
+                                    fill="var(--foreground)"
+                                    text-anchor="middle"
+                                >
+                                    <rect
+                                        class="background-rect"
+                                        :x="-1 * nodeWidth / 2"
+                                        y="0"
+                                        rx="5"
+                                        ry="5"
+                                        :width="nodeWidth"
+                                        :height="nodeHeight"
+                                        :stroke="getNodeColor(node)"
+                                        :fill="getBackgroundRectFill(node)"
+                                        :fill-opacity="getBackgroundRectFillOpacity(node)"
+                                        :stroke-opacity="getBackgroundRectStrokeOpacity(node)"
+                                    />
                                     <g style="font-size:.7rem">
-                                        <text v-if="node.data.NodeId === -1" dy="1.6em" style="font-weight:500;font-size:1.2rem">
+                                        <text
+                                            v-if="node.data.NodeId === -1"
+                                            dy="1.6em"
+                                            style="font-weight:500;font-size:1.2rem"
+                                        >
                                             {{ statement.StatementType }}
                                         </text>
                                         <g v-else>
-                                            <text dy="1.5em" >
+                                            <text dy="1.5em">
                                                 {{ (node.data.NodeId === -1) ? statement.StatementType : node.data.PhysicalOp }}
                                             </text>
-                                            <text x="75" dy="1.5em" text-anchor="right" :style="node.data.EstimateTotalCost / statement.StatementSubTreeCost < .25 ? 'fill:var(--foreground)' : 'fill:var(--red)'" v-if="node.data.NodeId !== -1">
+                                            <text
+                                                v-if="node.data.NodeId !== -1"
+                                                x="75"
+                                                dy="1.5em"
+                                                text-anchor="right"
+                                                :style="node.data.EstimateTotalCost / statement.StatementSubTreeCost < .25 ? 'fill:var(--foreground)' : 'fill:var(--red)'"
+                                            >
                                                 {{ node.data.EstimateTotalCost / statement.StatementSubTreeCost | filterPercent }}
                                             </text>
                                         </g>
                                     </g>
-                                    <g v-if="node.data.NodeId !== -1" style="font-size:.6rem" opacity=".5" >
-                                        <text v-if=" node.data.SecondaryDesc != node.data.PhysicalOp"
-                                              dy="3em"
+                                    <g
+                                        v-if="node.data.NodeId !== -1"
+                                        style="font-size:.6rem"
+                                        opacity=".5"
+                                    >
+                                        <text
+                                            v-if=" node.data.SecondaryDesc != node.data.PhysicalOp"
+                                            dy="3em"
                                         >
-                                            {{ node.data.SecondaryDesc | maxLength}}
+                                            {{ node.data.SecondaryDesc | maxLength }}
                                         </text>
-                                        <text v-if="node.data.ThirdLevelDesc !== undefined"
-                                              dy="4em"
+                                        <text
+                                            v-if="node.data.ThirdLevelDesc !== undefined"
+                                            dy="4em"
                                         >
                                             {{ node.data.ThirdLevelDesc | maxLength }}
                                         </text>

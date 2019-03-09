@@ -1,12 +1,27 @@
 <template>
     <div>
-        <div class="content" v-if="stremAggregate.GroupBy !== undefined && stremAggregate.GroupBy.length > 0">
+        <div
+            v-if="stremAggregate.GroupBy !== undefined && stremAggregate.GroupBy.length > 0"
+            class="content"
+        >
             <h4>Group By</h4>
             <ul class="small">
-                <li v-for="(column, index) in stremAggregate.GroupBy" :key="index"><sql-string :sql="column.toString()" :expandedColumns="expandedChildColumns"></sql-string></li>
+                <li
+                    v-for="(column, index) in stremAggregate.GroupBy"
+                    :key="index"
+                >
+                    <sql-string
+                        :sql="column.toString()"
+                        :expanded-columns="expandedChildColumns"
+                    />
+                </li>
             </ul>
         </div>
-        <defined-values v-if="stremAggregate.DefinedValues !== undefined && stremAggregate.DefinedValues.length > 0" :definedValues="stremAggregate.DefinedValues" :expandedColumns="expandedChildColumns"></defined-values>
+        <defined-values
+            v-if="stremAggregate.DefinedValues !== undefined && stremAggregate.DefinedValues.length > 0"
+            :defined-values="stremAggregate.DefinedValues"
+            :expanded-columns="expandedChildColumns"
+        />
     </div>
 </template>
 

@@ -1,6 +1,6 @@
 <template>
     <component :is="tag">
-        <slot/>
+        <slot />
     </component>
 </template>
 
@@ -15,7 +15,10 @@ export default {
             type: String,
             default: 'div',
         },
-        options: Object,
+        options: {
+            type: Object,
+            default: undefined,
+        },
     },
     mounted() {
         if (this.options === undefined) {

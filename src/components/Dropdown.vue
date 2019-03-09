@@ -7,8 +7,12 @@ we need that for themeing to work
 
 <template>
     <transition :name="animate">
-        <div :class="[dropdownClass,{'v-dropdown-embed': embed}]" :style="[styleSheet]" v-show="show">
-            <slot></slot>
+        <div
+            v-show="show"
+            :class="[dropdownClass,{'v-dropdown-embed': embed}]"
+            :style="[styleSheet]"
+        >
+            <slot />
         </div>
     </transition>
 </template>
@@ -16,7 +20,7 @@ we need that for themeing to work
 <script>
 
 export default {
-    name: 'v-dropdown',
+    name: 'VDropdown',
     props: {
         align: {
             type: String,
@@ -46,9 +50,18 @@ export default {
      * the width of drop down menu
      * min-width: 80
      */
-        width: Number,
-        x: Number,
-        y: Number,
+        width: {
+            type: Number,
+            default: undefined,
+        },
+        x: {
+            type: Number,
+            default: undefined,
+        },
+        y: {
+            type: Number,
+            default: undefined,
+        },
     },
     data() {
         return {
@@ -66,6 +79,26 @@ export default {
             if (typeof this.animated === 'string') { cls = this.animated; }
             return cls;
         },
+    },
+    created() {
+        this.MouseEventPolyfill();
+    },
+    mounted() {
+        if (this.width) { this.styleSheet.width = `${this.width}px`; }
+        if (this.embed) { this.visible(); } else {
+            this.$root.$el.appendChild(this.$el);
+            this.$on('show', this.visible);
+            this.$on('adjust', this.adjust);
+            document.body.addEventListener('mousedown', this.whole);
+        }
+    },
+    destroyed() {
+        if (!this.embed) {
+            document.body.removeEventListener('mousedown', this.whole);
+            this.$off('show', this.visible);
+            this.$off('adjust', this.adjust);
+            this.$el.remove();
+        }
     },
     methods: {
         visible(caller) {
@@ -185,26 +218,6 @@ export default {
                 });
             }
         },
-    },
-    created() {
-        this.MouseEventPolyfill();
-    },
-    mounted() {
-        if (this.width) { this.styleSheet.width = `${this.width}px`; }
-        if (this.embed) { this.visible(); } else {
-            this.$root.$el.appendChild(this.$el);
-            this.$on('show', this.visible);
-            this.$on('adjust', this.adjust);
-            document.body.addEventListener('mousedown', this.whole);
-        }
-    },
-    destroyed() {
-        if (!this.embed) {
-            document.body.removeEventListener('mousedown', this.whole);
-            this.$off('show', this.visible);
-            this.$off('adjust', this.adjust);
-            this.$el.remove();
-        }
     },
 };
 

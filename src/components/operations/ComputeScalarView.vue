@@ -1,5 +1,8 @@
 <template>
-    <defined-values :definedValues="computeScalar.DefinedValues" :expandedColumns="expandedColumns"></defined-values>
+    <defined-values
+        :defined-values="computeScalar.DefinedValues"
+        :expanded-columns="expandedColumns"
+    />
 </template>
 
 <script lang='ts'>

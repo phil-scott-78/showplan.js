@@ -1,7 +1,10 @@
 <template>
     <div class="content">
         <h4>Filter Predicate</h4>
-        <sql-string :sql="filter.Predicate.ScalarOperator.ScalarString" :expandedColumns="expandedChildColumns"></sql-string>
+        <sql-string
+            :sql="filter.Predicate.ScalarOperator.ScalarString"
+            :expanded-columns="expandedChildColumns"
+        />
     </div>
 </template>
 

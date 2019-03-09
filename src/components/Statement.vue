@@ -1,8 +1,14 @@
 <template>
     <div>
         <h1>
-            <span class="statementType">{{ statement.StatementType }}</span> <select-plan :show-plan="showPlan" @showplan-statement-changed="selectChanged"></select-plan>
-            <span v-if="statement.QueryPlan !== undefined" class='stats'>
+            <span class="statementType">{{ statement.StatementType }}</span> <select-plan
+                :show-plan="showPlan"
+                @showplan-statement-changed="selectChanged"
+            />
+            <span
+                v-if="statement.QueryPlan !== undefined"
+                class="stats"
+            >
                 <span v-if="statement.StatementSubTreeCost !== undefined">Sub Tree Cost: <strong>{{ statement.StatementSubTreeCost }}</strong></span>
                 <span v-if="statement.StatementEstRows !== undefined">Estimated Number of Rows : <strong>{{ statement.StatementEstRows }}</strong></span>
                 <span>Degree of Parallelism:
@@ -13,23 +19,50 @@
             </span>
         </h1>
 
-        <div class="card" style="margin-bottom:2rem">
+        <div
+            class="card"
+            style="margin-bottom:2rem"
+        >
             <smooth-reflow>
-                <component :is="selectedOverviewTab" :statement="statement"></component>
+                <component
+                    :is="selectedOverviewTab"
+                    :statement="statement"
+                />
             </smooth-reflow>
             <div class="footer">
                 <div class="buttons">
-                    <a @click="selectedOverviewTab='highlight-sql-statement'" :class="{ 'selected': selectedOverviewTab === 'highlight-sql-statement' }">Query Text</a>
-                    <a @click="selectedOverviewTab='statement-overview'" :class="{ 'selected': selectedOverviewTab === 'statement-overview' }">Query Properties</a>
+                    <a
+                        :class="{ 'selected': selectedOverviewTab === 'highlight-sql-statement' }"
+                        @click="selectedOverviewTab='highlight-sql-statement'"
+                    >Query Text</a>
+                    <a
+                        :class="{ 'selected': selectedOverviewTab === 'statement-overview' }"
+                        @click="selectedOverviewTab='statement-overview'"
+                    >Query Properties</a>
                     <span v-if="statement.QueryPlan != undefined">
-                        <a v-if="statement.QueryPlan.ParameterList !== undefined && statement.QueryPlan.ParameterList.length > 0" @click="selectedOverviewTab='query-parameters'" :class="{ 'selected': selectedOverviewTab === 'query-parameters' }">
+                        <a
+                            v-if="statement.QueryPlan.ParameterList !== undefined && statement.QueryPlan.ParameterList.length > 0"
+                            :class="{ 'selected': selectedOverviewTab === 'query-parameters' }"
+                            @click="selectedOverviewTab='query-parameters'"
+                        >
                             Query Parameters
                         </a>
-                        <a v-if="statement.QueryPlan.OptimizerStatsUsage !== undefined" @click="selectedOverviewTab='statistics-list'" :class="{ 'selected': selectedOverviewTab === 'statistics-list' }">
+                        <a
+                            v-if="statement.QueryPlan.OptimizerStatsUsage !== undefined"
+                            :class="{ 'selected': selectedOverviewTab === 'statistics-list' }"
+                            @click="selectedOverviewTab='statistics-list'"
+                        >
                             Statistics Usage
                         </a>
-                        <a v-if="statement.QueryPlan.MissingIndexes !== undefined" @click="selectedOverviewTab='missing-indexes'" :class="{ 'selected': selectedOverviewTab === 'missing-indexes' }">
-                            <font-awesome-icon style="color:var(--orange)" icon="exclamation-circle" />
+                        <a
+                            v-if="statement.QueryPlan.MissingIndexes !== undefined"
+                            :class="{ 'selected': selectedOverviewTab === 'missing-indexes' }"
+                            @click="selectedOverviewTab='missing-indexes'"
+                        >
+                            <font-awesome-icon
+                                style="color:var(--orange)"
+                                icon="exclamation-circle"
+                            />
                             Missing Indexes
                         </a>
                     </span>
@@ -37,20 +70,45 @@
             </div>
         </div>
 
-        <div v-if="statement.QueryPlan !== undefined" class="queryplan">
+        <div
+            v-if="statement.QueryPlan !== undefined"
+            class="queryplan"
+        >
             <div class="visualization card">
-                <component :is="selectVisualizationTab" width="600" :statement="statement" :selectedNode="displayedOp" @rel-op-selected="relOpSelected" @rel-op-highlighted="relOpHighlighted"></component>
+                <component
+                    :is="selectVisualizationTab"
+                    width="600"
+                    :statement="statement"
+                    :selected-node="displayedOp"
+                    @rel-op-selected="relOpSelected"
+                    @rel-op-highlighted="relOpHighlighted"
+                />
                 <div class="footer">
                     <div class="buttons">
-                        <a @click="selectVisualizationTab='operator-flow'" :class="{ 'selected': selectVisualizationTab === 'operator-flow' }">Operator Flow</a>
-                        <a @click="selectVisualizationTab='data-flow'" :class="{ 'selected': selectVisualizationTab === 'data-flow' }">Data Flow</a>
-                        <a @click="selectVisualizationTab='cost-analysis'" :class="{ 'selected': selectVisualizationTab === 'cost-analysis' }">Cost Analysis</a>
+                        <a
+                            :class="{ 'selected': selectVisualizationTab === 'operator-flow' }"
+                            @click="selectVisualizationTab='operator-flow'"
+                        >Operator Flow</a>
+                        <a
+                            :class="{ 'selected': selectVisualizationTab === 'data-flow' }"
+                            @click="selectVisualizationTab='data-flow'"
+                        >Data Flow</a>
+                        <a
+                            :class="{ 'selected': selectVisualizationTab === 'cost-analysis' }"
+                            @click="selectVisualizationTab='cost-analysis'"
+                        >Cost Analysis</a>
                     </div>
                 </div>
             </div>
             <div class="details">
-                <div v-if="displayedOp !== undefined" class="opSummary">
-                    <operation-summary :statement="statement" :operation="displayedOp"></operation-summary>
+                <div
+                    v-if="displayedOp !== undefined"
+                    class="opSummary"
+                >
+                    <operation-summary
+                        :statement="statement"
+                        :operation="displayedOp"
+                    />
                 </div>
             </div>
         </div>
