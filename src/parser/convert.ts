@@ -1,35 +1,35 @@
 class Convert {
-    public static GetFloat(element: Element, attribute: string): number | undefined {
+    public static GetFloat(element: Element, attribute: string): number {
         const input = element.getAttribute(attribute);
-        if (input === null || input === '') { return undefined; }
+        if (input === null || input === '') { throw Error('Expected a float but received undefined'); }
 
         return parseFloat(input);
     }
 
-    public static GetInt(element: Element, attribute: string): number | undefined {
+    public static GetInt(element: Element, attribute: string): number {
         const input = element.getAttribute(attribute);
-        if (input === null || input === '') { return undefined; }
+        if (input === null || input === '') { throw Error('Expected a int but received undefined'); }
 
         return parseInt(input, 10);
     }
 
-    public static GetString(element: Element, attribute: string): string | undefined {
+    public static GetString(element: Element, attribute: string): string {
         const input = element.getAttribute(attribute);
-        if (input === null || input === '') { return undefined; }
+        if (input === null || input === '') { throw Error('Expected a string but received undefined'); }
 
         return input;
     }
 
-    public static GetBoolean(element: Element, attribute: string): boolean | undefined {
+    public static GetBoolean(element: Element, attribute: string): boolean {
         const input = element.getAttribute(attribute);
-        if (input === null || input === '') { return undefined; }
+        if (input === null || input === '') { throw Error('Expected a boolean but received undefined'); }
 
         return input !== 'false';
     }
 
-    public static GetDate(element: Element, attribute: string): Date | undefined {
+    public static GetDate(element: Element, attribute: string): Date {
         const input = element.getAttribute(attribute);
-        if (input === null || input === '') { return undefined; }
+        if (input === null || input === '') { throw Error('Expected a date but received undefined'); }
 
         return new Date(Date.parse(input));
     }

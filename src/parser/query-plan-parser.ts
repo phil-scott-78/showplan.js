@@ -10,7 +10,7 @@ import MissingIndexParser from './missing-index-parser';
 import MetaInfoParser from './meta-info-parser';
 import WarningsParser from './warnings-parser';
 
-export class QueryPlanParser {
+class QueryPlanParser {
     public static Parse(queryPlanElement: Element): ShowPlan.QueryPlan {
         const relOpElements = QueryHelper.GetImmediateChildNodesByTagName(queryPlanElement, 'RelOp');
         if (relOpElements.length !== 1) {
@@ -22,14 +22,14 @@ export class QueryPlanParser {
 
         queryplan.MissingIndexes = QueryHelper.ParseSingleItem(queryPlanElement, 'MissingIndexes', i => MissingIndexParser.ParseMissingIndexes(i));
         queryplan.ThreadStat = QueryHelper.ParseSingleItem(queryPlanElement, 'ThreadStat', i => MetaInfoParser.ParseThreadStat(i));
-        queryplan.MemoryGrant = Convert.GetInt(queryPlanElement, 'MemoryGrant');
+        queryplan.MemoryGrant = Convert.GetIntOrUndefined(queryPlanElement, 'MemoryGrant');
         queryplan.MemoryGrantInfo = QueryHelper.ParseSingleItem(queryPlanElement, 'MemoryGrantInfo', i => MetaInfoParser.ParseMemoryGrantInfo(i));
         queryplan.OptimizerHardwareDependentProperties = QueryHelper.ParseSingleItem(queryPlanElement, 'OptimizerHardwareDependentProperties', i => MetaInfoParser.ParseOptimizerHardwareDependentProperties(i));
         queryplan.OptimizerStatsUsage = QueryHelper.ParseSingleItem(queryPlanElement, 'OptimizerStatsUsage', i => MetaInfoParser.ParseOptimizerStatsUsage(i));
         queryplan.WaitStats = QueryHelper.ParseSingleItem(queryPlanElement, 'WaitStats', i => MetaInfoParser.ParseWaitStats(i));
         queryplan.QueryTimeStats = QueryHelper.ParseSingleItem(queryPlanElement, 'QueryTimeStats', i => MetaInfoParser.ParseQueryTimeStats(i));
         queryplan.Warnings = QueryHelper.ParseSingleItem(queryPlanElement, 'Warnings', i => WarningsParser.ParseWarnings(i));
-        queryplan.CachedPlanSize = Convert.GetInt(queryPlanElement, 'CachedPlanSize');
+        queryplan.CachedPlanSize = Convert.GetIntOrUndefined(queryPlanElement, 'CachedPlanSize');
         queryplan.ParameterList = ColumnReferenceParser.GetAllFromElement(queryPlanElement, 'ParameterList');
 
         return queryplan;
@@ -125,19 +125,19 @@ export class QueryPlanParser {
             action = new ShowPlan.Generic();
         }
 
-        const avgRowSize = Convert.GetInt(relOpElement, 'AvgRowSize') as number;
-        const EstimateCPU = Convert.GetFloat(relOpElement, 'EstimateCPU') as number;
+        const avgRowSize = Convert.GetInt(relOpElement, 'AvgRowSize');
+        const EstimateCPU = Convert.GetFloat(relOpElement, 'EstimateCPU');
         const EstimatedTotalSubtreeCost = Convert.GetFloat(
             relOpElement,
             'EstimatedTotalSubtreeCost',
-        ) as number;
-        const EstimateIO = Convert.GetFloat(relOpElement, 'EstimateIO') as number;
-        const EstimateRebinds = Convert.GetFloat(relOpElement, 'EstimateRebinds') as number;
-        const EstimateRewinds = Convert.GetFloat(relOpElement, 'EstimateRewinds') as number;
-        const EstimateRows = Convert.GetFloat(relOpElement, 'EstimateRows') as number;
+        );
+        const EstimateIO = Convert.GetFloat(relOpElement, 'EstimateIO');
+        const EstimateRebinds = Convert.GetFloat(relOpElement, 'EstimateRebinds');
+        const EstimateRewinds = Convert.GetFloat(relOpElement, 'EstimateRewinds');
+        const EstimateRows = Convert.GetFloat(relOpElement, 'EstimateRows');
         const LogicalOp = Convert.GetString(relOpElement, 'LogicalOp') as ShowPlan.LogicalOpType;
-        const NodeId = Convert.GetInt(relOpElement, 'NodeId') as number;
-        const Parallel = Convert.GetBoolean(relOpElement, 'Parallel') as boolean;
+        const NodeId = Convert.GetInt(relOpElement, 'NodeId');
+        const Parallel = Convert.GetBoolean(relOpElement, 'Parallel');
         const PhysicalOp = Convert.GetString(relOpElement, 'PhysicalOp') as ShowPlan.PhysicalOp;
 
         const columnReferenceList = ColumnReferenceParser.GetAllFromElement(relOpElement, 'OutputList');
@@ -157,8 +157,8 @@ export class QueryPlanParser {
             PhysicalOp,
             columnReferenceList,
         );
-        thisOp.AdaptiveThresholdRows = Convert.GetFloat(relOpElement, 'AdaptiveThresholdRows');
-        thisOp.EstimatedJoinType = Convert.GetString(relOpElement, 'EstimatedJoinType') as ShowPlan.PhysicalOp;
+        thisOp.AdaptiveThresholdRows = Convert.GetFloatOrUndefined(relOpElement, 'AdaptiveThresholdRows');
+        thisOp.EstimatedJoinType = Convert.GetStringOrUndefined(relOpElement, 'EstimatedJoinType') as ShowPlan.PhysicalOp;
         thisOp.Warnings = QueryHelper.ParseSingleItem(relOpElement, 'Warnings', i => WarningsParser.ParseWarnings(i));
         thisOp.RunTimeInformation = QueryHelper.ParseSingleItem(relOpElement, 'RunTimeInformation', i => MetaInfoParser.ParseRunTimeInformation(i));
         return thisOp;
@@ -235,21 +235,21 @@ export class QueryPlanParser {
         const foreignKeyReferenceCheck = foreignKeyReferenceCheckElements.map(i => parseForeignKeyReferenceCheckElements(i));
 
         const check = new ShowPlan.ForeignKeyReferencesCheck(foreignKeyReferenceCheck);
-        check.ForeignKeyReferencesCount = Convert.GetInt(element, 'ForeignKeyReferencesCount');
-        check.NoMatchingIndexCount = Convert.GetInt(element, 'NoMatchingIndexCount');
-        check.PartialMatchingIndexCount = Convert.GetInt(element, 'PartialMatchingIndexCount');
+        check.ForeignKeyReferencesCount = Convert.GetIntOrUndefined(element, 'ForeignKeyReferencesCount');
+        check.NoMatchingIndexCount = Convert.GetIntOrUndefined(element, 'NoMatchingIndexCount');
+        check.PartialMatchingIndexCount = Convert.GetIntOrUndefined(element, 'PartialMatchingIndexCount');
 
         return check;
     }
 
     private static ParseNestedLoop(element: Element): ShowPlan.NestedLoops {
-        const optimized = Convert.GetBoolean(element, 'Optimized')!;
+        const optimized = Convert.GetBoolean(element, 'Optimized');
         const nestedLoop = new ShowPlan.NestedLoops(optimized);
 
         nestedLoop.Predicate = QueryHelper.ParseSingleItem(element, 'Predicate', i => ScalarExpressionParser.Parse(i));
         nestedLoop.PassThru = QueryHelper.ParseSingleItem(element, 'PassThru', i => ScalarExpressionParser.Parse(i));
-        nestedLoop.WithOrderedPrefetch = Convert.GetBoolean(element, 'WithOrderedPrefetch');
-        nestedLoop.WithUnorderedPrefetch = Convert.GetBoolean(element, 'WithUnorderedPrefetch');
+        nestedLoop.WithOrderedPrefetch = Convert.GetBooleanOrUndefined(element, 'WithOrderedPrefetch');
+        nestedLoop.WithUnorderedPrefetch = Convert.GetBooleanOrUndefined(element, 'WithUnorderedPrefetch');
 
         nestedLoop.OuterReferences = ColumnReferenceParser.GetAllFromElement(element, 'OuterReferences');
 
@@ -258,7 +258,7 @@ export class QueryPlanParser {
 
     private static ParseBatchHashTableBuild(element: Element): ShowPlan.BatchHashTableBuild {
         const op = new ShowPlan.BatchHashTableBuild();
-        op.BitmapCreator = Convert.GetBoolean(element, 'BitmapCreator');
+        op.BitmapCreator = Convert.GetBooleanOrUndefined(element, 'BitmapCreator');
         return op;
     }
 
@@ -273,7 +273,7 @@ export class QueryPlanParser {
     }
 
     private static ParseUDX(element: Element): ShowPlan.UDX {
-        const name = Convert.GetString(element, 'UDXName')!;
+        const name = Convert.GetString(element, 'UDXName');
         const udx = new ShowPlan.UDX(name);
 
         udx.UsedUDXColumns = ColumnReferenceParser.GetAllFromElement(element, 'UsedUDXColumns');
@@ -298,7 +298,7 @@ export class QueryPlanParser {
             insert.SetPredicate = this.parseSetPredicateElementType(setPredicateElements[0]);
         }
 
-        insert.DMLRequestSort = Convert.GetBoolean(element, 'DMLRequestSort');
+        insert.DMLRequestSort = Convert.GetBooleanOrUndefined(element, 'DMLRequestSort');
         return insert;
     }
 
@@ -323,14 +323,14 @@ export class QueryPlanParser {
             update.SetPredicate = this.parseSetPredicateElementType(setPredicateElements[0]);
         }
 
-        update.DMLRequestSort = Convert.GetBoolean(element, 'DMLRequestSort');
+        update.DMLRequestSort = Convert.GetBooleanOrUndefined(element, 'DMLRequestSort');
         return update;
     }
 
     private static ParseSpool(element: Element): ShowPlan.Spool {
         const spool = new ShowPlan.Spool();
-        spool.Stack = Convert.GetBoolean(element, 'Stack');
-        spool.PrimaryNodeId = Convert.GetInt(element, 'PrimaryNodeId');
+        spool.Stack = Convert.GetBooleanOrUndefined(element, 'Stack');
+        spool.PrimaryNodeId = Convert.GetIntOrUndefined(element, 'PrimaryNodeId');
 
         const seekPredicateElement = QueryHelper.GetImmediateChildNodesByTagName(element, 'SeekPredicate');
         if (seekPredicateElement.length === 1) {
@@ -346,7 +346,7 @@ export class QueryPlanParser {
     }
 
     private static ParseSort(element: Element): ShowPlan.Sort {
-        const distinct = Convert.GetBoolean(element, 'Distinct')!;
+        const distinct = Convert.GetBoolean(element, 'Distinct');
         const orderByElement = QueryHelper.GetImmediateChildNodesByTagName(element, 'OrderBy');
         const orderByColumnElements = QueryHelper.GetImmediateChildNodesByTagName(orderByElement[0], 'OrderByColumn');
         const orderBy = new ShowPlan.OrderBy(orderByColumnElements.map(i => this.parseOrderByColumn(i)));
@@ -355,7 +355,7 @@ export class QueryPlanParser {
     }
 
     private static parseOrderByColumn(element: Element): ShowPlan.OrderByTypeOrderByColumn {
-        const ascending = Convert.GetBoolean(element, 'Ascending')!;
+        const ascending = Convert.GetBoolean(element, 'Ascending');
         const columnReferenceElement = QueryHelper.GetImmediateChildNodesByTagName(element, 'ColumnReference');
         const columnReference = ColumnReferenceParser.Parse(columnReferenceElement[0]);
 
@@ -363,15 +363,15 @@ export class QueryPlanParser {
     }
 
     private static ParseTopSort(element: Element): ShowPlan.TopSort {
-        const distinct = Convert.GetBoolean(element, 'Distinct')!;
+        const distinct = Convert.GetBoolean(element, 'Distinct');
         const orderByElement = QueryHelper.GetImmediateChildNodesByTagName(element, 'OrderBy');
         const orderByColumnElements = QueryHelper.GetImmediateChildNodesByTagName(orderByElement[0], 'OrderByColumn');
 
         const orderBy = new ShowPlan.OrderBy(orderByColumnElements.map(i => this.parseOrderByColumn(i)));
-        const rows = Convert.GetInt(element, 'Rows')!;
+        const rows = Convert.GetInt(element, 'Rows');
 
         const sort = new ShowPlan.TopSort(rows, distinct, orderBy);
-        sort.WithTies = Convert.GetBoolean(element, 'WithTies');
+        sort.WithTies = Convert.GetBooleanOrUndefined(element, 'WithTies');
 
         return sort;
     }
@@ -412,12 +412,12 @@ export class QueryPlanParser {
             merge.StarJoinInfo = this.ParseStarJoinInfo(starJoinElement[0]);
         }
 
-        merge.ManyToMany = Convert.GetBoolean(element, 'ManyToMany');
+        merge.ManyToMany = Convert.GetBooleanOrUndefined(element, 'ManyToMany');
         return merge;
     }
 
     private static ParseAdaptiveJoin(element: Element): ShowPlan.AdaptiveJoin {
-        const optimized = Convert.GetBoolean(element, 'Optimized')!;
+        const optimized = Convert.GetBoolean(element, 'Optimized');
         const adaptiveJoin = new ShowPlan.AdaptiveJoin(optimized);
 
         adaptiveJoin.HashKeysBuild = ColumnReferenceParser.GetAllFromElement(element, 'HashKeysBuild');
@@ -449,7 +449,7 @@ export class QueryPlanParser {
             adaptiveJoin.PartitionId = ColumnReferenceParser.Parse(partitionIdElement[0]);
         }
 
-        adaptiveJoin.BitmapCreator = Convert.GetBoolean(element, 'BitmapCreator');
+        adaptiveJoin.BitmapCreator = Convert.GetBooleanOrUndefined(element, 'BitmapCreator');
 
         return adaptiveJoin;
     }
@@ -479,7 +479,7 @@ export class QueryPlanParser {
     }
 
     private static ParseTableScan(element: Element): ShowPlan.TableScan {
-        const ordered = Convert.GetBoolean(element, 'Ordered')!;
+        const ordered = Convert.GetBoolean(element, 'Ordered');
         const object = QueryHelper.GetImmediateChildNodesByTagName(element, 'Object')
             .map(i => ObjectParser.Parse(i));
         const scan = new ShowPlan.TableScan(object, ordered);
@@ -500,9 +500,9 @@ export class QueryPlanParser {
             scan.IndexedViewInfo = objects.map(i => ObjectParser.Parse(i));
         }
 
-        scan.ForcedIndex = Convert.GetBoolean(element, 'ForcedIndex');
-        scan.ForceScan = Convert.GetBoolean(element, 'ForceScan');
-        scan.NoExpandHint = Convert.GetBoolean(element, 'NoExpandHint');
+        scan.ForcedIndex = Convert.GetBooleanOrUndefined(element, 'ForcedIndex');
+        scan.ForceScan = Convert.GetBooleanOrUndefined(element, 'ForceScan');
+        scan.NoExpandHint = Convert.GetBooleanOrUndefined(element, 'NoExpandHint');
         scan.Storage = Convert.GetString(element, 'Storage') as ShowPlan.StorageType;
 
         return scan;
@@ -510,7 +510,7 @@ export class QueryPlanParser {
 
     private static parseSetPredicateElementType(element: Element): ShowPlan.SetPredicateElement {
         const predicateElement = ScalarExpressionParser.Parse(element) as ShowPlan.SetPredicateElement;
-        predicateElement.SetPredicateType = Convert.GetString(element, 'SetPredicateType') as ShowPlan.SetPredicateType;
+        predicateElement.SetPredicateType = Convert.GetStringOrUndefined(element, 'SetPredicateType') as ShowPlan.SetPredicateType;
 
         return predicateElement;
     }
@@ -525,22 +525,25 @@ export class QueryPlanParser {
 
         const probeColumnElement = QueryHelper.GetImmediateChildNodesByTagName(element, 'ProbeColumn');
         if (probeColumnElement.length === 1) {
-            update.ProbeColumn = ColumnReferenceParser.Parse(probeColumnElement[0]);
+            const column = QueryHelper.GetImmediateChildNodesByTagName(probeColumnElement[0], 'ColumnReference');
+            update.ProbeColumn = ColumnReferenceParser.Parse(column[0]);
         }
 
         const actionColumnElement = QueryHelper.GetImmediateChildNodesByTagName(element, 'ActionColumn');
         if (actionColumnElement.length === 1) {
-            update.ActionColumn = ColumnReferenceParser.Parse(actionColumnElement[0]);
+            const column = QueryHelper.GetImmediateChildNodesByTagName(actionColumnElement[0], 'ColumnReference');
+            update.ActionColumn = ColumnReferenceParser.Parse(column[0]);
         }
 
         const originalActionColumnElement = QueryHelper.GetImmediateChildNodesByTagName(element, 'OriginalActionColumn');
         if (originalActionColumnElement.length === 1) {
-            update.OriginalActionColumn = ColumnReferenceParser.Parse(originalActionColumnElement[0]);
+            const column = QueryHelper.GetImmediateChildNodesByTagName(originalActionColumnElement[0], 'ColumnReference');
+            update.OriginalActionColumn = ColumnReferenceParser.Parse(column[0]);
         }
 
-        update.WithOrderedPrefetch = Convert.GetBoolean(element, 'WithOrderedPrefetch');
-        update.WithUnorderedPrefetch = Convert.GetBoolean(element, 'WithUnorderedPrefetch');
-        update.DMLRequestSort = Convert.GetBoolean(element, 'DMLRequestSort');
+        update.WithOrderedPrefetch = Convert.GetBooleanOrUndefined(element, 'WithOrderedPrefetch');
+        update.WithUnorderedPrefetch = Convert.GetBooleanOrUndefined(element, 'WithUnorderedPrefetch');
+        update.DMLRequestSort = Convert.GetBooleanOrUndefined(element, 'DMLRequestSort');
 
         return update;
     }
@@ -568,7 +571,7 @@ export class QueryPlanParser {
     }
 
     private static ParseFilterElement(filterElement: Element): ShowPlan.RelOpAction {
-        const startUpExpression = Convert.GetBoolean(filterElement, 'StartupExpression') as boolean;
+        const startUpExpression = Convert.GetBoolean(filterElement, 'StartupExpression');
         const predicateElement = QueryHelper.GetImmediateChildNodesByTagName(filterElement, 'Predicate');
         const filter = new ShowPlan.Filter(startUpExpression, ScalarExpressionParser.Parse(predicateElement[0]));
         if (filterElement.tagName.toUpperCase() === 'ASSERT') {
@@ -580,7 +583,7 @@ export class QueryPlanParser {
 
     private static ParseComputeScalar(element: Element): ShowPlan.ComputeScalar {
         const op = new ShowPlan.ComputeScalar();
-        op.ComputeSequence = Convert.GetBoolean(element, 'ComputeSequence');
+        op.ComputeSequence = Convert.GetBooleanOrUndefined(element, 'ComputeSequence');
         return op;
     }
 
@@ -589,10 +592,10 @@ export class QueryPlanParser {
     }
 
     private static ParseTopElement(topElement: Element): ShowPlan.Top {
-        const isPercent = Convert.GetBoolean(topElement, 'IsPercent');
-        const rowCount = Convert.GetBoolean(topElement, 'RowCount');
-        const rows = Convert.GetInt(topElement, 'Rows');
-        const withTies = Convert.GetBoolean(topElement, ' WithTies');
+        const isPercent = Convert.GetBooleanOrUndefined(topElement, 'IsPercent');
+        const rowCount = Convert.GetBooleanOrUndefined(topElement, 'RowCount');
+        const rows = Convert.GetIntOrUndefined(topElement, 'Rows');
+        const withTies = Convert.GetBooleanOrUndefined(topElement, ' WithTies');
         const topExpressionElements = QueryHelper.GetImmediateChildNodesByTagName(topElement, 'TopExpression');
 
         const top = new ShowPlan.Top();
@@ -609,7 +612,7 @@ export class QueryPlanParser {
     }
 
     private static ParseIndexScan(element: Element): ShowPlan.IndexScan {
-        const ordered = Convert.GetBoolean(element, 'Ordered') as boolean;
+        const ordered = Convert.GetBoolean(element, 'Ordered');
         const objectElement = QueryHelper.GetImmediateChildNodesByTagName(element, 'Object');
         const indexScan = new ShowPlan.IndexScan(objectElement.map(i => ObjectParser.Parse(i)), ordered);
 
@@ -634,12 +637,12 @@ export class QueryPlanParser {
             indexScan.IndexedViewInfo = objects.map(i => ObjectParser.Parse(i));
         }
 
-        indexScan.Lookup = Convert.GetBoolean(element, 'Lookup');
-        indexScan.ScanDirection = Convert.GetString(element, 'ScanDirection') as ShowPlan.OrderType;
-        indexScan.ForcedIndex = Convert.GetBoolean(element, 'ForcedIndex');
-        indexScan.NoExpandHint = Convert.GetBoolean(element, 'NoExpandHint');
-        indexScan.Storage = Convert.GetString(element, 'Storage') as ShowPlan.StorageType;
-        indexScan.DynamicSeek = Convert.GetBoolean(element, 'DynamicSeek');
+        indexScan.Lookup = Convert.GetBooleanOrUndefined(element, 'Lookup');
+        indexScan.ScanDirection = Convert.GetStringOrUndefined(element, 'ScanDirection') as ShowPlan.OrderType;
+        indexScan.ForcedIndex = Convert.GetBooleanOrUndefined(element, 'ForcedIndex');
+        indexScan.NoExpandHint = Convert.GetBooleanOrUndefined(element, 'NoExpandHint');
+        indexScan.Storage = Convert.GetStringOrUndefined(element, 'Storage') as ShowPlan.StorageType;
+        indexScan.DynamicSeek = Convert.GetBooleanOrUndefined(element, 'DynamicSeek');
 
         return indexScan;
     }
@@ -647,57 +650,53 @@ export class QueryPlanParser {
     private static ParseStarJoinInfo(element: Element): ShowPlan.StarJoinInfo {
         const operationType = Convert.GetString(element, 'OperationType') as ShowPlan.StarJoinInfoTypeOperationType;
         const starJoin = new ShowPlan.StarJoinInfo(operationType);
-        starJoin.Root = Convert.GetBoolean(element, 'Root');
+        starJoin.Root = Convert.GetBooleanOrUndefined(element, 'Root');
 
         return starJoin;
     }
 
     /* remote types */
-    private static ApplyRemoteAttributes(element: Element, remote: ShowPlan.Remote) {
-        remote.RemoteDestination = Convert.GetString(element, 'RemoveDestination');
-        remote.RemoteSource = Convert.GetString(element, 'RemoteSource');
-        remote.RemoteObject = Convert.GetString(element, 'RemoteObject');
-    }
-
-    private static ParseRemote(element: Element): ShowPlan.Remote {
-        const remote = new ShowPlan.Remote();
-        this.ApplyRemoteAttributes(element, remote);
+    private static ApplyRemoteAttributes<T extends ShowPlan.Remote>(element: Element, creator: (() => T)): T {
+        const remote = creator();
+        remote.RemoteDestination = Convert.GetStringOrUndefined(element, 'RemoveDestination');
+        remote.RemoteSource = Convert.GetStringOrUndefined(element, 'RemoteSource');
+        remote.RemoteObject = Convert.GetStringOrUndefined(element, 'RemoteObject');
         return remote;
     }
 
+    private static ParseRemote(element: Element): ShowPlan.Remote {
+        return this.ApplyRemoteAttributes(element, () => new ShowPlan.Remote());
+    }
+
     private static ParseRemoteRange(element: Element): ShowPlan.RemoteRange {
-        const range = new ShowPlan.RemoteRange();
-        this.ApplyRemoteAttributes(element, range);
+        const range = this.ApplyRemoteAttributes<ShowPlan.RemoteRange>(element, () => new ShowPlan.RemoteRange());
         range.SeekPredicates = QueryHelper.ParseSingleItem(element, 'SeekPredicates', i => SeekPredicateParser.ParseSeekPredicates(i));
         return range;
     }
 
     private static ParseRemoteFetch(element: Element): ShowPlan.RemoteFetch {
-        const fetch = new ShowPlan.RemoteFetch();
-        this.ApplyRemoteAttributes(element, fetch);
-        return fetch;
+        return this.ApplyRemoteAttributes(element, () => new ShowPlan.RemoteFetch());
     }
 
     private static ParseRemoteModify(element: Element): ShowPlan.RemoteModify {
-        const modify = new ShowPlan.RemoteModify();
-        this.ApplyRemoteAttributes(element, modify);
+        const modify = this.ApplyRemoteAttributes(element, () => new ShowPlan.RemoteModify());
         modify.SetPredicate = QueryHelper.ParseSingleItem(element, 'SetPredicate', i => ScalarExpressionParser.Parse(i));
         return modify;
     }
 
     private static ParseRemoteQuery(element: Element): ShowPlan.RemoteQuery {
-        const query = new ShowPlan.RemoteQuery();
-        this.ApplyRemoteAttributes(element, query);
-        query.RemoteQuery = Convert.GetString(element, 'RemoteQuery');
+        const query = this.ApplyRemoteAttributes(element, () => new ShowPlan.RemoteQuery());
+        query.RemoteQuery = Convert.GetStringOrUndefined(element, 'RemoteQuery');
         return query;
     }
 
     private static ParsePut(element: Element): ShowPlan.Put {
-        const query = new ShowPlan.Put();
-        this.ApplyRemoteAttributes(element, query);
-        query.RemoteQuery = Convert.GetString(element, 'RemoteQuery');
-        query.ShuffleColumn = Convert.GetString(element, 'ShuffleColumn');
-        query.ShuffleType = Convert.GetString(element, 'ShuffleType');
+        const query = this.ApplyRemoteAttributes(element, () => new ShowPlan.Put());
+        query.RemoteQuery = Convert.GetStringOrUndefined(element, 'RemoteQuery');
+        query.ShuffleColumn = Convert.GetStringOrUndefined(element, 'ShuffleColumn');
+        query.ShuffleType = Convert.GetStringOrUndefined(element, 'ShuffleType');
         return query;
     }
 }
+
+export default QueryPlanParser;

@@ -632,9 +632,9 @@ export class CreateIndex extends Rowset {}
 interface CursorPlan {
     CursorActualType: CursorType;
     CursorConcurrency: CursorPlanTypeCursorConcurrency;
-    CursorName: string;
+    CursorName?: string;
     CursorRequestedType: CursorType;
-    ForwardOnly: boolean;
+    ForwardOnly?: boolean;
     /** The number of occure time depends on how we define the cursor
    * schema. In shiloh, the OPEN CURSOR and FETCH CURSOR doesn't show any plan and won't raise
    * error if the cursor doesn't exist. So we must keep the same behaivor, so the minOccurs is 0. If we allow
@@ -706,7 +706,7 @@ export class ForeignKeyReferencesCheck extends RelOpAction {
 /** Shows the plan for the UDF or stored procedure */
 export interface FunctionPlan {
     IsNativelyCompiled?: boolean;
-    ProcName: string;
+    ProcName?: string;
     Statements: BaseStmtInfo;
 }
 
@@ -742,13 +742,9 @@ export class Hash extends RelOpAction {
 }
 
 export class Ident implements ScalarOp {
-    public Table: string;
+    public Table?: string;
 
     public ColumnReference?: ColumnReference;
-
-    public constructor(table: string) {
-        this.Table = table;
-    }
 }
 
 export type IndexKindType =

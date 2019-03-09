@@ -3,7 +3,7 @@ import Convert from './convert';
 import TagAndParser from './tag-and-parser';
 import QueryHelper from './query-helper';
 import ColumnReferenceParser from './column-reference-parser';
-import { QueryPlanParser } from './query-plan-parser';
+import QueryPlanParser from './query-plan-parser';
 import ObjectParser from './object-parser';
 
 class ScalarExpressionParser {
@@ -45,14 +45,14 @@ class ScalarExpressionParser {
         }
 
         const scalar = new ShowPlan.Scalar(operationOp);
-        scalar.ScalarString = Convert.GetString(scalarElement, 'ScalarString');
+        scalar.ScalarString = Convert.GetStringOrUndefined(scalarElement, 'ScalarString');
 
         return scalar;
     }
 
-    private static ParseAggregate(element: Element) {
-        const aggType = Convert.GetString(element, 'AggType') as string;
-        const distinct = Convert.GetBoolean(element, 'Distinct') as boolean;
+    private static ParseAggregate(element: Element): ShowPlan.Aggregate {
+        const aggType = Convert.GetString(element, 'AggType');
+        const distinct = Convert.GetBoolean(element, 'Distinct');
         const aggregate = new ShowPlan.Aggregate(aggType, distinct);
 
         const operators = QueryHelper.GetImmediateChildNodesByTagName(element, 'ScalarOperator');
@@ -63,7 +63,7 @@ class ScalarExpressionParser {
         return aggregate;
     }
 
-    private static ParseArithmetic(element: Element) {
+    private static ParseArithmetic(element: Element): ShowPlan.Arithmetic {
         const operation = element.getAttribute('Operation') as ShowPlan.ArithmeticOperation;
         const scalarOperators = QueryHelper.GetImmediateChildNodesByTagName(element, 'ScalarOperator')
             .map(value => this.ParseScalarType(value));
@@ -85,7 +85,7 @@ class ScalarExpressionParser {
     }
 
     private static ParseConst(element: Element): ShowPlan.Const {
-        const constValue = Convert.GetString(element, 'ConstValue') as string;
+        const constValue = Convert.GetString(element, 'ConstValue');
         return new ShowPlan.Const(constValue);
     }
 
@@ -95,12 +95,12 @@ class ScalarExpressionParser {
     // I can't figure out how to trigger the element to show at all show let's just use the attribute
     // until I can find a working case to keep it.
         const scalarOperator = QueryHelper.GetImmediateChildNodesByTagName(element, 'ScalarOperator');
-        const dataType = Convert.GetString(element, 'DataType') as string;
-        const length = Convert.GetInt(element, 'Length');
-        const precision = Convert.GetInt(element, 'Precision');
-        const scale = Convert.GetInt(element, 'Scale');
-        const style = Convert.GetInt(element, 'Style') as number;
-        const implicit = Convert.GetBoolean(element, 'Implicit') as boolean;
+        const dataType = Convert.GetString(element, 'DataType');
+        const length = Convert.GetIntOrUndefined(element, 'Length');
+        const precision = Convert.GetIntOrUndefined(element, 'Precision');
+        const scale = Convert.GetIntOrUndefined(element, 'Scale');
+        const style = Convert.GetInt(element, 'Style');
+        const implicit = Convert.GetBoolean(element, 'Implicit');
 
         const convert = new ShowPlan.Convert(dataType, implicit, style, this.ParseScalarType(scalarOperator[0]));
         convert.Length = length;
@@ -111,9 +111,8 @@ class ScalarExpressionParser {
     }
 
     private static ParseIdentifier(element: Element): ShowPlan.Ident {
-        const table = Convert.GetString(element, 'Table') as string;
-        const ident = new ShowPlan.Ident(table);
-
+        const ident = new ShowPlan.Ident();
+        ident.Table = Convert.GetStringOrUndefined(element, 'Table');
         const columnReferenceElement = QueryHelper.GetImmediateChildNodesByTagName(element, 'ColumnReference');
         if (columnReferenceElement.length === 1) {
             ident.ColumnReference = ColumnReferenceParser.Parse(columnReferenceElement[0]);
@@ -131,7 +130,7 @@ class ScalarExpressionParser {
     }
 
     private static ParseIntrinsic(element: Element): ShowPlan.Intrinsic {
-        const functionName = Convert.GetString(element, 'FunctionName') as string;
+        const functionName = Convert.GetString(element, 'FunctionName');
         const scalarOperatorElements = QueryHelper.GetImmediateChildNodesByTagName(element, 'ScalarOperator');
         const intrinsic = new ShowPlan.Intrinsic(functionName);
 
@@ -162,7 +161,7 @@ class ScalarExpressionParser {
     }
 
     private static ParseSequence(element: Element): ShowPlan.ScalarSequence {
-        const functionName = Convert.GetString(element, 'FunctionName') as string;
+        const functionName = Convert.GetString(element, 'FunctionName');
 
         return new ShowPlan.ScalarSequence(functionName);
     }
@@ -196,7 +195,7 @@ class ScalarExpressionParser {
     }
 
     private static ParseUserDefinedAggregate(element: Element): ShowPlan.UDAggregate {
-        const distinct = Convert.GetBoolean(element, 'Distinct') as boolean;
+        const distinct = Convert.GetBoolean(element, 'Distinct');
         const aggregate = new ShowPlan.UDAggregate(distinct);
         const aggObjectElement = QueryHelper.GetImmediateChildNodesByTagName(element, 'UDAggObject');
         if (aggObjectElement.length === 1) {
@@ -212,10 +211,10 @@ class ScalarExpressionParser {
     }
 
     private static ParseUDF(element: Element): ShowPlan.UDF {
-        const functionName = Convert.GetString(element, 'FunctionName') as string;
+        const functionName = Convert.GetString(element, 'FunctionName');
 
         const udf = new ShowPlan.UDF(functionName);
-        udf.IsClrFunction = Convert.GetBoolean(element, 'IsClrFunction');
+        udf.IsClrFunction = Convert.GetBooleanOrUndefined(element, 'IsClrFunction');
 
         const clrFunctionElements = QueryHelper.GetImmediateChildNodesByTagName(element, 'CLRFunction');
         if (clrFunctionElements.length === 1) {
@@ -231,9 +230,9 @@ class ScalarExpressionParser {
     }
 
     private static ParseCLRFunction(element: Element): ShowPlan.CLRFunction {
-        const assembly = Convert.GetString(element, 'Assembly');
-        const $class = Convert.GetString(element, 'Class') as string;
-        const method = Convert.GetString(element, 'Method');
+        const assembly = Convert.GetStringOrUndefined(element, 'Assembly');
+        const $class = Convert.GetString(element, 'Class');
+        const method = Convert.GetStringOrUndefined(element, 'Method');
 
         const clrFunction = new ShowPlan.CLRFunction($class);
         clrFunction.Assembly = assembly;

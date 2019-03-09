@@ -33,8 +33,8 @@ class ShowPlanParser {
         doc: Document,
         batches: ShowPlan.ShowPlanXMLTypeBatchSequenceTypeBatch[],
     ): ShowPlan.ShowPlanXML {
-        const version = doc.documentElement!.getAttribute('Version') as string;
-        const build = doc.documentElement!.getAttribute('Build') as string;
+        const version = doc.documentElement.getAttribute('Version') as string;
+        const build = doc.documentElement.getAttribute('Build') as string;
         return new ShowPlan.ShowPlanXML(build, false, version, batches);
     }
 
@@ -54,50 +54,50 @@ class ShowPlanParser {
                     statement = new ShowPlan.BaseStmtInfo();
             }
 
-            statement.BatchSqlHandle = Convert.GetString(node, 'BatchSqlHandle');
-            statement.CardinalityEstimationModelVersion = Convert.GetString(
+            statement.BatchSqlHandle = Convert.GetStringOrUndefined(node, 'BatchSqlHandle');
+            statement.CardinalityEstimationModelVersion = Convert.GetStringOrUndefined(
                 node,
                 'CardinalityEstimationModelVersion',
             );
-            statement.DatabaseContextSettingsId = Convert.GetInt(node, 'DatabaseContextSettingsId');
-            statement.ParameterizedPlanHandle = Convert.GetString(node, 'ParameterizedPlanHandle');
-            statement.ParameterizedText = Convert.GetString(node, 'ParameterizedText');
-            statement.ParentObjectId = Convert.GetInt(node, 'ParentObjectId');
-            statement.PlanGuideDB = Convert.GetString(node, 'PlanGuideDB');
-            statement.PlanGuideName = Convert.GetString(node, 'PlanGuideName');
-            statement.QueryHash = Convert.GetString(node, 'QueryHash');
-            statement.QueryPlanHash = Convert.GetString(node, 'QueryPlanHash');
-            statement.RetrievedFromCache = Convert.GetString(node, 'RetrievedFromCache');
-            statement.SecurityPolicyApplied = Convert.GetBoolean(node, 'SecurityPolicyApplied');
-            statement.StatementCompId = Convert.GetInt(node, 'StatementCompId');
-            statement.StatementEstRows = Convert.GetInt(node, 'StatementEstRows');
-            statement.StatementId = Convert.GetInt(node, 'StatementId');
-            statement.StatementOptmEarlyAbortReason = Convert.GetString(
+            statement.DatabaseContextSettingsId = Convert.GetIntOrUndefined(node, 'DatabaseContextSettingsId');
+            statement.ParameterizedPlanHandle = Convert.GetStringOrUndefined(node, 'ParameterizedPlanHandle');
+            statement.ParameterizedText = Convert.GetStringOrUndefined(node, 'ParameterizedText');
+            statement.ParentObjectId = Convert.GetIntOrUndefined(node, 'ParentObjectId');
+            statement.PlanGuideDB = Convert.GetStringOrUndefined(node, 'PlanGuideDB');
+            statement.PlanGuideName = Convert.GetStringOrUndefined(node, 'PlanGuideName');
+            statement.QueryHash = Convert.GetStringOrUndefined(node, 'QueryHash');
+            statement.QueryPlanHash = Convert.GetStringOrUndefined(node, 'QueryPlanHash');
+            statement.RetrievedFromCache = Convert.GetStringOrUndefined(node, 'RetrievedFromCache');
+            statement.SecurityPolicyApplied = Convert.GetBooleanOrUndefined(node, 'SecurityPolicyApplied');
+            statement.StatementCompId = Convert.GetIntOrUndefined(node, 'StatementCompId');
+            statement.StatementEstRows = Convert.GetIntOrUndefined(node, 'StatementEstRows');
+            statement.StatementId = Convert.GetIntOrUndefined(node, 'StatementId');
+            statement.StatementOptmEarlyAbortReason = Convert.GetStringOrUndefined(
                 node,
                 'StatementOptmEarlyAbortReason',
             ) as ShowPlan.BaseStmtInfoTypeStatementOptmEarlyAbortReason;
-            statement.StatementOptmLevel = Convert.GetString(node, 'StatementOptmLevel');
-            statement.StatementParameterizationType = Convert.GetInt(
+            statement.StatementOptmLevel = Convert.GetStringOrUndefined(node, 'StatementOptmLevel');
+            statement.StatementParameterizationType = Convert.GetIntOrUndefined(
                 node,
                 'StatementParameterizationType',
             );
-            statement.StatementSqlHandle = Convert.GetString(node, 'StatementSqlHandle');
-            statement.StatementSubTreeCost = Convert.GetFloat(node, 'StatementSubTreeCost');
-            statement.StatementText = Convert.GetString(node, 'StatementText');
-            statement.StatementType = Convert.GetString(node, 'StatementType');
-            statement.TemplatePlanGuideDB = Convert.GetString(node, 'TemplatePlanGuideDB');
-            statement.TemplatePlanGuideName = Convert.GetString(node, 'TemplatePlanGuideName');
+            statement.StatementSqlHandle = Convert.GetStringOrUndefined(node, 'StatementSqlHandle');
+            statement.StatementSubTreeCost = Convert.GetFloatOrUndefined(node, 'StatementSubTreeCost');
+            statement.StatementText = Convert.GetStringOrUndefined(node, 'StatementText');
+            statement.StatementType = Convert.GetStringOrUndefined(node, 'StatementType');
+            statement.TemplatePlanGuideDB = Convert.GetStringOrUndefined(node, 'TemplatePlanGuideDB');
+            statement.TemplatePlanGuideName = Convert.GetStringOrUndefined(node, 'TemplatePlanGuideName');
 
             const setOptions = node.getElementsByTagName('StatementSetOptions');
             if (setOptions.length === 1) {
                 statement.StatementSetOptions = new ShowPlan.SetOptions(
-                    Convert.GetBoolean(setOptions[0], 'ANSI_NULLS'),
-                    Convert.GetBoolean(setOptions[0], 'ANSI_PADDING'),
-                    Convert.GetBoolean(setOptions[0], 'ANSI_WARNINGS'),
-                    Convert.GetBoolean(setOptions[0], 'ARITHABORT'),
-                    Convert.GetBoolean(setOptions[0], 'CONCAT_NULL_YIELDS_NULL'),
-                    Convert.GetBoolean(setOptions[0], 'NUMERIC_ROUNDABORT'),
-                    Convert.GetBoolean(setOptions[0], 'QUOTED_IDENTIFIER'),
+                    Convert.GetBooleanOrUndefined(setOptions[0], 'ANSI_NULLS'),
+                    Convert.GetBooleanOrUndefined(setOptions[0], 'ANSI_PADDING'),
+                    Convert.GetBooleanOrUndefined(setOptions[0], 'ANSI_WARNINGS'),
+                    Convert.GetBooleanOrUndefined(setOptions[0], 'ARITHABORT'),
+                    Convert.GetBooleanOrUndefined(setOptions[0], 'CONCAT_NULL_YIELDS_NULL'),
+                    Convert.GetBooleanOrUndefined(setOptions[0], 'NUMERIC_ROUNDABORT'),
+                    Convert.GetBooleanOrUndefined(setOptions[0], 'QUOTED_IDENTIFIER'),
                 );
             }
 
@@ -118,9 +118,11 @@ class ShowPlanParser {
 
         const statements: ShowPlan.BaseStmtInfo[] = [];
         for (let count = 0; count < batchElements.length; count++) {
-            const batchElement = batchElements.item(count)!;
-            const batchStatements = this.GetBatchFromElement(batchElement);
-            Array.prototype.push.apply(statements, batchStatements);
+            const batchElement = batchElements.item(count);
+            if (batchElement !== null) {
+                const batchStatements = this.GetBatchFromElement(batchElement);
+                Array.prototype.push.apply(statements, batchStatements);
+            }
         }
 
         const batch = new ShowPlan.ShowPlanXMLTypeBatchSequenceTypeBatch(statements);

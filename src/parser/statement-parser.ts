@@ -1,5 +1,5 @@
 import * as ShowPlan from './showplan';
-import { QueryPlanParser } from './query-plan-parser';
+import QueryPlanParser from './query-plan-parser';
 
 class StatementParser {
     public static ParseUseDb(element: Element): ShowPlan.StmtUseDb {

@@ -16,18 +16,18 @@ class WarningsParser {
         warnings.HashSpillDetails = QueryHelper.ParseAllItems(element, 'HashSpillDetails', i => this.ParseHashSpillDetails(i));
         warnings.MemoryGrantWarning = QueryHelper.ParseAllItems(element, 'MemoryGrantWarning', i => this.ParseMemoryGrantWarning(i));
 
-        warnings.NoJoinPredicate = Convert.GetBoolean(element, 'NoJoinPredicate');
-        warnings.SpatialGuess = Convert.GetBoolean(element, 'SpatialGuess');
-        warnings.UnmatchedIndexes = Convert.GetBoolean(element, 'UnmatchedIndexes');
-        warnings.FullUpdateForOnlineIndexBuild = Convert.GetBoolean(element, 'FullUpdateForOnlineIndexBuild');
+        warnings.NoJoinPredicate = Convert.GetBooleanOrUndefined(element, 'NoJoinPredicate');
+        warnings.SpatialGuess = Convert.GetBooleanOrUndefined(element, 'SpatialGuess');
+        warnings.UnmatchedIndexes = Convert.GetBooleanOrUndefined(element, 'UnmatchedIndexes');
+        warnings.FullUpdateForOnlineIndexBuild = Convert.GetBooleanOrUndefined(element, 'FullUpdateForOnlineIndexBuild');
 
         return warnings;
     }
 
     private static ParseSpillToTempDb(element: Element): ShowPlan.SpillToTempDb {
         const spill = new ShowPlan.SpillToTempDb();
-        spill.SpillLevel = Convert.GetInt(element, 'SpillLevel');
-        spill.SpilledThreadCount = Convert.GetInt(element, 'SpilledThreadCount');
+        spill.SpillLevel = Convert.GetIntOrUndefined(element, 'SpillLevel');
+        spill.SpilledThreadCount = Convert.GetIntOrUndefined(element, 'SpilledThreadCount');
 
         return spill;
     }
@@ -39,36 +39,36 @@ class WarningsParser {
 
     private static ParsePlanAffectingConvert(element: Element): ShowPlan.AffectingConvertWarning {
         const convertIssue = Convert.GetString(element, 'ConvertIssue') as ShowPlan.AffectingConvertWarningTypeConvertIssue;
-        const expression = Convert.GetString(element, 'Expression')!;
+        const expression = Convert.GetString(element, 'Expression');
 
         return new ShowPlan.AffectingConvertWarning(convertIssue, expression);
     }
 
     private static ParseSortSpillDetails(element: Element): ShowPlan.SortSpillDetails {
         const details = new ShowPlan.SortSpillDetails();
-        details.GrantedMemoryKb = Convert.GetInt(element, 'GrantedMemoryKb');
-        details.ReadsFromTempDb = Convert.GetInt(element, 'ReadsFromTempDb');
-        details.UsedMemoryKb = Convert.GetInt(element, 'UsedMemoryKb');
-        details.WritesToTempDb = Convert.GetInt(element, 'WritesToTempDb');
+        details.GrantedMemoryKb = Convert.GetIntOrUndefined(element, 'GrantedMemoryKb');
+        details.ReadsFromTempDb = Convert.GetIntOrUndefined(element, 'ReadsFromTempDb');
+        details.UsedMemoryKb = Convert.GetIntOrUndefined(element, 'UsedMemoryKb');
+        details.WritesToTempDb = Convert.GetIntOrUndefined(element, 'WritesToTempDb');
 
         return details;
     }
 
     private static ParseHashSpillDetails(element: Element): ShowPlan.HashSpillDetails {
         const details = new ShowPlan.HashSpillDetails();
-        details.GrantedMemoryKb = Convert.GetInt(element, 'GrantedMemoryKb');
-        details.ReadsFromTempDb = Convert.GetInt(element, 'ReadsFromTempDb');
-        details.UsedMemoryKb = Convert.GetInt(element, 'UsedMemoryKb');
-        details.WritesToTempDb = Convert.GetInt(element, 'WritesToTempDb');
+        details.GrantedMemoryKb = Convert.GetIntOrUndefined(element, 'GrantedMemoryKb');
+        details.ReadsFromTempDb = Convert.GetIntOrUndefined(element, 'ReadsFromTempDb');
+        details.UsedMemoryKb = Convert.GetIntOrUndefined(element, 'UsedMemoryKb');
+        details.WritesToTempDb = Convert.GetIntOrUndefined(element, 'WritesToTempDb');
 
         return details;
     }
 
     private static ParseMemoryGrantWarning(element: Element): ShowPlan.MemoryGrantWarningInfo {
         const kind = Convert.GetString(element, 'GrantWarningKind') as ShowPlan.MemoryGrantWarningType;
-        const requestedMemory = Convert.GetInt(element, 'RequestedMemory')!;
-        const grantedMemory = Convert.GetInt(element, 'GrantedMemory')!;
-        const maxUsedMemory = Convert.GetInt(element, 'MaxUsedMemory')!;
+        const requestedMemory = Convert.GetInt(element, 'RequestedMemory');
+        const grantedMemory = Convert.GetInt(element, 'GrantedMemory');
+        const maxUsedMemory = Convert.GetInt(element, 'MaxUsedMemory');
 
         return new ShowPlan.MemoryGrantWarningInfo(grantedMemory, kind, maxUsedMemory, requestedMemory);
     }

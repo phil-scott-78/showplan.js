@@ -5,18 +5,18 @@ import { Grouper, Group } from './grouping';
 
 class ColumnReferenceParser {
     public static Parse(element: Element): ShowPlan.ColumnReference {
-        const column = Convert.GetString(element, 'Column') as string;
+        const column = Convert.GetString(element, 'Column');
         const columnReference = new ShowPlan.ColumnReference(column);
 
-        columnReference.Server = Convert.GetString(element, 'Server');
-        columnReference.Database = Convert.GetString(element, 'Database');
-        columnReference.Schema = Convert.GetString(element, 'Schema');
-        columnReference.Table = Convert.GetString(element, 'Table');
-        columnReference.Alias = Convert.GetString(element, 'Alias');
-        columnReference.ComputedColumn = Convert.GetBoolean(element, 'ComputedColumn');
-        columnReference.ParameterDataType = Convert.GetString(element, 'ParameterDataType');
-        columnReference.ParameterCompiledValue = Convert.GetString(element, 'ParameterCompiledValue');
-        columnReference.ParameterRuntimeValue = Convert.GetString(element, 'ParameterRuntimeValue');
+        columnReference.Server = Convert.GetStringOrUndefined(element, 'Server');
+        columnReference.Database = Convert.GetStringOrUndefined(element, 'Database');
+        columnReference.Schema = Convert.GetStringOrUndefined(element, 'Schema');
+        columnReference.Table = Convert.GetStringOrUndefined(element, 'Table');
+        columnReference.Alias = Convert.GetStringOrUndefined(element, 'Alias');
+        columnReference.ComputedColumn = Convert.GetBooleanOrUndefined(element, 'ComputedColumn');
+        columnReference.ParameterDataType = Convert.GetStringOrUndefined(element, 'ParameterDataType');
+        columnReference.ParameterCompiledValue = Convert.GetStringOrUndefined(element, 'ParameterCompiledValue');
+        columnReference.ParameterRuntimeValue = Convert.GetStringOrUndefined(element, 'ParameterRuntimeValue');
 
         // todo set InternalInfo and ScalarOperator
 

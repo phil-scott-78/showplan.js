@@ -11,7 +11,7 @@ class MissingIndexParser {
     }
 
     private static ParseMissingIndexGroup(element: Element): ShowPlan.MissingIndexGroup {
-        const impact = Convert.GetFloat(element, 'Impact')!;
+        const impact = Convert.GetFloat(element, 'Impact');
         const missingIndexElements = QueryHelper.GetImmediateChildNodesByTagName(element, 'MissingIndex');
         const missingIndexes = missingIndexElements.map(i => this.ParseMissingIndex(i));
 
@@ -19,9 +19,9 @@ class MissingIndexParser {
     }
 
     private static ParseMissingIndex(element: Element): ShowPlan.MissingIndex {
-        const database = Convert.GetString(element, 'Database')!;
-        const schema = Convert.GetString(element, 'Schema')!;
-        const table = Convert.GetString(element, 'Table')!;
+        const database = Convert.GetString(element, 'Database');
+        const schema = Convert.GetString(element, 'Schema');
+        const table = Convert.GetString(element, 'Table');
 
         const columnGroupElements = QueryHelper.GetImmediateChildNodesByTagName(element, 'ColumnGroup');
         const columnGroups = columnGroupElements.map(i => this.ParseColumnGroup(i));
@@ -38,8 +38,8 @@ class MissingIndexParser {
     }
 
     private static ParseColumn(element: Element): ShowPlan.Column {
-        const name = Convert.GetString(element, 'Name')!;
-        const columnId = Convert.GetInt(element, 'ColumnId')!;
+        const name = Convert.GetString(element, 'Name');
+        const columnId = Convert.GetInt(element, 'ColumnId');
 
         return new ShowPlan.Column(columnId, name);
     }
