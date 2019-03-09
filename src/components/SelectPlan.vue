@@ -1,29 +1,29 @@
 <template>
-  <span v-if="showPlan.Batches[0].Statements.length > 1" style="margin-left:.5rem;position:relative;font-size:1.3rem;verticle-align:middle">
-  <a class="icon" @click="showDrop"><font-awesome-icon icon="chevron-circle-down" title="Switch Plans"></font-awesome-icon></a>
-  <dropdown ref="drop">
-    <div class="selectPlan">
-      <div v-for="(batch, batchIndex) in showPlan.Batches" :key="batchIndex" class="batch">
-        <h4 v-if="showPlan.Batches.length > 1">{{ batchIndex + 1 | ordinal }} Batch</h4>
-        <h4 v-else>Switch Plan</h4>
-        <ul>
-          <li v-for="(statement) in batch.Statements" :key="statement.Guid" @click="selectChanged(statement.Guid)">
-              <div class="text">
-                <sql-string v-if="statement.StatementText !== undefined" :sql="statement.StatementText.trim().substring(0,100)"></sql-string>
-                <span v-else>(unknown query statement text)</span>
-              </div>
-              <div class="stats">
-                <span v-if="statement.QueryPlan !== undefined" class='stats'>
-                    <span v-if="statement.StatementSubTreeCost !== undefined">Sub Tree Cost: <strong>{{ statement.StatementSubTreeCost }}</strong> ({{ statement.CostPercentOfBatch() | filterPercent }})
-                    </span>
-                </span>
-              </div>
-          </li>
-        </ul>
-      </div>
-    </div>
-  </dropdown>
-  </span>
+    <span v-if="showPlan.Batches[0].Statements.length > 1" style="margin-left:.5rem;position:relative;font-size:1.3rem;verticle-align:middle">
+        <a class="icon" @click="showDrop"><font-awesome-icon icon="chevron-circle-down" title="Switch Plans"></font-awesome-icon></a>
+        <dropdown ref="drop">
+            <div class="selectPlan">
+                <div v-for="(batch, batchIndex) in showPlan.Batches" :key="batchIndex" class="batch">
+                    <h4 v-if="showPlan.Batches.length > 1">{{ batchIndex + 1 | ordinal }} Batch</h4>
+                    <h4 v-else>Switch Plan</h4>
+                    <ul>
+                        <li v-for="(statement) in batch.Statements" :key="statement.Guid" @click="selectChanged(statement.Guid)">
+                            <div class="text">
+                                <sql-string v-if="statement.StatementText !== undefined" :sql="statement.StatementText.trim().substring(0,100)"></sql-string>
+                                <span v-else>(unknown query statement text)</span>
+                            </div>
+                            <div class="stats">
+                                <span v-if="statement.QueryPlan !== undefined" class='stats'>
+                                    <span v-if="statement.StatementSubTreeCost !== undefined">Sub Tree Cost: <strong>{{ statement.StatementSubTreeCost }}</strong> ({{ statement.CostPercentOfBatch() | filterPercent }})
+                                    </span>
+                                </span>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </dropdown>
+    </span>
 </template>
 
 <script lang="ts">
@@ -67,7 +67,7 @@ export default class SelectPlan extends Vue {
       this.$refs.drop.$emit('show', false);
       return statementGuid;
   }
-    /*
+/*
   @Watch('showPlan', { immediate: true, deep: false })
   public onShowPlanChange(val: ShowPlan.ShowPlanXML, oldVal: ShowPlan.ShowPlanXML) {
       let firstItem: string | undefined;

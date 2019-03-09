@@ -1,12 +1,12 @@
 <template>
-  <div class="content">
-    <h4>Order By <span v-if="sort.Distinct" class="subheading">Distinct</span></h4>
-    <ul class="small">
-      <li v-for="(column, index) in sort.OrderBy.OrderByColumn" :key="index">
-        <sql-string :sql="column.toString()" :expandedColumns="expandedChildColumns"></sql-string>
-      </li>
-    </ul>
-  </div>
+    <div class="content">
+        <h4>Order By <span v-if="sort.Distinct" class="subheading">Distinct</span></h4>
+        <ul class="small">
+            <li v-for="(column, index) in sort.OrderBy.OrderByColumn" :key="index">
+                <sql-string :sql="column.toString()" :expandedColumns="expandedChildColumns"></sql-string>
+            </li>
+        </ul>
+    </div>
 </template>
 
 <script lang='ts'>

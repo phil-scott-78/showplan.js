@@ -36,5 +36,9 @@ module.exports = {
     rules: {
         'max-len': [1, 260, 2],
         'linebreak-style': 0,
+        'vue/script-indent': ['error', 4, {
+            switchCase: 1,
+        }],
+        'vue/html-indent': ['error', 4],
     },
 };

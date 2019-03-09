@@ -1,21 +1,21 @@
 <template>
-<div class="container">
-  <!--UPLOAD-->
-  <form class="upload-form" enctype="multipart/form-data" novalidate>
-    <div v-if="showPasteTextBox === false" class="dropbox">
-      <div>
-        <font-awesome-icon icon="cloud-upload-alt" size="6x"></font-awesome-icon>
-      </div>
-      <h4>Click or Drop .SQLPLAN</h4>
-      <input type="file" @change="filesChange($event.target.files);" class="input-file">
+    <div class="container">
+        <!--UPLOAD-->
+        <form class="upload-form" enctype="multipart/form-data" novalidate>
+            <div v-if="showPasteTextBox === false" class="dropbox">
+                <div>
+                    <font-awesome-icon icon="cloud-upload-alt" size="6x"></font-awesome-icon>
+                </div>
+                <h4>Click or Drop .SQLPLAN</h4>
+                <input type="file" @change="filesChange($event.target.files);" class="input-file">
+            </div>
+            <div v-else class="dropbox">
+                <textarea placeholder="Paste your plan" rows="10" id="planTextBox" ref="planTextBox" name="planTextBox" autofocus @paste="onPaste"></textarea>
+            </div>
+            <p v-if="showPasteTextBox === false" style="text-align:center">Or <a @click="togglePaste(true)">paste</a> a plan</p>
+            <p v-else style="text-align:center">Or <a @click="togglePaste(false)">upload</a> a plan</p>
+        </form>
     </div>
-    <div v-else class="dropbox">
-      <textarea placeholder="Paste your plan" rows="10" id="planTextBox" ref="planTextBox" name="planTextBox" autofocus @paste="onPaste"></textarea>
-    </div>
-    <p v-if="showPasteTextBox === false" style="text-align:center">Or <a @click="togglePaste(true)">paste</a> a plan</p>
-    <p v-else style="text-align:center">Or <a @click="togglePaste(false)">upload</a> a plan</p>
-  </form>
-</div>
 </template>
 
 <script lang="ts">

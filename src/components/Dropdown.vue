@@ -6,11 +6,11 @@ we need that for themeing to work
 -->
 
 <template>
-  <transition :name="animate">
-    <div :class="[dropdownClass,{'v-dropdown-embed': embed}]" :style="[styleSheet]" v-show="show">
-        <slot></slot>
-    </div>
-  </transition>
+    <transition :name="animate">
+        <div :class="[dropdownClass,{'v-dropdown-embed': embed}]" :style="[styleSheet]" v-show="show">
+            <slot></slot>
+        </div>
+    </transition>
 </template>
 
 <script>
@@ -136,6 +136,7 @@ export default {
             const center = left + wid / 2 - box.width / 2;
             // align right's left
             const right = left + wid - box.width;
+
             switch (this.align) {
                 case 'left':
                     l = left + box.width > scrollLeft + viewWid ? right : left;
@@ -149,6 +150,7 @@ export default {
                 default:
                     break;
             }
+
             this.styleSheet.top = `${t}px`;
             this.styleSheet.left = `${l}px`;
         },
@@ -157,8 +159,8 @@ export default {
                 let callerClick = false;
                 const idx = e.path.findIndex(
                     val => val.className
-              && typeof val.className === 'string'
-              && val.className.includes(this.dropdownClass),
+                        && typeof val.className === 'string'
+                        && val.className.includes(this.dropdownClass),
                 );
                 if (!this.reOpen && e.path.find(val => val === this.lastCaller) && !this.rightClick) {
                     callerClick = true;

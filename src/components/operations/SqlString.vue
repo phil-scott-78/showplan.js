@@ -1,5 +1,5 @@
 <template>
-  <span v-html="formatSql(sql)"></span>
+    <span v-html="formatSql(sql)"></span>
 </template>
 
 <script lang='ts'>

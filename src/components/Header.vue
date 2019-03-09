@@ -1,18 +1,18 @@
 <template>
-  <div class="menu">
-    <div class="header item">
-      SQL Server SHOWPLAN
+    <div class="menu">
+        <div class="header item">
+            SQL Server SHOWPLAN
+        </div>
+        <div class="actions">
+            <a href="https://github.com/phil-scott-78/showplan.js" class="item"><font-awesome-icon :icon="['fab', 'github']" /></a>
+            <a class="item" @click="toggleThemeClicked">
+                <font-awesome-icon v-if="darkMode" :icon="['fa', 'moon']" />
+                <font-awesome-icon v-if="!darkMode" :icon="['fa', 'sun']" />
+            </a>
+            <button v-if="currentPlan === undefined" @click="loadSample" class="item">Load Sample</button>
+            <button v-else @click="planChanged(undefined)" class="item">New Plan</button>
+        </div>
     </div>
-    <div class="actions">
-      <a href="https://github.com/phil-scott-78/showplan.js" class="item"><font-awesome-icon :icon="['fab', 'github']" /></a>
-      <a class="item" @click="toggleThemeClicked">
-        <font-awesome-icon v-if="darkMode" :icon="['fa', 'moon']" />
-        <font-awesome-icon v-if="!darkMode" :icon="['fa', 'sun']" />
-      </a>
-      <button v-if="currentPlan === undefined" @click="loadSample" class="item">Load Sample</button>
-      <button v-else @click="planChanged(undefined)" class="item">New Plan</button>
-    </div>
-  </div>
 </template>
 
 <script lang='ts'>

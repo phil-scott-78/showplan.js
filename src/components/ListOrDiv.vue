@@ -1,14 +1,14 @@
 <template>
 
-  <div v-if="data.length === 1" :class="divClass">
-    <slot :item="data[0]"></slot>
-  </div>
+    <div v-if="data.length === 1" :class="divClass">
+        <slot :item="data[0]"></slot>
+    </div>
 
-  <ul v-else :class="listClass">
-    <li v-for="(d, index) in data" :key="index">
-      <slot :item="d"></slot>
-    </li>
-  </ul>
+    <ul v-else :class="listClass">
+        <li v-for="(d, index) in data" :key="index">
+            <slot :item="d"></slot>
+        </li>
+    </ul>
 </template>
 
 

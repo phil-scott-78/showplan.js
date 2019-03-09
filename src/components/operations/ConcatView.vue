@@ -1,10 +1,10 @@
 <template>
-  <div class="content">
-    <h4>Concatenated Columns</h4>
-    <ul class="small">
-      <li v-for="(column, index) in concatColumns" :key="index"><sql-string :sql="column.toString()" :expandedColumns="expandedChildColumns"></sql-string></li>
-    </ul>
-  </div>
+    <div class="content">
+        <h4>Concatenated Columns</h4>
+        <ul class="small">
+            <li v-for="(column, index) in concatColumns" :key="index"><sql-string :sql="column.toString()" :expandedColumns="expandedChildColumns"></sql-string></li>
+        </ul>
+    </div>
 </template>
 
 <script lang='ts'>

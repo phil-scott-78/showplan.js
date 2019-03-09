@@ -1,10 +1,10 @@
 <template>
-  <div>
-    <defined-values v-if="batchHashTableBuild.DefinedValues !== undefined && batchHashTableBuild.DefinedValues.length > 0" :definedValues="batchHashTableBuild.DefinedValues"></defined-values>
-    <div v-if="batchHashTableBuild.BitmapCreator !== undefined" class="content">
-      <div>Bitmap Creator: <strong>{{ batchHashTableBuild.BitmapCreator }}</strong> </div>
+    <div>
+        <defined-values v-if="batchHashTableBuild.DefinedValues !== undefined && batchHashTableBuild.DefinedValues.length > 0" :definedValues="batchHashTableBuild.DefinedValues"></defined-values>
+        <div v-if="batchHashTableBuild.BitmapCreator !== undefined" class="content">
+            <div>Bitmap Creator: <strong>{{ batchHashTableBuild.BitmapCreator }}</strong> </div>
+        </div>
     </div>
-  </div>
 </template>
 
 <script lang='ts'>

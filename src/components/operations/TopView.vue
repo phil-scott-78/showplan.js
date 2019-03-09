@@ -1,10 +1,10 @@
 <template>
-  <div class="content">
-    <ul class="stats" v-if="topString !== undefined">
-      <li v-if="top.TopExpression !== undefined"><sql-string :sql="topString"></sql-string></li>
-      <li v-if="top.RowCount">RowCount</li>
-    </ul>
-  </div>
+    <div class="content">
+        <ul class="stats" v-if="topString !== undefined">
+            <li v-if="top.TopExpression !== undefined"><sql-string :sql="topString"></sql-string></li>
+            <li v-if="top.RowCount">RowCount</li>
+        </ul>
+    </div>
 </template>
 
 <script lang='ts'>

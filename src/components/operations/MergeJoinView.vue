@@ -1,31 +1,31 @@
 <template>
-  <div>
+    <div>
 
 
-    <div v-if="merge.Residual !== undefined" class="content">
-      <h4>Residual</h4>
-      <div><sql-string :sql="merge.Residual.ScalarOperator.ScalarString" :expandedColumns="expandedChildColumns"></sql-string></div>
+        <div v-if="merge.Residual !== undefined" class="content">
+            <h4>Residual</h4>
+            <div><sql-string :sql="merge.Residual.ScalarOperator.ScalarString" :expandedColumns="expandedChildColumns"></sql-string></div>
+        </div>
+
+        <div v-if="merge.PassThru !== undefined" class="content">
+            <h4>PassThru</h4>
+            <div><sql-string :sql="merge.PassThru.ScalarOperator.ScalarString" :expandedColumns="expandedChildColumns"></sql-string></div>
+        </div>
+
+        <div v-if="merge.InnerSideJoinColumns !== undefined && merge.InnerSideJoinColumns.length > 0" class="content">
+            <h4>Inner Side Join Columns</h4>
+            <ul class="small">
+                <li v-for="(column, index) in merge.InnerSideJoinColumns" :key="index"><sql-string :sql="column.toString()" :expandedColumns="expandedChildColumns"></sql-string></li>
+            </ul>
+        </div>
+
+        <div v-if="merge.OuterSideJoinColumns !== undefined && merge.OuterSideJoinColumns.length > 0" class="content">
+            <h4>Outer Side Join Columns</h4>
+            <ul class="small">
+                <li v-for="(column, index) in merge.OuterSideJoinColumns" :key="index"><sql-string :sql="column.toString()" :expandedColumns="expandedChildColumns"></sql-string></li>
+            </ul>
+        </div>
     </div>
-
-    <div v-if="merge.PassThru !== undefined" class="content">
-      <h4>PassThru</h4>
-      <div><sql-string :sql="merge.PassThru.ScalarOperator.ScalarString" :expandedColumns="expandedChildColumns"></sql-string></div>
-    </div>
-
-    <div v-if="merge.InnerSideJoinColumns !== undefined && merge.InnerSideJoinColumns.length > 0" class="content">
-      <h4>Inner Side Join Columns</h4>
-      <ul class="small">
-        <li v-for="(column, index) in merge.InnerSideJoinColumns" :key="index"><sql-string :sql="column.toString()" :expandedColumns="expandedChildColumns"></sql-string></li>
-      </ul>
-    </div>
-
-    <div v-if="merge.OuterSideJoinColumns !== undefined && merge.OuterSideJoinColumns.length > 0" class="content">
-      <h4>Outer Side Join Columns</h4>
-      <ul class="small">
-        <li v-for="(column, index) in merge.OuterSideJoinColumns" :key="index"><sql-string :sql="column.toString()" :expandedColumns="expandedChildColumns"></sql-string></li>
-      </ul>
-    </div>
-  </div>
 
 </template>
 

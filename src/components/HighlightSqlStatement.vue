@@ -1,7 +1,7 @@
 <template>
-  <div class="content">
-    <pre><code v-html="formattedCode()"></code></pre>
-  </div>
+    <div class="content">
+        <pre><code v-html="formattedCode()"></code></pre>
+    </div>
 </template>
 
 <script lang='ts'>
