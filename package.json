@@ -7,7 +7,7 @@
     "build": "vue-cli-service build",
     "embed": "vue-cli-service build --mode embed",
     "lint": "vue-cli-service lint --format stylish",
-    "test:unit": "vue-cli-service test:unit"
+    "test:unit": "vue-cli-service test:unit --coverage true"
   },
   "prettier": {
     "semi": false,
@@ -43,6 +43,17 @@
     "xmldom": "^0.1.27"
   },
   "devDependencies": {
+    "@babel/core": "^7.0.0",
+    "@babel/plugin-proposal-class-properties": "^7.0.0",
+    "@babel/plugin-proposal-decorators": "^7.0.0",
+    "@babel/plugin-proposal-export-namespace-from": "^7.0.0",
+    "@babel/plugin-proposal-function-sent": "^7.0.0",
+    "@babel/plugin-proposal-json-strings": "^7.0.0",
+    "@babel/plugin-proposal-numeric-separator": "^7.0.0",
+    "@babel/plugin-proposal-throw-expressions": "^7.0.0",
+    "@babel/plugin-syntax-dynamic-import": "^7.0.0",
+    "@babel/plugin-syntax-import-meta": "^7.0.0",
+    "@babel/preset-env": "^7.0.0",
     "@types/d3-array": "^1.2.6",
     "@types/d3-hierarchy": "^1.1.6",
     "@types/d3-path": "^1.0.8",
@@ -59,6 +70,8 @@
     "@vue/eslint-config-airbnb": "^4.0.0",
     "@vue/eslint-config-typescript": "^4.0.0",
     "@vue/test-utils": "^1.0.0-beta.29",
+    "babel-core": "^7.0.0-bridge.0",
+    "babel-jest": "^23.4.2",
     "eslint": "^5.15.1",
     "eslint-import-resolver-typescript": "^1.1.1",
     "eslint-plugin-editorconfig": "0.0.3",

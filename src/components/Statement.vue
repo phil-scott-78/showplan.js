@@ -39,7 +39,7 @@
                         :class="{ 'selected': selectedOverviewTab === 'statement-overview' }"
                         @click="selectedOverviewTab='statement-overview'"
                     >Query Properties</a>
-                    <span v-if="statement.QueryPlan != undefined">
+                    <span v-if="statement.QueryPlan !== undefined">
                         <a
                             v-if="statement.QueryPlan.ParameterList !== undefined && statement.QueryPlan.ParameterList.length > 0"
                             :class="{ 'selected': selectedOverviewTab === 'query-parameters' }"

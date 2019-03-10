@@ -90,27 +90,6 @@ export default class SelectPlan extends Vue {
       this.$refs.drop.$emit('show', false);
       return statementGuid;
   }
-/*
-  @Watch('showPlan', { immediate: true, deep: false })
-  public onShowPlanChange(val: ShowPlan.ShowPlanXML, oldVal: ShowPlan.ShowPlanXML) {
-      let firstItem: string | undefined;
-      for (const batch of val.Batches) {
-          for (const statement of batch.Statements) {
-              if (firstItem === undefined) {
-                  firstItem = statement.Guid;
-              }
-
-              if (statement.StatementType !== 'USE DATABASE') {
-                  this.selectedStatement = statement.Guid;
-                  this.statementSelected(this.selectedStatement);
-                  return;
-              }
-          }
-      }
-
-      return firstItem;
-  }
-  */
 }
 </script>
 
