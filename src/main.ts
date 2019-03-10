@@ -4,7 +4,7 @@ import 'normalize.css';
 import '../styles/styles.scss';
 import VueDragscroll from 'vue-dragscroll';
 
-import './string-extensions';
+import '@/string-extensions';
 
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { faGithub } from '@fortawesome/free-brands-svg-icons';

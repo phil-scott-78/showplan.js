@@ -15,7 +15,7 @@ class Convert {
 
     public static GetString(element: Element, attribute: string): string {
         const input = element.getAttribute(attribute);
-        if (input === null || input === '') { throw Error('Expected a string but received undefined'); }
+        if (input === null) { throw Error('Expected a string but received undefined'); }
 
         return input;
     }
