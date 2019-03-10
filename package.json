@@ -65,7 +65,6 @@
     "eslint-plugin-jest": "^22.3.0",
     "eslint-plugin-vue": "^5.2.2",
     "jest": "24.3.1",
-    "mocha-appveyor-reporter": "^0.4.2",
     "node-sass": "^4.11.0",
     "sass-loader": "^7.1.0",
     "ts-jest": "^24.0.0",

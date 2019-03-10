@@ -20,7 +20,7 @@ install:
 
 # Post-install test scripts.
 test_script:
-  - yarn run test:unit -- --reporter mocha-appveyor-reporter
+  - yarn run test:unit
 
 build_script:
 - cmd: yarn run build
