@@ -1,10 +1,9 @@
 import ShowPlanParser from '@/parser/showplan-parser';
 import * as ShowPlan from '@/parser/showplan';
-import { expect } from 'chai';
 import * as fs from 'fs';
 
 describe('nci_plan_2012.sqlplan', () => {
-    it('can parse', () => {
+    test('can parse', () => {
         const file = 'tests/unit/plan-parser/plans/nci_plan_2012.sqlplan';
         const data = fs.readFileSync(file, 'utf16le');
         const plan = ShowPlanParser.Parse(data);
@@ -19,7 +18,7 @@ describe('nci_plan_2012.sqlplan', () => {
             .RelOp[0].Action // parallelism parition streams
             .RelOp[0].Action; // batch hash table build
 
-        expect(action).to.be.instanceof(ShowPlan.BatchHashTableBuild);
-        expect((action as ShowPlan.BatchHashTableBuild).BitmapCreator).to.be.true;
+        expect(action).toBeInstanceOf(ShowPlan.BatchHashTableBuild);
+        expect((action as ShowPlan.BatchHashTableBuild).BitmapCreator).toBe(true);
     });
 });

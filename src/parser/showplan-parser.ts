@@ -110,7 +110,9 @@ class ShowPlanParser {
     public static Parse(s: string): ShowPlan.ShowPlanXML {
     // create a new parser that just ignores all the errors. we'll check after the fact
     // whether or not it parsed a SHOWPLAN
-        const doc = new DOMParser().parseFromString(s, 'text/xml');
+        const doc = new DOMParser(
+            {errorHandler:{warning:function(w){throw Error(w)}}}
+        ).parseFromString(s, 'text/xml');
         if (doc.documentElement === null || doc.documentElement.namespaceURI !== 'http://schemas.microsoft.com/sqlserver/2004/07/showplan') {
             throw new Error('Invalid showplan');
         }

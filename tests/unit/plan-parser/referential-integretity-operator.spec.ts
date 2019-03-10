@@ -1,6 +1,5 @@
 import ShowPlanParser from '@/parser/showplan-parser';
 import * as ShowPlan from '@/parser/showplan';
-import { expect } from 'chai';
 
 
 import * as fs from 'fs';
@@ -9,20 +8,20 @@ describe('referential-integretity-operator.sqlplan', () => {
     const file = 'tests/unit/plan-parser/plans/referential-integretity-operator.sqlplan';
     let plan: ShowPlan.ShowPlanXML;
 
-    before(() => {
+    beforeAll(() => {
         const data = fs.readFileSync(file, 'utf16le');
         plan = ShowPlanParser.Parse(data);
     });
 
-    it('first operation is a nested loop', () => {
+    test('first operation is a nested loop', () => {
         const statement = plan.Batches[0].Statements[0] as ShowPlan.StmtSimple;
         const op = statement.QueryPlan!.RelOp;
-        expect(op.LogicalOp).to.equal('Foreign Key References Check');
-        expect(op.PhysicalOp).to.equal('Foreign Key References Check');
-        expect(op.Action).to.be.instanceof(ShowPlan.ForeignKeyReferencesCheck);
+        expect(op.LogicalOp).toBe('Foreign Key References Check');
+        expect(op.PhysicalOp).toBe('Foreign Key References Check');
+        expect(op.Action).toBeInstanceOf(ShowPlan.ForeignKeyReferencesCheck);
 
         const check = op.Action as ShowPlan.ForeignKeyReferencesCheck;
-        expect(check.ForeignKeyReferenceCheck).to.have.length(1);
-        expect(check.ForeignKeyReferenceCheck[0].IndexScan.Object[0].IndexKind).to.equal('Heap');
+        expect(check.ForeignKeyReferenceCheck).toHaveLength(1);
+        expect(check.ForeignKeyReferenceCheck[0].IndexScan.Object[0].IndexKind).toBe('Heap');
     });
 });

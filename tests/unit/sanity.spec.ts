@@ -1,7 +1,5 @@
-import { expect } from 'chai';
-
 describe('things should freaking work', () => {
-    it('actually works', () => {
-        expect(1).to.equal(1);
+    test('actually works', () => {
+        expect(1).toBe(1);
     });
 });

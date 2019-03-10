@@ -12,9 +12,9 @@
     "sourceMap": true,
     "baseUrl": ".",
     "types": [
-      "node",
-      "mocha",
-      "chai"
+      "jest",
+        "node",
+      "jest"
     ],
     "paths": {
       "@/*": [
@@ -28,7 +28,7 @@
       "scripthost"
     ],
     "typeRoots": [
-      "node_modules",
+      "node_modules/@types",
       "./src/types"
     ]
   },
