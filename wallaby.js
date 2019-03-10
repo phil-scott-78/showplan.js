@@ -26,24 +26,7 @@ module.exports = function (w) {
             runner: 'node',
         },
 
-        preprocessors: {
-            '**/*.vue': file => require('vue-jest').process(file.content, file.path),
-            '**/*.js?(x)': file => require('@babel/core').transform(
-                file.content,
-                {sourceMap: true, compact: false, filename: file.path, plugins: ['babel-plugin-jest-hoist']})
-          },
-
         testFramework: 'jest',
-
-        setup: () => {
-            const jestConfig = require('./package').jest || require('./jest.config');
-            jestConfig.transform = {};
-            wallaby.testFramework.configure(jestConfig);
-
-            const Vue = require('vue');
-            Vue.config.productionTip = false;
-        },
-
         debug: false,
     };
 };
