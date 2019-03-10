@@ -26,7 +26,7 @@ describe('hash-match-join.sqlplan', () => {
         expect(hash.HashKeysBuild![0].Column).toBe('OwnerUserId');
         expect(hash.HashKeysProbe![0].Column).toBe('Id');
         expect(hash.ProbeResidual!.ScalarOperator.ScalarString).toBe(
-            '[StackOverflowMovies].[dbo].[Posts].[OwnerUserId]=[StackOverflowMovies].[dbo].[Users].[Id]'
+            '[StackOverflowMovies].[dbo].[Posts].[OwnerUserId]=[StackOverflowMovies].[dbo].[Users].[Id]',
         );
         expect(hash.RelOp[0].Action).toBeInstanceOf(ShowPlan.ComputeScalar);
         expect(hash.RelOp[1].Action).toBeInstanceOf(ShowPlan.IndexScan);

@@ -26,7 +26,7 @@ describe('multi-convert.sqlplan', () => {
         const firstComputeScalar = statement.QueryPlan!.RelOp.Action as ShowPlan.ComputeScalar;
         expect(firstComputeScalar.DefinedValues![0].ColumnReference![0].Column).toBe('Expr1003');
         expect(firstComputeScalar.DefinedValues![0].ScalarOperator!.ScalarString).toBe(
-            'CONVERT(varchar(30),[StackOverflowMovies].[dbo].[Users].[CreationDate],[@style])'
+            'CONVERT(varchar(30),[StackOverflowMovies].[dbo].[Users].[CreationDate],[@style])',
         );
 
         expect(statement.QueryPlan!.RelOp.Action.DefinedValues![0].ScalarOperator!.Operation).toBeInstanceOf(ShowPlan.Convert);

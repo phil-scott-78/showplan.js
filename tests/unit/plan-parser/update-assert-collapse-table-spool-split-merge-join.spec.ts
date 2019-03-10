@@ -118,7 +118,7 @@ describe('update-assert-collapse-table-spool-split-merge-join.sqlplan', () => {
             expect(merge.InnerSideJoinColumns![0].Table).toBe('[Users]');
             expect(merge.OuterSideJoinColumns![0].Table).toBe('[vUsersWithPostCount]');
             expect(merge.Residual!.ScalarOperator.ScalarString).toBe(
-                '[StackOverflowMovies].[dbo].[Users].[Id] = [StackOverflowMovies].[dbo].[vUsersWithPostCount].[Id]'
+                '[StackOverflowMovies].[dbo].[Users].[Id] = [StackOverflowMovies].[dbo].[vUsersWithPostCount].[Id]',
             );
         });
 

@@ -30,6 +30,6 @@ describe('missing index', () => {
             const missingIndex = new MissingIndex('myDatabase', 'dbo', 'tableName', [columnGroup, includeColumnGroup]);
             const expectedSql = 'CREATE NONCLUSTERED INDEX IX_tableName_Id_LastName ON dbo.tableName (Id, LastName) INCLUDE (FirstName)';
             expect(missingIndex.toCreateIndexString()).toBe(expectedSql);
-        }
+        },
     );
 });

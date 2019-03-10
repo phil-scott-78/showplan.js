@@ -8,27 +8,22 @@ environment:
   CLOUDFLARE_EMAIL:
     secure: fwbhpJU6sYLj9/44hGZNEhsRv9Sc9QUUVC8N4S0W1O8=
 
-
 cache:
-  - node_modules                        # local npm modules
+ - "%LOCALAPPDATA%\\Yarn"
 
 # Install scripts. (runs after repo cloning)
 install:
   # Get the latest stable version of Node.js or io.js
   - ps: Install-Product node $env:nodejs_version
   # install modules
-  - npm install
+  - yarn install
 
 # Post-install test scripts.
 test_script:
-  # Output useful info for debugging.
-  - node --version
-  - npm --version
-  # run tests
-  - npm run test:unit -- --reporter mocha-appveyor-reporter
+  - yarn run test:unit -- --reporter mocha-appveyor-reporter
 
 build_script:
-- cmd: npm run build
+- cmd: yarn run build
 
 artifacts:
 - path: /dist
