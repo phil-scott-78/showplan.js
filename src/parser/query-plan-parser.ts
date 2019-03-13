@@ -31,7 +31,7 @@ class QueryPlanParser {
         queryplan.Warnings = QueryHelper.ParseSingleItem(queryPlanElement, 'Warnings', i => WarningsParser.ParseWarnings(i));
         queryplan.CachedPlanSize = Convert.GetIntOrUndefined(queryPlanElement, 'CachedPlanSize');
         queryplan.ParameterList = ColumnReferenceParser.GetAllFromElement(queryPlanElement, 'ParameterList');
-
+        queryplan.DegreeOfParallelism = Convert.GetIntOrUndefined(queryPlanElement, 'DegreeOfParallelism');
         return queryplan;
     }
 

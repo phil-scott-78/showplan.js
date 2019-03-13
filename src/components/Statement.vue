@@ -12,7 +12,7 @@
                 <span v-if="statement.StatementSubTreeCost !== undefined">Sub Tree Cost: <strong>{{ statement.StatementSubTreeCost }}</strong></span>
                 <span v-if="statement.StatementEstRows !== undefined">Estimated Number of Rows : <strong>{{ statement.StatementEstRows }}</strong></span>
                 <span>Degree of Parallelism:
-                    <strong v-if="statement.QueryPlan.DegreeOfParallelism !== undefined">{{ statement.statement.QueryPlan.DegreeOfParallelism }}</strong>
+                    <strong v-if="statement.QueryPlan.DegreeOfParallelism !== undefined">{{ statement.QueryPlan.DegreeOfParallelism }}</strong>
                     <strong v-else>1</strong>
                 </span>
                 <span v-if="statement.QueryPlan.CachedPlanSize !== undefined">Cached Plan Size: <strong>{{ statement.QueryPlan.CachedPlanSize | filterKiloBytes }}</strong></span>
@@ -183,7 +183,6 @@ export default class Statement extends Vue {
       if (statement.QueryPlan === undefined) {
           return;
       }
-
       const addChildren = (map: Map<number, RelOp>, op: RelOp) => {
           map.set(op.NodeId, op);
           op.Action.RelOp.forEach((childOp) => {

@@ -3,6 +3,7 @@ module.exports = function(w) {
     return {
         files: [
             'src/**/*.ts',
+            'tests/**/*.helper.ts',
             'src/**/*.vue',
             { pattern: 'tests/**/*.sqlplan', instrument: false },
             'package.json',

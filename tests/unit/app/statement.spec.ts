@@ -3,7 +3,6 @@ import Statement from '@/components/Statement.vue';
 import { SetVueDirectives, SetVueFilters } from '@/vueConfig';
 
 import ShowPlanParser from '@/parser/showplan-parser';
-import * as ShowPlan from '@/parser/showplan';
 import * as fs from 'fs';
 
 describe('we can mount statement.vue', () => {
@@ -15,7 +14,10 @@ describe('we can mount statement.vue', () => {
         const file = 'tests/unit/plan-parser/plans/adaptive-join.sqlplan';
         const data = fs.readFileSync(file, 'utf16le');
         const plan = ShowPlanParser.Parse(data);
-        const statement = plan.Batches[0].Statements[0] as ShowPlan.StmtSimple;
+        const statement = plan.Batches[0].Statements[0];
+
+        expect(statement).toBeDefined();
+
 
         const wrapper = mount(Statement,
             {

@@ -1408,6 +1408,20 @@ export class QueryPlan {
     public constructor(RelOperation: RelOp) {
         this.RelOp = RelOperation;
     }
+
+    // helper to get all of the operations of a queryplan in one big array
+    public getFlattenRelOps(): RelOp[] {
+        const flatten = (ops: RelOp[]): RelOp[] => ops.reduce<RelOp[]>((flat, i) => {
+            let f = flat.concat(i);
+            if (i.Action.RelOp.length > 0) {
+                f = f.concat(flatten(i.Action.RelOp));
+            }
+
+            return f;
+        }, []);
+
+        return flatten([this.RelOp]);
+    }
 }
 
 export class ReceivePlan {

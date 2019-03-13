@@ -24,7 +24,16 @@ class Convert {
         const input = element.getAttribute(attribute);
         if (input === null || input === '') { throw Error('Expected a boolean but received undefined'); }
 
-        return input !== 'false';
+        switch (input) {
+            case '0':
+            case 'false':
+                return false;
+            case '1':
+            case 'true':
+                return true;
+            default:
+                throw Error('unexpected boolean string');
+        }
     }
 
     public static GetDate(element: Element, attribute: string): Date {
