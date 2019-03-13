@@ -84,7 +84,7 @@
                                     <g
                                         v-if="node.data.NodeId !== -1"
                                         style="font-size:.6rem"
-                                        opacity=".5"
+                                        opacity=".8"
                                     >
                                         <text
                                             v-if=" node.data.SecondaryDesc != node.data.PhysicalOp"
