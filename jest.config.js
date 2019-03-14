@@ -1,5 +1,4 @@
 module.exports = {
-    preset: 'ts-jest/presets/js-with-ts',
     moduleFileExtensions: ['js', 'jsx', 'json', 'vue', 'ts', 'tsx'],
     transform: {
         '^.+\\.js$': 'babel-jest',

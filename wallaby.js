@@ -16,7 +16,7 @@ module.exports = function(w) {
         tests: ['tests/**/*.spec.ts'],
 
         compilers: {
-            '**/*.ts?(x)': w.compilers.typeScript(require('./tsconfig.jest.json')),
+            '**/*.ts?(x)': w.compilers.typeScript(require('./tsconfig.jest.json').compilerOptions),
             '**/*.js': w.compilers.babel()
         },
         env: {
@@ -28,9 +28,10 @@ module.exports = function(w) {
         debug: false,
 
         setup(w) {
-            // prevent ts-jest from double compiling the typescript
+            // prevent ts-jest from double compiling the typescript and javascript
             const jestConfig = require('./package').jest || require('./jest.config')
             delete jestConfig.transform['^.+\\.tsx?$']
+            delete jestConfig.transform['^.+\\.js$']
             w.testFramework.configure(jestConfig)
         }
     }

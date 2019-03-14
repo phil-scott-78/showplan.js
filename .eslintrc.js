@@ -19,7 +19,7 @@ module.exports = {
         '@typescript-eslint/parser': ['.ts', '.tsx'],
         ecmaVersion: 2018,
         sourceType: 'module',
-        project: './tsconfig.json',
+        // project: './tsconfig.json', // this has a big time perf hit right now
         tsconfigRootDir: './',
         extraFileExtensions: ['.vue'],
     },
