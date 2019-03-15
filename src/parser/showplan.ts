@@ -54,6 +54,8 @@ export class RelOpAction {
 }
 
 export class RelOp {
+    public ParentRelOp?: RelOp;
+
     public AdaptiveThresholdRows?: number;
 
     public AvgRowSize: number;

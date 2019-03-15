@@ -92,7 +92,7 @@ div.message {
     }
 
     h3, h4, h5 {
-      margin: 0 0 .25rem 0;
+      margin: 0 0 .5rem 0;
 
       .subheading {font-weight: normal;}
     }
@@ -155,6 +155,19 @@ div.message {
       }
     }
 
+    .item {
+        margin-bottom:.5rem;
+        display: flex;
+
+        .child {
+            flex: 1 1;
+        }
+
+        &:last-of-type {
+            margin-bottom: 0;
+        }
+    }
+
     div.small {
       font-size: .75rem;
     }
@@ -175,7 +188,6 @@ div.message {
   .content.raw-data {
     max-height: 25rem;
     overflow:auto;
-
   }
 
   .footer {

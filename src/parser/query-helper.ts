@@ -4,7 +4,6 @@ class QueryHelper {
         let returnCounter = 0;
         const children = node.childNodes;
 
-        // tslint:disable-next-line:prefer-for-of
         for (let nodeCounter = 0; nodeCounter < children.length; nodeCounter += 1) {
             if (children[nodeCounter].nodeType === 1) {
                 if ((children[nodeCounter] as Element).tagName === tagName) {

@@ -8,7 +8,7 @@
                 <sql-string :sql="topString" />
             </li>
             <li v-if="top.RowCount">
-                RowCount
+                Row Count <strong>{{ top.RowCount }}</strong>
             </li>
         </ul>
     </div>

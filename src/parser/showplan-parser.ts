@@ -113,9 +113,13 @@ class ShowPlanParser {
         const doc = new DOMParser(
             { errorHandler: { warning(w) { throw Error(w); } } },
         ).parseFromString(s, 'text/xml');
-        if (doc.documentElement === null || doc.documentElement.namespaceURI !== 'http://schemas.microsoft.com/sqlserver/2004/07/showplan') {
-            throw new Error('Invalid showplan');
+        if (doc.documentElement === null) {
+            throw new Error('Could not parse XML for showplan');
         }
+        if (doc.documentElement.namespaceURI !== 'http://schemas.microsoft.com/sqlserver/2004/07/showplan') {
+            throw new Error(`Invalid XML namespace. Received namespace ${doc.documentElement.namespaceURI}`);
+        }
+
         const batchElements = doc.documentElement.getElementsByTagName('Batch');
 
         const statements: ShowPlan.BaseStmtInfo[] = [];

@@ -17,7 +17,7 @@ class QueryPlanParser {
             throw new Error('RelOp not found in query plan');
         }
 
-        const relOp = this.ParseRelOp(relOpElements[0]);
+        const relOp = this.ParseRelOp(undefined, relOpElements[0]);
         const queryplan = new ShowPlan.QueryPlan(relOp);
 
         queryplan.MissingIndexes = QueryHelper.ParseSingleItem(queryPlanElement, 'MissingIndexes', i => MissingIndexParser.ParseMissingIndexes(i));
@@ -35,7 +35,7 @@ class QueryPlanParser {
         return queryplan;
     }
 
-    public static ParseRelOp(relOpElement: Element): ShowPlan.RelOp {
+    public static ParseRelOp(parentRelOp: ShowPlan.RelOp | undefined, relOpElement: Element): ShowPlan.RelOp {
         const tagsAndParsers: TagAndParser<ShowPlan.RelOpAction>[] = [
             new TagAndParser('AdaptiveJoin', element => this.ParseAdaptiveJoin(element)),
             new TagAndParser('Assert', element => this.ParseFilterElement(element)),
@@ -58,7 +58,7 @@ class QueryPlanParser {
             new TagAndParser('MergeInterval', element => this.ParseSimpleIteratorOneChild(element)),
             new TagAndParser('NestedLoops', element => this.ParseNestedLoop(element)),
             new TagAndParser('OnlineIndex', element => this.ParseCreateIndex(element)),
-            new TagAndParser('Parallelism', () => this.ParseParallelism()),
+            new TagAndParser('Parallelism', element => this.ParseParallelism(element)),
             new TagAndParser('ParameterTableScan', element => this.ParseRelOpBaseType(element)),
             new TagAndParser('PrintDataflow', element => this.ParseRelOpBaseType(element)), // i can't find this ANYWHERE online
             new TagAndParser('Put', element => this.ParsePut(element)),
@@ -111,12 +111,6 @@ class QueryPlanParser {
         }
 
         if (action !== undefined && actionElement !== undefined) {
-            const childOpElements = QueryHelper.GetImmediateChildNodesByTagName(actionElement, 'RelOp');
-
-            if (childOpElements.length > 0) {
-                action.RelOp = childOpElements.map(element => this.ParseRelOp(element));
-            }
-
             const definedValuesElement = QueryHelper.GetImmediateChildNodesByTagName(actionElement, 'DefinedValues');
             if (definedValuesElement.length === 1) {
                 const definedValueElements = QueryHelper.GetImmediateChildNodesByTagName(definedValuesElement[0], 'DefinedValue');
@@ -162,6 +156,16 @@ class QueryPlanParser {
         thisOp.EstimatedJoinType = Convert.GetStringOrUndefined(relOpElement, 'EstimatedJoinType') as ShowPlan.PhysicalOp;
         thisOp.Warnings = QueryHelper.ParseSingleItem(relOpElement, 'Warnings', i => WarningsParser.ParseWarnings(i));
         thisOp.RunTimeInformation = QueryHelper.ParseSingleItem(relOpElement, 'RunTimeInformation', i => MetaInfoParser.ParseRunTimeInformation(i));
+        thisOp.ParentRelOp = parentRelOp;
+
+        if (action !== undefined && actionElement !== undefined) {
+            const childOpElements = QueryHelper.GetImmediateChildNodesByTagName(actionElement, 'RelOp');
+
+            if (childOpElements.length > 0) {
+                action.RelOp = childOpElements.map(element => this.ParseRelOp(thisOp, element));
+            }
+        }
+
         return thisOp;
     }
 
@@ -596,8 +600,28 @@ class QueryPlanParser {
         return op;
     }
 
-    private static ParseParallelism(): ShowPlan.Parallelism {
-        return new ShowPlan.Parallelism();
+    private static ParseParallelism(element: Element): ShowPlan.Parallelism {
+        const parallelism = new ShowPlan.Parallelism();
+        parallelism.InRow = Convert.GetBooleanOrUndefined(element, 'InRow');
+        parallelism.LocalParallelism = Convert.GetBooleanOrUndefined(element, 'LocalParallelism');
+        parallelism.Remoting = Convert.GetBooleanOrUndefined(element, 'Remoting');
+        parallelism.PartitioningType = Convert.GetStringOrUndefined(element, 'PartitioningType') as ShowPlan.PartitionType;
+        parallelism.HashKeys = ColumnReferenceParser.GetAllFromElement(element, 'HashKeys');
+        parallelism.PartitionColumns = ColumnReferenceParser.GetAllFromElement(element, 'PartitionColumns');
+
+        const orderByElement = QueryHelper.GetImmediateChildNodesByTagName(element, 'OrderBy');
+        if (orderByElement.length > 0) {
+            const orderByColumnElements = QueryHelper.GetImmediateChildNodesByTagName(orderByElement[0], 'OrderByColumn');
+            const orderBy = new ShowPlan.OrderBy(orderByColumnElements.map(i => this.parseOrderByColumn(i)));
+            parallelism.OrderBy = orderBy;
+        }
+
+        const predicateElement = QueryHelper.GetImmediateChildNodesByTagName(element, 'Predicate');
+        if (predicateElement.length > 0) {
+            parallelism.Predicate = ScalarExpressionParser.Parse(predicateElement[0]);
+        }
+
+        return parallelism;
     }
 
     private static ParseTopElement(topElement: Element): ShowPlan.Top {

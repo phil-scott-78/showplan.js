@@ -167,7 +167,7 @@ class ScalarExpressionParser {
     }
 
     private static ParseSubquery(element: Element): ShowPlan.Subquery {
-        const relOp = QueryPlanParser.ParseRelOp(QueryHelper.GetImmediateChildNodesByTagName(element, 'RelOp')[0]);
+        const relOp = QueryPlanParser.ParseRelOp(undefined, QueryHelper.GetImmediateChildNodesByTagName(element, 'RelOp')[0]);
         const operation = Convert.GetString(element, 'Operation') as ShowPlan.SubqueryOperationType;
         const subquery = new ShowPlan.Subquery(operation, relOp);
 

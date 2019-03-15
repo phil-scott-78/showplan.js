@@ -76,7 +76,6 @@ describe('concat-sort-stream-parallel.sqlplan', () => {
         expect(queryplan.RelOp.Action).toBeInstanceOf(ShowPlan.Parallelism);
         expect(queryplan.RelOp.PhysicalOp).toBe('Parallelism');
         expect(queryplan.RelOp.LogicalOp).toBe('Gather Streams');
-        expect(queryplan.RelOp.Action.RelOp[0].Action).toBeInstanceOf(ShowPlan.Sort);
     });
 
     test('second operation is Sort', () => {
@@ -90,6 +89,12 @@ describe('concat-sort-stream-parallel.sqlplan', () => {
     test('third operation is also Parallelism', () => {
         const queryplan = (plan.Batches[0].Statements[0] as ShowPlan.StmtSimple).QueryPlan!;
         expect(queryplan.RelOp.Action.RelOp[0].Action.RelOp[0].Action).toBeInstanceOf(ShowPlan.Parallelism);
+
+        const parallel = queryplan.RelOp.Action.RelOp[0].Action.RelOp[0];
+        expect(parallel.LogicalOp).toBe('Repartition Streams');
+        const parallelAction = parallel.Action as ShowPlan.Parallelism;
+        expect(parallelAction.PartitioningType).toBe('Hash');
+        expect(parallelAction.PartitionColumns).toHaveLength(1);
     });
 
     test('fourth operation is StreamAggregate', () => {

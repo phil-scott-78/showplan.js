@@ -3,21 +3,40 @@ import * as ShowPlan from '@/parser/showplan';
 import * as fs from 'fs';
 
 describe('Parallism', () => {
-    test('is parallel is set correctly', () => {
-        const file = 'tests/unit/plan-parser/plans/How many upvotes do I have for each tag.sqlplan';
+    let allOperations: ShowPlan.RelOp[];
+    let plan: ShowPlan.ShowPlanXML;
+
+    beforeAll(() => {
+        const file = 'tests/unit/plan-parser/plans/parallelism.sqlplan';
         const data = fs.readFileSync(file, 'utf16le');
-        const plan = ShowPlanParser.Parse(data);
+        plan = ShowPlanParser.Parse(data);
+        allOperations = (plan.Batches[0].Statements[0] as ShowPlan.StmtSimple).QueryPlan!.getFlattenRelOps();
+    });
 
-        const showplan = plan.Batches[0].Statements[0] as ShowPlan.StmtSimple;
-        const ops = showplan.QueryPlan!.getFlattenRelOps();
-        const sortOp = ops.find(i => i.NodeId === 0)!;
+    test('is parallel is set correctly', () => {
+        const top = allOperations.find(i => i.NodeId === 0)!;
+        expect(top.Parallel).toBeFalsy();
 
-        expect(sortOp.Parallel).toBeFalsy();
-
-        const parallelOp = ops.find(i => i.NodeId === 13)!;
-        expect(showplan.QueryPlan!.DegreeOfParallelism).toBe(8);
+        const parallelOp = allOperations.find(i => i.NodeId === 1)!;
         expect(parallelOp.Parallel).toBeTruthy();
-        expect(parallelOp.RunTimeInformation).toBeDefined();
-        expect(parallelOp.RunTimeInformation!.RunTimeCountersPerThread).toHaveLength(9);
+    });
+
+    test('partitioned columns and predicate are set', () => {
+        const parallelOp = allOperations.find(i => i.NodeId === 37)!;
+        expect(parallelOp.LogicalOp).toBe('Repartition Streams');
+        expect(parallelOp.RunTimeInformation!.RunTimeCountersPerThread.length).toBe(8);
+        const parallel = parallelOp.Action as ShowPlan.Parallelism;
+        expect(parallel.PartitionColumns).toHaveLength(3);
+        expect(parallel.PartitionColumns![0].Column).toBe('Column5');
+        expect(parallel.Predicate!.ScalarOperator.ScalarString).toBe('ScalarString12');
+    });
+
+    test('order by is set', () => {
+        const parallelOp = allOperations.find(i => i.NodeId === 1)!;
+        expect(parallelOp.LogicalOp).toBe('Gather Streams');
+        const parallel = parallelOp.Action as ShowPlan.Parallelism;
+        expect(parallel.OrderBy).toBeDefined();
+        expect(parallel.OrderBy!.OrderByColumn[0].ColumnReference.Column).toBe('Column10');
+        expect(parallelOp.RunTimeInformation!.RunTimeCountersPerThread.length).toBe(1);
     });
 });

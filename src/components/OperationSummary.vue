@@ -41,18 +41,59 @@
                 v-if="runtimeCountersSummary !== undefined && runtimeCountersSummary.ActualRows !== undefined"
                 class="content"
             >
-                <ul class="stats">
-                    <li>Actual Rows: <strong>{{ runtimeCountersSummary.ActualRows | filterInteger }}</strong></li>
-                    <li>Row Size: <strong>{{ operation.AvgRowSize | filterBytes }}</strong></li>
-                    <li>Actual Total Size: <strong>{{ runtimeCountersSummary.ActualRows * operation.AvgRowSize | filterBytes }}</strong></li>
-                </ul>
+                <div class="item">
+                    <ul class="stats">
+                        <li>Actual Rows: <strong>{{ runtimeCountersSummary.ActualRows | filterInteger }}</strong></li>
+                        <li>Row Size: <strong>{{ operation.AvgRowSize | filterBytes }}</strong></li>
+                    </ul>
+                </div>
+                <div class="item">
+                    Actual Total Size: <strong>{{ runtimeCountersSummary.ActualRows * operation.AvgRowSize | filterBytes }}</strong>
+                </div>
             </div>
             <div class="content">
-                <ul class="stats">
-                    <li>Est. Rows: <strong>{{ operation.EstimateRows | filterInteger }}</strong></li>
-                    <li>Row Size: <strong>{{ operation.AvgRowSize | filterBytes }}</strong></li>
-                    <li>Est. Total Size: <strong>{{ operation.EstimateRows * operation.AvgRowSize | filterBytes }}</strong></li>
-                </ul>
+                <div class="item">
+                    <ul class="stats">
+                        <li>Est. Rows: <strong>{{ operation.EstimateRows | filterInteger }}</strong></li>
+                        <li>Row Size: <strong>{{ operation.AvgRowSize | filterBytes }}</strong></li>
+                    </ul>
+                </div>
+                <div class="item">
+                    Est. Total Size: <strong>{{ operation.EstimateRows * operation.AvgRowSize | filterBytes }}</strong>
+                </div>
+            </div>
+            <div
+                v-if="operation.Parallel && operation.RunTimeInformation !== undefined && operation.RunTimeInformation.RunTimeCountersPerThread.length > 1"
+                class="content"
+            >
+                <h4>Run-time Parallel Stats</h4>
+                <div class="item">
+                    <div class="child">
+                        Actual Rows
+                    </div>
+                    <div class="child">
+                        <counter-chart
+                            :run-time-information="operation.RunTimeInformation.RunTimeCountersPerThread"
+                            :property-func="(i) => i.ActualRows"
+                            property-name="Actual Rows"
+                        />
+                    </div>
+                </div>
+                <div
+                    v-if="operation.RunTimeInformation.RunTimeCountersPerThread[0].ActualElapsedms !== undefined"
+                    class="item"
+                >
+                    <div class="child">
+                        Actual CPUms
+                    </div>
+                    <div class="child">
+                        <counter-chart
+                            :run-time-information="operation.RunTimeInformation.RunTimeCountersPerThread"
+                            :property-func="(i) => i.ActualCPUms"
+                            property-name="Actual CPUms"
+                        />
+                    </div>
+                </div>
             </div>
             <div class="content max-height">
                 <h4>Output</h4>
@@ -185,8 +226,10 @@ import UpdateOp from './operations/UpdateView.vue';
 import InsertOp from './operations/InsertView.vue';
 import MergeJoinOp from './operations/MergeJoinView.vue';
 import AdaptiveJoinOp from './operations/AdaptiveJoinView.vue';
+import ParallelismOp from './operations/ParallelismView.vue';
 
 import Warnings from './operations/Warnings.vue';
+import CounterChart from './operations/CounterChart.vue';
 
 import { Group } from '@/parser/grouping';
 import ColumnReferenceParser from '@/parser/column-reference-parser';
@@ -207,7 +250,9 @@ import ColumnReferenceParser from '@/parser/column-reference-parser';
         InsertOp,
         MergeJoinOp,
         AdaptiveJoinOp,
+        ParallelismOp,
         Warnings,
+        CounterChart,
         TreeView,
     },
 })
@@ -261,6 +306,8 @@ export default class OperationSummary extends Vue {
           return 'merge-join-op';
       } if (this.operation.Action instanceof ShowPlan.AdaptiveJoin) {
           return 'adaptive-join-op';
+      } if (this.operation.Action instanceof ShowPlan.Parallelism) {
+          return 'parallelism-op';
       }
 
       return undefined;
@@ -270,7 +317,7 @@ export default class OperationSummary extends Vue {
       // clone the operation but remove the child relop collection
       // for displaying in the 'raw' display
       const shallow: ShowPlan.RelOp = JSON.parse(JSON.stringify(this.operation, (key, value) => {
-          if (key === 'RelOp' || key === 'expandedComputedColumns') {
+          if (key === 'RelOp' || key === 'ParentRelOp' || key === 'expandedComputedColumns') {
               return undefined;
           }
 

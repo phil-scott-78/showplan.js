@@ -122,10 +122,15 @@ class MetaInfoParser {
 
             return perThread;
         };
+
         let runTimeCountersPerThread = QueryHelper.ParseAllItems(element, 'RunTimeCountersPerThread', i => parsePerThread(i));
         if (runTimeCountersPerThread === undefined) {
             runTimeCountersPerThread = [];
+        } else if (runTimeCountersPerThread.length > 1) {
+            // if there are more than one thread then thread 0 is just a bunch of dummy data
+            runTimeCountersPerThread = runTimeCountersPerThread.filter(i => i.Thread !== 0);
         }
+
         return new ShowPlan.RunTimeInformation(runTimeCountersPerThread);
     }
 }
