@@ -11,7 +11,7 @@ import {
     faCloudUploadAlt, faChevronCircleDown, faExclamationCircle, faSun, faMoon, faSearchMinus, faSearchPlus,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-import { SetVueFilters, SetVueDirectives } from './vueConfig';
+import { SetVueFilters, SetVueDirectives } from '@/vueConfig';
 import App from './App.vue';
 
 Vue.config.productionTip = false;
