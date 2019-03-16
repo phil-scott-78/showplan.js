@@ -40,7 +40,7 @@ body #app.theme--dark, body.vscode-dark #app, body.vscode-high-contrast #app {
 body.vscode-light #app, body.vscode-dark #app, body.vscode-high-contrast #app {
   --background: var(--vscode-editor-background);
   --foreground: var(--vscode-editor-foreground);
-  --alt-background: var(--vscode-editor-selectionBackground);
+  --alt-background: var(--vscode-editorGroupHeader-tabsBackground);
   --red: var(--vscode-terminal-ansiBrightRed);
   --dark-red: var(--vscode-terminal-ansiRed);
   --green: var(--vscode-terminal-ansiBrightGreen);
