@@ -18,10 +18,10 @@
     "write-file-atomic": "2.4.1"
   },
   "dependencies": {
-    "@fortawesome/fontawesome-svg-core": "^1.2.15",
-    "@fortawesome/free-brands-svg-icons": "^5.7.2",
-    "@fortawesome/free-solid-svg-icons": "^5.7.2",
-    "@fortawesome/vue-fontawesome": "^0.1.5",
+    "@fortawesome/fontawesome-svg-core": "^1.2.16",
+    "@fortawesome/free-brands-svg-icons": "^5.8.0",
+    "@fortawesome/free-solid-svg-icons": "^5.8.0",
+    "@fortawesome/vue-fontawesome": "^0.1.6",
     "@tweenjs/tween.js": "^17.3.0",
     "d3-array": "^2.0.3",
     "d3-hierarchy": "^1.1.8",
@@ -44,9 +44,9 @@
     "xmldom": "^0.1.27"
   },
   "devDependencies": {
-    "@babel/core": "^7.3.4",
-    "@babel/plugin-proposal-class-properties": "^7.3.4",
-    "@babel/plugin-proposal-decorators": "^7.3.0",
+    "@babel/core": "^7.4.0",
+    "@babel/plugin-proposal-class-properties": "^7.4.0",
+    "@babel/plugin-proposal-decorators": "^7.4.0",
     "@babel/plugin-proposal-export-namespace-from": "^7.2.0",
     "@babel/plugin-proposal-function-sent": "^7.2.0",
     "@babel/plugin-proposal-json-strings": "^7.2.0",
@@ -54,7 +54,7 @@
     "@babel/plugin-proposal-throw-expressions": "^7.2.0",
     "@babel/plugin-syntax-dynamic-import": "^7.2.0",
     "@babel/plugin-syntax-import-meta": "^7.2.0",
-    "@babel/preset-env": "^7.3.4",
+    "@babel/preset-env": "^7.4.2",
     "@types/d3-array": "^1.2.6",
     "@types/d3-hierarchy": "^1.1.6",
     "@types/d3-path": "^1.0.8",
