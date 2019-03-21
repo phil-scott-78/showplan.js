@@ -211,7 +211,7 @@
 import { Vue, Component, Prop } from 'vue-property-decorator';
 import * as ShowPlan from '@/parser/showplan';
 
-import TreeView from 'vue-json-tree';
+import TreeView from 'vue-json-tree'; // eslint-disable-line
 import SortBy from './operations/SortByView.vue';
 import IndexScan from './operations/IndexScanView.vue';
 import FilterOp from './operations/FilterView.vue';

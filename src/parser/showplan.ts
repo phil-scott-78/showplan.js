@@ -28,13 +28,13 @@ export class ShowPlanXML {
 
     public GetStatementByGuid(guid: string): BaseStmtInfo | undefined {
         return this.Batches
-            .reduce((a, b) => a.concat(b.Statements), new Array<BaseStmtInfo>())
+            .reduce<BaseStmtInfo[]>((a, b) => a.concat(b.Statements), [])
             .find((i: { Guid: string }) => i.Guid === guid);
     }
 
     public IsEstimatedPlan(): boolean {
         return this.Batches
-            .reduce((a, b) => a.concat(b.Statements), new Array<BaseStmtInfo>())
+            .reduce<BaseStmtInfo[]>((a, b) => a.concat(b.Statements), [])
             .some((i) => {
                 if (i instanceof StmtSimple === false) return false;
 

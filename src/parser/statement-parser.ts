@@ -2,12 +2,12 @@ import * as ShowPlan from './showplan';
 import QueryPlanParser from './query-plan-parser';
 
 class StatementParser {
-    public static ParseUseDb(element: Element): ShowPlan.StmtUseDb {
+    public ParseUseDb(element: Element): ShowPlan.StmtUseDb {
         const database = element.getAttribute('Database') || '(unknown)';
         return new ShowPlan.StmtUseDb(database);
     }
 
-    public static ParseStmtSimple(element: Element): ShowPlan.StmtSimple {
+    public ParseStmtSimple(element: Element): ShowPlan.StmtSimple {
         const statement = new ShowPlan.StmtSimple();
         const queryPlan = element.getElementsByTagName('QueryPlan');
         const udf = element.getElementsByTagName('UDF');
@@ -21,11 +21,11 @@ class StatementParser {
         return statement;
     }
 
-    private static ParseUDF(): ShowPlan.FunctionPlan[] {
+    private ParseUDF(): ShowPlan.FunctionPlan[] {
         return [];
     }
 
-    private static ParseStoredProc(): ShowPlan.FunctionPlan | undefined {
+    private ParseStoredProc(): ShowPlan.FunctionPlan | undefined {
         return undefined;
     }
 }

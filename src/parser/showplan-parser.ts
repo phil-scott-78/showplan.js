@@ -4,6 +4,8 @@ import Convert from './convert';
 import StatementParser from './statement-parser';
 
 class ShowPlanParser {
+    private static StatementParser = new StatementParser();
+
     public static ForOnlyElementsInNodes<T>(
         nodes: HTMLCollectionOf<Element>,
         action: (node: Element) => T | undefined,
@@ -45,10 +47,10 @@ class ShowPlanParser {
             let statement: ShowPlan.BaseStmtInfo | undefined;
             switch (node.nodeName) {
                 case 'StmtSimple':
-                    statement = StatementParser.ParseStmtSimple(node);
+                    statement = ShowPlanParser.StatementParser.ParseStmtSimple(node);
                     break;
                 case 'StmtUseDb':
-                    statement = StatementParser.ParseUseDb(node);
+                    statement = ShowPlanParser.StatementParser.ParseUseDb(node);
                     break;
                 default:
                     statement = new ShowPlan.BaseStmtInfo();

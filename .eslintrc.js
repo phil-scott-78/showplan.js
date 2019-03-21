@@ -4,10 +4,9 @@ module.exports = {
         es6: true,
     },
     extends: [
-        'eslint:recommended',
-        'airbnb-base',
         'plugin:vue/recommended',
-        'plugin:@typescript-eslint/recommended',
+        '@vue/airbnb',
+        '@vue/typescript',
     ],
     globals: {
         Atomics: 'readonly',
@@ -26,7 +25,6 @@ module.exports = {
     plugins: [
         'vue',
         '@typescript-eslint',
-        'editorconfig',
     ],
     settings: {
         'import/resolver': {
@@ -34,8 +32,12 @@ module.exports = {
         },
     },
     rules: {
+        'class-methods-use-this': 0,
         'max-len': [1, 260, 2],
         'linebreak-style': 0,
+        indent: ['error', 4, {
+            SwitchCase: 1,
+        }],
         'vue/script-indent': ['error', 4, {
             switchCase: 1,
         }],

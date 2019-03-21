@@ -2,26 +2,33 @@ import * as ShowPlan from './showplan';
 import QueryHelper from './query-helper';
 import Convert from './convert';
 import ColumnReferenceParser from './column-reference-parser';
-import ScalarExpressionParser from './scalar-expression-parser';
 
 class SeekPredicateParser {
-    public static ParseSeekPredicates(element: Element): ShowPlan.SeekPredicates {
+    private scalarExpresionParser: (scalarExpressionElement: Element) => ShowPlan.ScalarExpression;
+
+    private static ColumnReferenceParser = new ColumnReferenceParser();
+
+    public constructor(scalarExpressionParser: (scalarExpressionElement: Element) => ShowPlan.ScalarExpression) {
+        this.scalarExpresionParser = scalarExpressionParser;
+    }
+
+    public ParseSeekPredicates(element: Element): ShowPlan.SeekPredicates {
         const seekPredicates = new ShowPlan.SeekPredicates();
 
         const seekPredicateElements = QueryHelper.GetImmediateChildNodesByTagName(element, 'SeekPredicate');
         if (seekPredicateElements.length > 0) {
-            seekPredicates.SeekPredicate = seekPredicateElements.map(i => SeekPredicateParser.ParseSeekPredicate(i));
+            seekPredicates.SeekPredicate = seekPredicateElements.map(i => this.ParseSeekPredicate(i));
         }
 
         const seekPredicateNewElements = QueryHelper.GetImmediateChildNodesByTagName(element, 'SeekPredicateNew');
         if (seekPredicateNewElements.length > 0) {
-            seekPredicates.SeekPredicateNew = seekPredicateNewElements.map(i => SeekPredicateParser.ParseSeekPredicateNew(i));
+            seekPredicates.SeekPredicateNew = seekPredicateNewElements.map(i => this.ParseSeekPredicateNew(i));
         }
 
         return seekPredicates;
     }
 
-    public static ParseSeekPredicate(element: Element): ShowPlan.SeekPredicate {
+    public ParseSeekPredicate(element: Element): ShowPlan.SeekPredicate {
         const seekPredicate = new ShowPlan.SeekPredicate();
 
         const prefixElement = QueryHelper.GetImmediateChildNodesByTagName(element, 'Prefix');
@@ -42,26 +49,26 @@ class SeekPredicateParser {
         return seekPredicate;
     }
 
-    public static ParseSeekPredicateNew(element: Element): ShowPlan.SeekPredicateNew {
+    public ParseSeekPredicateNew(element: Element): ShowPlan.SeekPredicateNew {
         const seekKeyElements = QueryHelper.GetImmediateChildNodesByTagName(element, 'SeekKeys');
-        const seekKeys = seekKeyElements.map(i => SeekPredicateParser.ParseSeekPredicate(i));
+        const seekKeys = seekKeyElements.map(i => this.ParseSeekPredicate(i));
 
         return new ShowPlan.SeekPredicateNew(seekKeys);
     }
 
-    private static ParseSeekPredicatePart(element: Element): ShowPlan.SeekPredicatePart {
+    private ParseSeekPredicatePart(element: Element): ShowPlan.SeekPredicatePart {
         const seekPredicateNewElements = QueryHelper.GetImmediateChildNodesByTagName(element, 'SeekPredicateNew');
-        const seekPredicateNew = seekPredicateNewElements.map(i => SeekPredicateParser.ParseSeekPredicateNew(i));
+        const seekPredicateNew = seekPredicateNewElements.map(i => this.ParseSeekPredicateNew(i));
 
         return new ShowPlan.SeekPredicatePart(seekPredicateNew);
     }
 
-    private static ParseScanRangeType(element: Element): ShowPlan.ScanRange {
+    private ParseScanRangeType(element: Element): ShowPlan.ScanRange {
         const scanType = Convert.GetString(element, 'ScanType') as ShowPlan.CompareOp;
         const rangeExpressionElements = QueryHelper.GetImmediateChildNodesByTagName(element, 'RangeExpressions');
 
-        const rangeColumns = ColumnReferenceParser.GetAllFromElement(element, 'RangeColumns');
-        const rangeExpressions = rangeExpressionElements.map(i => ScalarExpressionParser.Parse(i));
+        const rangeColumns = SeekPredicateParser.ColumnReferenceParser.GetAllFromElement(element, 'RangeColumns');
+        const rangeExpressions = rangeExpressionElements.map(i => this.scalarExpresionParser(i));
 
         return new ShowPlan.ScanRange(scanType, rangeColumns, rangeExpressions);
     }

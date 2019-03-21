@@ -3,18 +3,25 @@ import Convert from './convert';
 import TagAndParser from './tag-and-parser';
 import QueryHelper from './query-helper';
 import ColumnReferenceParser from './column-reference-parser';
-import QueryPlanParser from './query-plan-parser';
 import ObjectParser from './object-parser';
 
+/* eslint-disable class-methods-use-this */
+
 class ScalarExpressionParser {
-    public static Parse(scalarExpressionElement: Element): ShowPlan.ScalarExpression {
+    private relOpParser: (parentRelOp: ShowPlan.RelOp | undefined, relOpElement: Element) => ShowPlan.RelOp;
+
+    private static ColumnReferenceParser = new ColumnReferenceParser();
+
+    private static ObjectParser = new ObjectParser();
+
+    public Parse(scalarExpressionElement: Element): ShowPlan.ScalarExpression {
         const scalarOperation = QueryHelper.GetImmediateChildNodesByTagName(scalarExpressionElement, 'ScalarOperator')[0];
         const operation = this.ParseScalarType(scalarOperation);
 
         return new ShowPlan.ScalarExpression(operation);
     }
 
-    public static ParseScalarType(scalarElement: Element): ShowPlan.Scalar {
+    public ParseScalarType(scalarElement: Element): ShowPlan.Scalar {
         const parsers: TagAndParser<ShowPlan.ScalarOp>[] = [
             new TagAndParser('Aggregate', e => this.ParseAggregate(e)),
             new TagAndParser('Arithmetic', e => this.ParseArithmetic(e)),
@@ -50,7 +57,7 @@ class ScalarExpressionParser {
         return scalar;
     }
 
-    private static ParseAggregate(element: Element): ShowPlan.Aggregate {
+    private ParseAggregate(element: Element): ShowPlan.Aggregate {
         const aggType = Convert.GetString(element, 'AggType');
         const distinct = Convert.GetBoolean(element, 'Distinct');
         const aggregate = new ShowPlan.Aggregate(aggType, distinct);
@@ -63,33 +70,33 @@ class ScalarExpressionParser {
         return aggregate;
     }
 
-    private static ParseArithmetic(element: Element): ShowPlan.Arithmetic {
+    private ParseArithmetic(element: Element): ShowPlan.Arithmetic {
         const operation = element.getAttribute('Operation') as ShowPlan.ArithmeticOperation;
         const scalarOperators = QueryHelper.GetImmediateChildNodesByTagName(element, 'ScalarOperator')
             .map(value => this.ParseScalarType(value));
         return new ShowPlan.Arithmetic(operation, scalarOperators);
     }
 
-    private static ParseAssign(element: Element): ShowPlan.Assign {
+    private ParseAssign(element: Element): ShowPlan.Assign {
         const columnReferenceElement = QueryHelper.GetImmediateChildNodesByTagName(element, 'ColumnReference')[0];
         const scalarOperator = QueryHelper.GetImmediateChildNodesByTagName(element, 'ScalarOperator')[0];
 
-        return new ShowPlan.Assign(ColumnReferenceParser.Parse(columnReferenceElement), ScalarExpressionParser.ParseScalarType(scalarOperator));
+        return new ShowPlan.Assign(ScalarExpressionParser.ColumnReferenceParser.Parse(columnReferenceElement), this.ParseScalarType(scalarOperator));
     }
 
-    private static ParseCompare(element: Element): ShowPlan.CompareType {
+    private ParseCompare(element: Element): ShowPlan.CompareType {
         const compareOp = element.getAttribute('CompareOp') as ShowPlan.CompareOp;
         const scalarOps = QueryHelper.GetImmediateChildNodesByTagName(element, 'ScalarOperator');
 
         return new ShowPlan.CompareType(compareOp, scalarOps.map(e => this.ParseScalarType(e)));
     }
 
-    private static ParseConst(element: Element): ShowPlan.Const {
+    private ParseConst(element: Element): ShowPlan.Const {
         const constValue = Convert.GetString(element, 'ConstValue');
         return new ShowPlan.Const(constValue);
     }
 
-    private static ParseConvert(element: Element): ShowPlan.Convert {
+    private ParseConvert(element: Element): ShowPlan.Convert {
     // let style = QueryHelper.GetImmediateChildNodesByTagName(element, 'Style')[0]
     // per the xsd this says there could be a style element here, but also a style attribute
     // I can't figure out how to trigger the element to show at all show let's just use the attribute
@@ -110,18 +117,18 @@ class ScalarExpressionParser {
         return convert;
     }
 
-    private static ParseIdentifier(element: Element): ShowPlan.Ident {
+    private ParseIdentifier(element: Element): ShowPlan.Ident {
         const ident = new ShowPlan.Ident();
         ident.Table = Convert.GetStringOrUndefined(element, 'Table');
         const columnReferenceElement = QueryHelper.GetImmediateChildNodesByTagName(element, 'ColumnReference');
         if (columnReferenceElement.length === 1) {
-            ident.ColumnReference = ColumnReferenceParser.Parse(columnReferenceElement[0]);
+            ident.ColumnReference = ScalarExpressionParser.ColumnReferenceParser.Parse(columnReferenceElement[0]);
         }
 
         return ident;
     }
 
-    private static ParseConditional(element: Element): ShowPlan.Conditional {
+    private ParseConditional(element: Element): ShowPlan.Conditional {
         const condition = this.Parse(QueryHelper.GetImmediateChildNodesByTagName(element, 'Condition')[0]);
         const then = this.Parse(QueryHelper.GetImmediateChildNodesByTagName(element, 'Then')[0]);
         const $else = this.Parse(QueryHelper.GetImmediateChildNodesByTagName(element, 'Else')[0]);
@@ -129,7 +136,7 @@ class ScalarExpressionParser {
         return new ShowPlan.Conditional(condition, then, $else);
     }
 
-    private static ParseIntrinsic(element: Element): ShowPlan.Intrinsic {
+    private ParseIntrinsic(element: Element): ShowPlan.Intrinsic {
         const functionName = Convert.GetString(element, 'FunctionName');
         const scalarOperatorElements = QueryHelper.GetImmediateChildNodesByTagName(element, 'ScalarOperator');
         const intrinsic = new ShowPlan.Intrinsic(functionName);
@@ -141,33 +148,33 @@ class ScalarExpressionParser {
         return intrinsic;
     }
 
-    private static ParseLogical(element: Element): ShowPlan.Logical {
+    private ParseLogical(element: Element): ShowPlan.Logical {
         const scalarOperatorElements = QueryHelper.GetImmediateChildNodesByTagName(element, 'ScalarOperator');
         const operation = Convert.GetString(element, 'Operation') as ShowPlan.LogicalOperationType;
 
         return new ShowPlan.Logical(operation, scalarOperatorElements.map(i => this.ParseScalarType(i)));
     }
 
-    private static ParseMultiAssign(element: Element): ShowPlan.MultiAssign {
+    private ParseMultiAssign(element: Element): ShowPlan.MultiAssign {
         const assignElements = QueryHelper.GetImmediateChildNodesByTagName(element, 'Assign');
         const assigns = assignElements.map(i => this.ParseAssign(i));
 
         return new ShowPlan.MultiAssign(assigns);
     }
 
-    private static ParseScalarExpressionList(element: Element): ShowPlan.ScalarExpressionList {
+    private ParseScalarExpressionList(element: Element): ShowPlan.ScalarExpressionList {
         const scalarOperatorElements = QueryHelper.GetImmediateChildNodesByTagName(element, 'ScalarOperator');
         return new ShowPlan.ScalarExpressionList(scalarOperatorElements.map(i => this.ParseScalarType(i)));
     }
 
-    private static ParseSequence(element: Element): ShowPlan.ScalarSequence {
+    private ParseSequence(element: Element): ShowPlan.ScalarSequence {
         const functionName = Convert.GetString(element, 'FunctionName');
 
         return new ShowPlan.ScalarSequence(functionName);
     }
 
-    private static ParseSubquery(element: Element): ShowPlan.Subquery {
-        const relOp = QueryPlanParser.ParseRelOp(undefined, QueryHelper.GetImmediateChildNodesByTagName(element, 'RelOp')[0]);
+    private ParseSubquery(element: Element): ShowPlan.Subquery {
+        const relOp = this.relOpParser(undefined, QueryHelper.GetImmediateChildNodesByTagName(element, 'RelOp')[0]);
         const operation = Convert.GetString(element, 'Operation') as ShowPlan.SubqueryOperationType;
         const subquery = new ShowPlan.Subquery(operation, relOp);
 
@@ -179,7 +186,7 @@ class ScalarExpressionParser {
         return subquery;
     }
 
-    private static ParseUDTMethod(element: Element): ShowPlan.UDTMethod {
+    private ParseUDTMethod(element: Element): ShowPlan.UDTMethod {
         const udtMethod = new ShowPlan.UDTMethod();
         const clrFunctionElements = QueryHelper.GetImmediateChildNodesByTagName(element, 'CLRFunction');
         if (clrFunctionElements.length === 1) {
@@ -194,12 +201,12 @@ class ScalarExpressionParser {
         return udtMethod;
     }
 
-    private static ParseUserDefinedAggregate(element: Element): ShowPlan.UDAggregate {
+    private ParseUserDefinedAggregate(element: Element): ShowPlan.UDAggregate {
         const distinct = Convert.GetBoolean(element, 'Distinct');
         const aggregate = new ShowPlan.UDAggregate(distinct);
         const aggObjectElement = QueryHelper.GetImmediateChildNodesByTagName(element, 'UDAggObject');
         if (aggObjectElement.length === 1) {
-            aggregate.UDAggObject = ObjectParser.Parse(aggObjectElement[0]);
+            aggregate.UDAggObject = ScalarExpressionParser.ObjectParser.Parse(aggObjectElement[0]);
         }
 
         const scalarOperatorElements = QueryHelper.GetImmediateChildNodesByTagName(element, 'ScalarOperator');
@@ -210,7 +217,7 @@ class ScalarExpressionParser {
         return aggregate;
     }
 
-    private static ParseUDF(element: Element): ShowPlan.UDF {
+    private ParseUDF(element: Element): ShowPlan.UDF {
         const functionName = Convert.GetString(element, 'FunctionName');
 
         const udf = new ShowPlan.UDF(functionName);
@@ -229,7 +236,7 @@ class ScalarExpressionParser {
         return udf;
     }
 
-    private static ParseCLRFunction(element: Element): ShowPlan.CLRFunction {
+    private ParseCLRFunction(element: Element): ShowPlan.CLRFunction {
         const assembly = Convert.GetStringOrUndefined(element, 'Assembly');
         const $class = Convert.GetString(element, 'Class');
         const method = Convert.GetStringOrUndefined(element, 'Method');
@@ -239,6 +246,10 @@ class ScalarExpressionParser {
         clrFunction.Method = method;
 
         return clrFunction;
+    }
+
+    public constructor(relOpParser: (parentRelOp: ShowPlan.RelOp | undefined, relOpElement: Element) => ShowPlan.RelOp) {
+        this.relOpParser = relOpParser;
     }
 }
 

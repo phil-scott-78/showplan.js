@@ -4,10 +4,12 @@ import ColumnReferenceParser from './column-reference-parser';
 import Convert from './convert';
 
 class WarningsParser {
-    public static ParseWarnings(element: Element): ShowPlan.Warnings {
+    private static ColumnReferenceParser = new ColumnReferenceParser();
+
+    public ParseWarnings(element: Element): ShowPlan.Warnings {
         const warnings = new ShowPlan.Warnings();
 
-        warnings.ColumnsWithNoStatistics = ColumnReferenceParser.GetAllFromElement(element, 'ColumnsWithNoStatistics');
+        warnings.ColumnsWithNoStatistics = WarningsParser.ColumnReferenceParser.GetAllFromElement(element, 'ColumnsWithNoStatistics');
 
         warnings.SpillToTempDb = QueryHelper.ParseAllItems(element, 'SpillToTempDb', i => this.ParseSpillToTempDb(i));
         warnings.Wait = QueryHelper.ParseAllItems(element, 'Wait', i => this.ParseWait(i));
@@ -24,7 +26,7 @@ class WarningsParser {
         return warnings;
     }
 
-    private static ParseSpillToTempDb(element: Element): ShowPlan.SpillToTempDb {
+    private ParseSpillToTempDb(element: Element): ShowPlan.SpillToTempDb {
         const spill = new ShowPlan.SpillToTempDb();
         spill.SpillLevel = Convert.GetIntOrUndefined(element, 'SpillLevel');
         spill.SpilledThreadCount = Convert.GetIntOrUndefined(element, 'SpilledThreadCount');
@@ -32,19 +34,19 @@ class WarningsParser {
         return spill;
     }
 
-    private static ParseWait(element: Element): ShowPlan.WaitWarning {
+    private ParseWait(element: Element): ShowPlan.WaitWarning {
         const type = Convert.GetString(element, 'WaitType') as ShowPlan.WaitWarningTypeWaitType;
         return new ShowPlan.WaitWarning(type);
     }
 
-    private static ParsePlanAffectingConvert(element: Element): ShowPlan.AffectingConvertWarning {
+    private ParsePlanAffectingConvert(element: Element): ShowPlan.AffectingConvertWarning {
         const convertIssue = Convert.GetString(element, 'ConvertIssue') as ShowPlan.AffectingConvertWarningTypeConvertIssue;
         const expression = Convert.GetString(element, 'Expression');
 
         return new ShowPlan.AffectingConvertWarning(convertIssue, expression);
     }
 
-    private static ParseSortSpillDetails(element: Element): ShowPlan.SortSpillDetails {
+    private ParseSortSpillDetails(element: Element): ShowPlan.SortSpillDetails {
         const details = new ShowPlan.SortSpillDetails();
         details.GrantedMemoryKb = Convert.GetIntOrUndefined(element, 'GrantedMemoryKb');
         details.ReadsFromTempDb = Convert.GetIntOrUndefined(element, 'ReadsFromTempDb');
@@ -54,7 +56,7 @@ class WarningsParser {
         return details;
     }
 
-    private static ParseHashSpillDetails(element: Element): ShowPlan.HashSpillDetails {
+    private ParseHashSpillDetails(element: Element): ShowPlan.HashSpillDetails {
         const details = new ShowPlan.HashSpillDetails();
         details.GrantedMemoryKb = Convert.GetIntOrUndefined(element, 'GrantedMemoryKb');
         details.ReadsFromTempDb = Convert.GetIntOrUndefined(element, 'ReadsFromTempDb');
@@ -64,7 +66,7 @@ class WarningsParser {
         return details;
     }
 
-    private static ParseMemoryGrantWarning(element: Element): ShowPlan.MemoryGrantWarningInfo {
+    private ParseMemoryGrantWarning(element: Element): ShowPlan.MemoryGrantWarningInfo {
         const kind = Convert.GetString(element, 'GrantWarningKind') as ShowPlan.MemoryGrantWarningType;
         const requestedMemory = Convert.GetInt(element, 'RequestedMemory');
         const grantedMemory = Convert.GetInt(element, 'GrantedMemory');

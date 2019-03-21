@@ -2,7 +2,7 @@ import * as ShowPlan from './showplan';
 import Convert from './convert';
 
 class ObjectParser {
-    public static Parse(element: Element): ShowPlan.ObjectType {
+    public Parse(element: Element): ShowPlan.ObjectType {
         const object = new ShowPlan.ObjectType();
         object.Server = Convert.GetStringOrUndefined(element, 'Server');
         object.Database = Convert.GetStringOrUndefined(element, 'Database');

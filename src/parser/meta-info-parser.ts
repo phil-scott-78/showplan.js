@@ -3,7 +3,7 @@ import * as ShowPlan from './showplan';
 import Convert from './convert';
 
 class MetaInfoParser {
-    public static ParseThreadStat(element: Element): ShowPlan.ThreadStat {
+    public ParseThreadStat(element: Element): ShowPlan.ThreadStat {
         const parseThreadReservation = (threadElement: Element): ShowPlan.ThreadReservation => {
             const nodeId = Convert.GetInt(threadElement, 'NodeId');
             const reservationThreads = Convert.GetInt(threadElement, 'ReservedThreads');
@@ -24,7 +24,7 @@ class MetaInfoParser {
         return threadStat;
     }
 
-    public static ParseMemoryGrantInfo(element: Element): ShowPlan.MemoryGrant {
+    public ParseMemoryGrantInfo(element: Element): ShowPlan.MemoryGrant {
         const serialRequiredMemory = Convert.GetInt(element, 'SerialRequiredMemory');
         const serialDesiredMemory = Convert.GetInt(element, 'SerialDesiredMemory');
 
@@ -41,7 +41,7 @@ class MetaInfoParser {
         return memoryGrant;
     }
 
-    public static ParseOptimizerHardwareDependentProperties(element: Element): ShowPlan.OptimizerHardwareDependentProperties {
+    public ParseOptimizerHardwareDependentProperties(element: Element): ShowPlan.OptimizerHardwareDependentProperties {
         const estimatedAvailableMemoryGrant = Convert.GetInt(element, 'EstimatedAvailableMemoryGrant');
         const estimatedPagesCached = Convert.GetInt(element, 'EstimatedPagesCached');
         const props = new ShowPlan.OptimizerHardwareDependentProperties(estimatedAvailableMemoryGrant, estimatedPagesCached);
@@ -51,7 +51,7 @@ class MetaInfoParser {
         return props;
     }
 
-    public static ParseOptimizerStatsUsage(element: Element): ShowPlan.OptimizerStatsUsage {
+    public ParseOptimizerStatsUsage(element: Element): ShowPlan.OptimizerStatsUsage {
         const parseStatisticsInfo = (statElement: Element): ShowPlan.StatsInfo => {
             const statistics = Convert.GetString(statElement, 'Statistics');
             const modificationCount = Convert.GetInt(statElement, 'ModificationCount');
@@ -71,7 +71,7 @@ class MetaInfoParser {
         return new ShowPlan.OptimizerStatsUsage(statInfo);
     }
 
-    public static ParseWaitStats(element: Element): ShowPlan.WaitStatList {
+    public ParseWaitStats(element: Element): ShowPlan.WaitStatList {
         const parseWaitStat = (waitElement: Element): ShowPlan.WaitStat => {
             const waitType = Convert.GetString(waitElement, 'WaitType');
             const waitTimeMs = Convert.GetInt(waitElement, 'WaitTimeMs');
@@ -87,14 +87,14 @@ class MetaInfoParser {
         return list;
     }
 
-    public static ParseQueryTimeStats(element: Element): ShowPlan.QueryExecTime {
+    public ParseQueryTimeStats(element: Element): ShowPlan.QueryExecTime {
         const cpuTime = Convert.GetInt(element, 'CpuTime');
         const elapsedTime = Convert.GetInt(element, 'ElapsedTime');
 
         return new ShowPlan.QueryExecTime(cpuTime, elapsedTime);
     }
 
-    public static ParseRunTimeInformation(element: Element): ShowPlan.RunTimeInformation {
+    public ParseRunTimeInformation(element: Element): ShowPlan.RunTimeInformation {
         const parsePerThread = (threadElement: Element): ShowPlan.RunTimeInformationTypeRunTimeCountersPerThread => {
             const threadId = Convert.GetInt(threadElement, 'Thread');
             const actualRows = Convert.GetInt(threadElement, 'ActualRows');

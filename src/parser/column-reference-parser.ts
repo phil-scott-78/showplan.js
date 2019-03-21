@@ -4,7 +4,7 @@ import QueryHelper from './query-helper';
 import { Grouper, Group } from './grouping';
 
 class ColumnReferenceParser {
-    public static Parse(element: Element): ShowPlan.ColumnReference {
+    public Parse(element: Element): ShowPlan.ColumnReference {
         const column = Convert.GetString(element, 'Column');
         const columnReference = new ShowPlan.ColumnReference(column);
 
@@ -23,7 +23,7 @@ class ColumnReferenceParser {
         return columnReference;
     }
 
-    public static GetAllFromElement(parentElement: Element, elementName: string): ShowPlan.ColumnReference[] {
+    public GetAllFromElement(parentElement: Element, elementName: string): ShowPlan.ColumnReference[] {
         const containerElement = QueryHelper.GetImmediateChildNodesByTagName(parentElement, elementName);
         if (containerElement.length !== 1) {
             return [];
