@@ -73,7 +73,7 @@
     "@vue/test-utils": "^1.0.0-beta.29",
     "babel-core": "^7.0.0-bridge.0",
     "babel-jest": "^24.5.0",
-    "eslint": "^5.15.2",
+    "eslint": "^5.15.3",
     "eslint-import-resolver-typescript": "^1.1.1",
     "eslint-plugin-editorconfig": "0.0.3",
     "eslint-plugin-jest": "^22.4.1",
