@@ -459,6 +459,20 @@ class RelOpParser {
 
         const stream = new ShowPlan.StreamAggregate();
         stream.GroupBy = groupBy;
+
+        const rollupElements = QueryHelper.GetImmediateChildNodesByTagName(element, 'RollupInfo');
+        if (rollupElements.length === 1) {
+            const highestLevel = Convert.GetInt(rollupElements[0], 'HighestLevel');
+
+            const rollupLevelElements = QueryHelper.GetImmediateChildNodesByTagName(rollupElements[0], 'RollupLevel');
+            const rollUpInfos = rollupLevelElements.map((e) => {
+                const level = Convert.GetInt(e, 'Level');
+                return new ShowPlan.RollupLevel(level);
+            });
+            stream.RollupInfo = new ShowPlan.RollupInfo(highestLevel, rollUpInfos);
+        }
+
+
         return stream;
     }
 

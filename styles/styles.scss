@@ -157,10 +157,13 @@ div.message {
 
     .item {
         margin-bottom:.5rem;
-        display: flex;
 
-        .child {
-            flex: 1 1;
+        &.split {
+            display: flex;
+
+            .child {
+                flex: 1 1;
+            }
         }
 
         &:last-of-type {

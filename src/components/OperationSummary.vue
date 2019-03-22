@@ -67,7 +67,7 @@
                 class="content"
             >
                 <h4>Run-time Parallel Stats</h4>
-                <div class="item">
+                <div class="item split">
                     <div class="child">
                         Actual Rows
                     </div>
@@ -81,7 +81,7 @@
                 </div>
                 <div
                     v-if="operation.RunTimeInformation.RunTimeCountersPerThread[0].ActualElapsedms !== undefined"
-                    class="item"
+                    class="item split"
                 >
                     <div class="child">
                         Actual CPUms
