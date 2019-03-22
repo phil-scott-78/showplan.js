@@ -228,6 +228,7 @@ import MergeJoinOp from './operations/MergeJoinView.vue';
 import AdaptiveJoinOp from './operations/AdaptiveJoinView.vue';
 import ParallelismOp from './operations/ParallelismView.vue';
 import SegmentOp from './operations/SegmentView.vue';
+import TableValuedFunctionOp from './operations/TableValuedFunctionView.vue';
 
 import Warnings from './operations/Warnings.vue';
 import CounterChart from './operations/CounterChart.vue';
@@ -253,6 +254,7 @@ import ColumnReferenceParser from '@/parser/column-reference-parser';
         AdaptiveJoinOp,
         ParallelismOp,
         SegmentOp,
+        TableValuedFunctionOp,
         Warnings,
         CounterChart,
         TreeView,
@@ -312,6 +314,8 @@ export default class OperationSummary extends Vue {
           return 'parallelism-op';
       } if (this.operation.Action instanceof ShowPlan.Segment) {
           return 'segment-op';
+      } if (this.operation.Action instanceof ShowPlan.TableValuedFunction) {
+          return 'table-valued-function-op';
       }
 
       return undefined;
