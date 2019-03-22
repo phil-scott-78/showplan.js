@@ -230,7 +230,7 @@ import ParallelismOp from './operations/ParallelismView.vue';
 import SegmentOp from './operations/SegmentView.vue';
 import TableValuedFunctionOp from './operations/TableValuedFunctionView.vue';
 import CollapseOp from './operations/CollapseView.vue';
-
+import SpoolOp from './operations/SpoolView.vue';
 import Warnings from './operations/Warnings.vue';
 import CounterChart from './operations/CounterChart.vue';
 
@@ -257,6 +257,7 @@ import ColumnReferenceParser from '@/parser/column-reference-parser';
         SegmentOp,
         TableValuedFunctionOp,
         CollapseOp,
+        SpoolOp,
         Warnings,
         CounterChart,
         TreeView,
@@ -320,6 +321,8 @@ export default class OperationSummary extends Vue {
           return 'table-valued-function-op';
       } if (this.operation.Action instanceof ShowPlan.Collapse) {
           return 'collapse-op';
+      } if (this.operation.Action instanceof ShowPlan.Spool) {
+          return 'spool-op';
       }
 
       return undefined;
