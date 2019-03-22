@@ -9,7 +9,7 @@
 import {
     Vue, Component, Prop,
 } from 'vue-property-decorator';
-import SqlFormatter from './formatter';
+import SqlFormatter from '@/components/formatter';
 import { BaseStmtInfo } from '@/parser/showplan';
 
 @Component({

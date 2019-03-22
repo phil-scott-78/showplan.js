@@ -60,7 +60,7 @@ import {
 } from 'vue-property-decorator';
 import { RelOp, Spool, ExpandedComputedColumn } from '@/parser/showplan';
 import SqlString from './SqlString.vue';
-import ListOrDiv from '../ListOrDiv.vue';
+import ListOrDiv from '../../helpers/ListOrDiv.vue';
 
 @Component({
     components: { SqlString, ListOrDiv },

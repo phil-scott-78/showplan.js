@@ -20,7 +20,7 @@
                 <input
                     type="file"
                     class="input-file"
-                    @change="filesChange($event.target.files);"
+                    @change="filesChange($event.target.files)"
                 >
             </div>
             <div
@@ -149,7 +149,7 @@ export default class FileUploadDrop extends Vue {
   a {
     cursor: pointer;
     background-color: var(--alt-background);
-    padding: 0px 6px 2px 6px;
+    padding: 0 6px 2px 6px;
     margin: 0 4px;
     border: 1px solid var(--alt-border);
     border-radius:3px;

@@ -33,7 +33,7 @@ import {
 } from 'vue-property-decorator';
 import { BaseStmtInfo } from '@/parser/showplan';
 
-import ListOrDiv from './ListOrDiv.vue';
+import ListOrDiv from '@/components/helpers/ListOrDiv.vue';
 
 @Component({
     components: { ListOrDiv },

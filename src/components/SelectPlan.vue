@@ -54,9 +54,9 @@ import Vue from 'vue';
 import Component from 'vue-class-component';
 import { Emit, Prop } from 'vue-property-decorator';
 
-import Dropdown from '@/components/Dropdown.vue';
+import Dropdown from '@/components/helpers/Dropdown.vue';
 
-import SqlString from '@/components/operations/SqlString.vue';
+import SqlString from '@/components/operation/operations/SqlString.vue';
 
 import * as ShowPlan from '@/parser/showplan';
 

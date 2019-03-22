@@ -21,7 +21,7 @@ SetVueDirectives(Vue);
 
 library.add(faGithub, faCloudUploadAlt, faChevronCircleDown, faExclamationCircle, faSun, faMoon, faSearchMinus, faSearchPlus);
 Vue.component('font-awesome-icon', FontAwesomeIcon);
-Vue.component('sql-string', () => import('@/components/operations/SqlString.vue'));
+Vue.component('sql-string', () => import('@/components/operation/operations/SqlString.vue'));
 
 
 new Vue({

@@ -25,9 +25,8 @@
                 :warnings="operation.Warnings"
             />
 
-            <component
-                :is="additionalInfoComponent"
-                v-if="additionalInfoComponent !== undefined"
+            <additional-operation-component
+                :statement="statement"
                 :operation="operation"
             />
 
@@ -184,9 +183,7 @@
             </div>
         </div>
         <div v-else>
-            <div class="content raw-data">
-                <tree-view :data="shallowOperation" />
-            </div>
+            <raw-operation :operation="operation" />
         </div>
         <div class="footer">
             <div class="buttons">
@@ -211,60 +208,20 @@
 import { Vue, Component, Prop } from 'vue-property-decorator';
 import * as ShowPlan from '@/parser/showplan';
 
-import TreeView from 'vue-json-tree'; // eslint-disable-line
-import SortBy from './operations/SortByView.vue';
-import IndexScan from './operations/IndexScanView.vue';
-import FilterOp from './operations/FilterView.vue';
-import ComputeScalarOp from './operations/ComputeScalarView.vue';
-import StreamAggregateOp from './operations/StreamAggregateView.vue';
-import HashOp from './operations/HashView.vue';
-import BatchHashTableBuildOp from './operations/BatchHashTableBuildView.vue';
-import ConcatOp from './operations/ConcatView.vue';
-import TopOp from './operations/TopView.vue';
-import NestedLoop from './operations/NestedLoopView.vue';
-import UpdateOp from './operations/UpdateView.vue';
-import InsertOp from './operations/InsertView.vue';
-import MergeJoinOp from './operations/MergeJoinView.vue';
-import AdaptiveJoinOp from './operations/AdaptiveJoinView.vue';
-import ParallelismOp from './operations/ParallelismView.vue';
-import SegmentOp from './operations/SegmentView.vue';
-import TableValuedFunctionOp from './operations/TableValuedFunctionView.vue';
-import CollapseOp from './operations/CollapseView.vue';
-import SpoolOp from './operations/SpoolView.vue';
-import SplitOp from './operations/SplitView.vue';
-import RemoteOp from './operations/RemoteView.vue';
-import Warnings from './operations/Warnings.vue';
-import CounterChart from './operations/CounterChart.vue';
+import Warnings from '@/components/operation/operations/Warnings.vue';
+import CounterChart from '@/components/operation/operations/CounterChart.vue';
 
 import { Group } from '@/parser/grouping';
 import ColumnReferenceParser from '@/parser/column-reference-parser';
+import AdditionalOperationComponent from '@/components/operation/AdditionalOperationComponent.vue';
+import RawOperation from '@/components/operation/RawOperation.vue';
 
 @Component({
     components: {
-        SortBy,
-        IndexScan,
-        FilterOp,
-        ComputeScalarOp,
-        StreamAggregateOp,
-        HashOp,
-        BatchHashTableBuildOp,
-        ConcatOp,
-        TopOp,
-        NestedLoop,
-        UpdateOp,
-        InsertOp,
-        MergeJoinOp,
-        AdaptiveJoinOp,
-        ParallelismOp,
-        SegmentOp,
-        TableValuedFunctionOp,
-        CollapseOp,
-        SpoolOp,
-        SplitOp,
-        RemoteOp,
+        RawOperation,
+        AdditionalOperationComponent,
         Warnings,
         CounterChart,
-        TreeView,
     },
 })
 export default class OperationSummary extends Vue {
@@ -286,68 +243,6 @@ export default class OperationSummary extends Vue {
           default:
               return this.operation.PhysicalOp;
       }
-  }
-
-  public get additionalInfoComponent(): string | undefined {
-      if (this.operation.Action instanceof ShowPlan.Sort) {
-          return 'sort-by';
-      } if (this.operation.Action instanceof ShowPlan.IndexScan) {
-          return 'index-scan';
-      } if (this.operation.Action instanceof ShowPlan.Filter) {
-          return 'filter-op';
-      } if (this.operation.Action instanceof ShowPlan.ComputeScalar) {
-          return 'compute-scalar-op';
-      } if (this.operation.Action instanceof ShowPlan.StreamAggregate) {
-          return 'stream-aggregate-op';
-      } if (this.operation.Action instanceof ShowPlan.Hash) {
-          return 'hash-op';
-      } if (this.operation.Action instanceof ShowPlan.BatchHashTableBuild) {
-          return 'batch-hash-table-build-op';
-      } if (this.operation.Action instanceof ShowPlan.Concat) {
-          return 'concat-op';
-      } if (this.operation.Action instanceof ShowPlan.Top) {
-          return 'top-op';
-      } if (this.operation.Action instanceof ShowPlan.NestedLoops) {
-          return 'nested-loop';
-      } if (this.operation.Action instanceof ShowPlan.Update) {
-          return 'update-op';
-      } if (this.operation.Action instanceof ShowPlan.CreateIndex) {
-          return 'insert-op';
-      } if (this.operation.Action instanceof ShowPlan.Merge) {
-          return 'merge-join-op';
-      } if (this.operation.Action instanceof ShowPlan.AdaptiveJoin) {
-          return 'adaptive-join-op';
-      } if (this.operation.Action instanceof ShowPlan.Parallelism) {
-          return 'parallelism-op';
-      } if (this.operation.Action instanceof ShowPlan.Segment) {
-          return 'segment-op';
-      } if (this.operation.Action instanceof ShowPlan.TableValuedFunction) {
-          return 'table-valued-function-op';
-      } if (this.operation.Action instanceof ShowPlan.Collapse) {
-          return 'collapse-op';
-      } if (this.operation.Action instanceof ShowPlan.Spool) {
-          return 'spool-op';
-      } if (this.operation.Action instanceof ShowPlan.Split) {
-          return 'split-op';
-      } if (this.operation.Action instanceof ShowPlan.Remote) {
-          return 'remote-op';
-      }
-
-      return undefined;
-  }
-
-  public get shallowOperation(): ShowPlan.RelOp {
-      // clone the operation but remove the child relop collection
-      // for displaying in the 'raw' display
-      const shallow: ShowPlan.RelOp = JSON.parse(JSON.stringify(this.operation, (key, value) => {
-          if (key === 'RelOp' || key === 'ParentRelOp' || key === 'expandedComputedColumns') {
-              return undefined;
-          }
-
-          return value;
-      }));
-
-      return shallow;
   }
 
   public get progressPercent(): string {
@@ -417,17 +312,5 @@ export default class OperationSummary extends Vue {
 </script>
 
 <style lang="scss" scoped>
-  .card .json-tree-root {
-    background-color: inherit !important;
-    padding:0 !important;
-    margin: 0;
-  }
 
-  .card .json-tree-sign {
-    display: none;
-  }
-
-  .card .json-tree {
-    font-size: .75rem !important;
-  }
 </style>

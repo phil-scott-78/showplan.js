@@ -39,7 +39,7 @@ import {
 import { RelOp, Update, ExpandedComputedColumn } from '@/parser/showplan';
 
 import SqlString from './SqlString.vue';
-import ListOrDiv from '../ListOrDiv.vue';
+import ListOrDiv from '../../helpers/ListOrDiv.vue';
 
 @Component({
     components: { ListOrDiv, SqlString },

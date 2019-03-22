@@ -123,17 +123,17 @@ import {
     BaseStmtInfo, RelOp, StmtSimple, ShowPlanXML,
 } from '@/parser/showplan';
 
-import SmoothReflow from './SmoothReflow.vue';
+import SmoothReflow from './helpers/SmoothReflow.vue';
 import CostAnalysis from './visualizations/CostAnalysis.vue';
 import OperatorFlow from './visualizations/OperatorFlow.vue';
 import DataFlow from './visualizations/DataFlow.vue';
-import HighlightSqlStatement from './HighlightSqlStatement.vue';
-import OperationSummary from './OperationSummary.vue';
+import HighlightSqlStatement from './statement/HighlightSqlStatement.vue';
+import OperationSummary from './operation/OperationSummary.vue';
 import SelectPlan from './SelectPlan.vue';
-import StatementOverview from './StatementOverview.vue';
-import MissingIndexes from './MissingIndexes.vue';
-import StatisticsList from './StatisticsList.vue';
-import QueryParameters from './QueryParameters.vue';
+import StatementOverview from './statement/StatementOverview.vue';
+import MissingIndexes from './statement/MissingIndexes.vue';
+import StatisticsList from './statement/StatisticsList.vue';
+import QueryParameters from './statement/QueryParameters.vue';
 
 @Component({
     components: {

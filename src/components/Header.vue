@@ -54,9 +54,10 @@ export default class Header extends Vue {
 
   public loadSample() {
       const request = new XMLHttpRequest();
+      const vm = this;
       request.onload = () => {
           if (request.status === 200) {
-              this.planChanged(request.responseText);
+              vm.planChanged(request.responseText);
           }
       };
       request.open('GET', 'users-with-post-count-and-comment-count.xml');
