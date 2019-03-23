@@ -106,7 +106,7 @@ import {
 import {
     linkHorizontal,
 } from 'd3-shape';
-import { scaleLinear } from 'd3-scale';
+import { scaleLinear, scalePow } from 'd3-scale';
 import { min, max } from 'd3-array';
 import * as TWEEN from '@tweenjs/tween.js';
 import ZoomButtons from './ZoomButtons.vue';
@@ -141,221 +141,250 @@ export default class DataFlow extends Vue {
             .filter(i => i.data.NodeId === nodeId)[0];
     }
 
-  @Prop() public statement!: ShowPlan.StmtSimple;
+    @Prop() public statement!: ShowPlan.StmtSimple;
 
-  @Prop({ default: undefined }) public selectedNode!: ShowPlan.RelOp | undefined;
+    @Prop({ default: undefined }) public selectedNode!: ShowPlan.RelOp | undefined;
 
-  private nodeWidth: number = 140;
+    private nodeWidth: number = 140;
 
-  private nodeHeight: number = 50;
+    private nodeHeight: number = 50;
 
-  private scale = 1;
+    private scale = 1;
 
-  private tweenedTransform = { scale: 1 };
+    private tweenedTransform = { scale: 1 };
 
-  @Emit('rel-op-selected')
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public statementSelected(op: number) {
-      //
-  }
+    private displayEstimated = false;
 
-  @Emit('rel-op-highlighted')
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public statementHighlighted(op: number | undefined) {
-      //
-  }
 
-  @Watch('scale')
-  private scaleWatch(newValue: number) {
-      let frameHandler: number;
+    @Emit('rel-op-selected')
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    public statementSelected(op: number) {
+        //
+    }
 
-      function animate(currentTime: number) {
-          if (TWEEN.update(currentTime)) {
-              frameHandler = requestAnimationFrame(animate);
-          }
-      }
+    @Emit('rel-op-highlighted')
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    public statementHighlighted(op: number | undefined) {
+        //
+    }
 
-      new TWEEN.Tween(this.tweenedTransform)
-          .to({ scale: newValue }, 75)
-          .onComplete(() => {
-              cancelAnimationFrame(frameHandler);
-          })
-          .start();
+    @Watch('scale')
+    private scaleWatch(newValue: number) {
+        let frameHandler: number;
 
-      frameHandler = requestAnimationFrame(animate);
-  }
+        function animate(currentTime: number) {
+            if (TWEEN.update(currentTime)) {
+                frameHandler = requestAnimationFrame(animate);
+            }
+        }
 
-  private get root(): HierarchyPointNode<ShowPlan.RelOp> {
-      const noop: ShowPlan.RelOp = new ParentRelOp();
-      noop.Action.RelOp[0] = this.queryPlan.RelOp;
-      noop.NodeId = -1;
+        new TWEEN.Tween(this.tweenedTransform)
+            .to({ scale: newValue }, 75)
+            .onComplete(() => {
+                cancelAnimationFrame(frameHandler);
+            })
+            .start();
 
-      return cluster<ShowPlan.RelOp>()
-          .nodeSize([this.nodeHeight * 3, this.nodeWidth])
-          .separation(() => 1)(hierarchy(noop, children => children.Action.RelOp));
-  }
+        frameHandler = requestAnimationFrame(animate);
+    }
 
-  private get links(): HierarchyPointLink<ShowPlan.RelOp>[] {
-      return this.root.links();
-  }
+    private get root(): HierarchyPointNode<ShowPlan.RelOp> {
+        const noop: ShowPlan.RelOp = new ParentRelOp();
+        noop.Action.RelOp[0] = this.queryPlan.RelOp;
+        noop.NodeId = -1;
 
-  private get nodes(): HierarchyPointNode<ShowPlan.RelOp>[] {
-      return this.root.descendants().reverse();
-  }
+        return cluster<ShowPlan.RelOp>()
+            .nodeSize([this.nodeHeight * 3, this.nodeWidth])
+            .separation(() => 1)(hierarchy(noop, children => children.Action.RelOp));
+    }
 
-  // svg elements
-  private nodeTransform(node: HierarchyPointNode<ShowPlan.RelOp>) {
-      return `translate(${-1 * node.y}, ${node.x})`;
-  }
+    private get links(): HierarchyPointLink<ShowPlan.RelOp>[] {
+        return this.root.links();
+    }
 
-  private linkPath(link: HierarchyPointLink<ShowPlan.RelOp>): string {
-      return linkHorizontal<HierarchyPointLink<ShowPlan.RelOp>, HierarchyPointNode<ShowPlan.RelOp>>()
-          .x(i => -1 * i.y)
-          .y(i => i.x)(link) as string;
-  }
+    private get nodes(): HierarchyPointNode<ShowPlan.RelOp>[] {
+        return this.root.descendants().reverse();
+    }
 
-  // node styling
-  private getNodeColor(node: HierarchyPointNode<ShowPlan.RelOp>): string {
-      return GetOperationColor(node.data.PhysicalOp);
-  }
+    private get rowCountForDisplayFunc(): (op: ShowPlan.RelOp) => number {
+        if (this.displayEstimated) {
+            return (op: ShowPlan.RelOp) => op.EstimateRows;
+        }
 
-  private getLineStrokeWidth(link: HierarchyPointLink<ShowPlan.RelOp>): number {
-      return this.rowWidthScale(link.target.data.EstimateRows);
-  }
+        return (op: ShowPlan.RelOp) => {
+            if (op.RunTimeInformation === undefined) {
+                return op.EstimateRows;
+            }
 
-  private getStrokeColor(link: HierarchyPointLink<ShowPlan.RelOp>): string {
-      const notSelectedColor = 'var(--alt-border)';
+            return op.RunTimeInformation.GetRunTimeCountersSummary()!.ActualRows;
+        };
+    }
 
-      if (this.highlightedNode === undefined) {
-          return notSelectedColor;
-      }
+    // svg elements
+    private nodeTransform(node: HierarchyPointNode<ShowPlan.RelOp>) {
+        return `translate(${-1 * node.y}, ${node.x})`;
+    }
 
-      const selectedColor = GetOperationColor(link.target.data.PhysicalOp);
+    private linkPath(link: HierarchyPointLink<ShowPlan.RelOp>): string {
+        return linkHorizontal<HierarchyPointLink<ShowPlan.RelOp>, HierarchyPointNode<ShowPlan.RelOp>>()
+            .x(i => -1 * i.y)
+            .y(i => i.x)(link) as string;
+    }
 
-      if (this.highlightedNode.descendants().some(childNode => link.target.data.NodeId === childNode.data.NodeId)) {
-          return selectedColor;
-      }
+    // node styling
+    private getNodeColor(node: HierarchyPointNode<ShowPlan.RelOp>): string {
+        return GetOperationColor(node.data.PhysicalOp);
+    }
 
-      if (this.highlightedNode.ancestors().some(childNode => link.target.data.NodeId === childNode.data.NodeId)) {
-          return selectedColor;
-      }
+    private getLineStrokeWidth(link: HierarchyPointLink<ShowPlan.RelOp>): number {
+        return this.rowWidthScale(this.rowCountForDisplayFunc(link.target.data));
+    }
 
-      return notSelectedColor;
-  }
+    private getStrokeColor(link: HierarchyPointLink<ShowPlan.RelOp>): string {
+        const notSelectedColor = 'var(--alt-border)';
 
-  private getBackgroundRectOpacity(node: HierarchyPointNode<ShowPlan.RelOp>) {
-      if (this.highlightedNode === undefined) {
-          return 0;
-      }
+        if (this.highlightedNode === undefined) {
+            return notSelectedColor;
+        }
 
-      if (node.data.NodeId === this.highlightedNode.data.NodeId) {
-          return 0.9;
-      }
+        const selectedColor = GetOperationColor(link.target.data.PhysicalOp);
 
-      return 0;
-  }
+        if (this.highlightedNode.descendants().some(childNode => link.target.data.NodeId === childNode.data.NodeId)) {
+            return selectedColor;
+        }
 
-  private getNodeSize(node: HierarchyPointNode<ShowPlan.RelOp>) {
-      if (node.data.NodeId === -1) {
-          return 10;
-      }
+        if (this.highlightedNode.ancestors().some(childNode => link.target.data.NodeId === childNode.data.NodeId)) {
+            return selectedColor;
+        }
 
-      return this.costCircleScale(node.data.EstimateTotalCost);
-  }
+        return notSelectedColor;
+    }
 
-  private get costCircleScale() {
-      return scaleLinear()
-          .domain([0, this.queryPlan.RelOp.EstimatedTotalSubtreeCost])
-          .rangeRound([2, 20]);
-  }
+    private getBackgroundRectOpacity(node: HierarchyPointNode<ShowPlan.RelOp>) {
+        if (this.highlightedNode === undefined) {
+            return 0;
+        }
 
-  private get rowWidthScale() {
-      let maxRows = max(this.nodes, n => n.data.EstimateRows);
-      if (maxRows === undefined) {
-          maxRows = 20;
-      }
+        if (node.data.NodeId === this.highlightedNode.data.NodeId) {
+            return 0.9;
+        }
 
-      return scaleLinear()
-          .domain([1, maxRows])
-          .rangeRound([1, 20]);
-  }
+        return 0;
+    }
 
-  private GetOperationColor(op: ShowPlan.PhysicalOp) {
-      return GetOperationColor(op);
-  }
+    private getNodeSize(node: HierarchyPointNode<ShowPlan.RelOp>) {
+        if (node.data.NodeId === -1) {
+            return 10;
+        }
 
-  // chart sizing and styling
-  private get chartWidth(): number {
-      const minX = min(this.nodes, d => d.y);
-      const maxX = max(this.nodes, d => d.y);
+        return this.costCircleScale(node.data.EstimateTotalCost);
+    }
 
-      if (minX === undefined || maxX === undefined) {
-          throw new Error('could not find chart width');
-      }
+    private get costCircleScale() {
+        return scaleLinear()
+            .domain([0, this.queryPlan.RelOp.EstimatedTotalSubtreeCost])
+            .rangeRound([2, 20]);
+    }
 
-      return maxX - minX + this.nodeWidth * 2;
-  }
+    private get rowWidthScale() {
+        let maxRows = max(this.nodes, n => this.rowCountForDisplayFunc(n.data));
+        let minRows = max(this.nodes, n => this.rowCountForDisplayFunc(n.data));
 
-  private get chartHeight(): number {
-      // invers the x and y
-      const minY = min(this.nodes, d => d.x);
-      const maxY = max(this.nodes, d => d.x);
+        if (maxRows === undefined) {
+            maxRows = 20;
+        }
 
-      if (minY === undefined || maxY === undefined) {
-          throw new Error('could not find chart width');
-      }
+        if (minRows === undefined) {
+            minRows = 1;
+        }
 
-      return maxY - minY + this.nodeHeight * 4;
-  }
+        // let's tweak some things so that smaller reads aren't super thick
+        if (maxRows < 1000) {
+            maxRows *= 2;
+        }
 
-  private get chartStyle() {
-      return {
-          'min-height': this.chartHeight * this.tweenedTransform.scale,
-          'min-width': this.chartWidth * this.tweenedTransform.scale,
-          width: '100%',
-          height: '100%',
-      };
-  }
+        return scalePow()
+            .exponent(0.5)
+            .domain([0, maxRows])
+            .rangeRound([1, 20]);
+    }
 
-  private get chartTransform() {
-      // don't forget we are turning their x/y axis on the side
-      const minY = min(this.nodes, d => d.x);
-      const maxX = max(this.nodes, d => d.y);
+    private GetOperationColor(op: ShowPlan.PhysicalOp) {
+        return GetOperationColor(op);
+    }
 
-      if (minY === undefined || maxX === undefined) {
-          throw new Error('could not find chart size');
-      }
+    // chart sizing and styling
+    private get chartWidth(): number {
+        const minX = min(this.nodes, d => d.y);
+        const maxX = max(this.nodes, d => d.y);
 
-      const offsetY = minY * -1 + this.nodeHeight;
-      const offsetX = maxX + this.nodeWidth / 2;
-      return `translate(${offsetX * this.tweenedTransform.scale}, ${offsetY * this.tweenedTransform.scale}) scale(${this.tweenedTransform.scale})`;
-  }
+        if (minX === undefined || maxX === undefined) {
+            throw new Error('could not find chart width');
+        }
 
-  // events
-  private zoom(amount: number) {
-      this.scale = Math.min(Math.max(this.tweenedTransform.scale + amount, 0.25), 2);
-  }
+        return maxX - minX + this.nodeWidth * 2;
+    }
 
-  private hover(op: HierarchyPointNode<ShowPlan.RelOp> | undefined) {
-      if (op === undefined) {
-          this.statementHighlighted(undefined);
-          return;
-      }
+    private get chartHeight(): number {
+        // invers the x and y
+        const minY = min(this.nodes, d => d.x);
+        const maxY = max(this.nodes, d => d.x);
 
-      if (op.data.NodeId === -1) {
-          return;
-      }
+        if (minY === undefined || maxY === undefined) {
+            throw new Error('could not find chart width');
+        }
 
-      this.statementHighlighted(op.data.NodeId);
-  }
+        return maxY - minY + this.nodeHeight * 4;
+    }
 
-  private operationClicked(op: HierarchyPointNode<ShowPlan.RelOp>) {
-      if (op !== undefined && op.data.NodeId === -1) {
-          return;
-      }
+    private get chartStyle() {
+        return {
+            'min-height': this.chartHeight * this.tweenedTransform.scale,
+            'min-width': this.chartWidth * this.tweenedTransform.scale,
+            width: '100%',
+            height: '100%',
+        };
+    }
 
-      this.statementSelected(op.data.NodeId);
-  }
+    private get chartTransform() {
+        // don't forget we are turning their x/y axis on the side
+        const minY = min(this.nodes, d => d.x);
+        const maxX = max(this.nodes, d => d.y);
+
+        if (minY === undefined || maxX === undefined) {
+            throw new Error('could not find chart size');
+        }
+
+        const offsetY = minY * -1 + this.nodeHeight;
+        const offsetX = maxX + this.nodeWidth / 2;
+        return `translate(${offsetX * this.tweenedTransform.scale}, ${offsetY * this.tweenedTransform.scale}) scale(${this.tweenedTransform.scale})`;
+    }
+
+    // events
+    private zoom(amount: number) {
+        this.scale = Math.min(Math.max(this.tweenedTransform.scale + amount, 0.25), 2);
+    }
+
+    private hover(op: HierarchyPointNode<ShowPlan.RelOp> | undefined) {
+        if (op === undefined) {
+            this.statementHighlighted(undefined);
+            return;
+        }
+
+        if (op.data.NodeId === -1) {
+            return;
+        }
+
+        this.statementHighlighted(op.data.NodeId);
+    }
+
+    private operationClicked(op: HierarchyPointNode<ShowPlan.RelOp>) {
+        if (op !== undefined && op.data.NodeId === -1) {
+            return;
+        }
+
+        this.statementSelected(op.data.NodeId);
+    }
 }
 </script>
 
