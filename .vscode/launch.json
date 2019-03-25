@@ -40,9 +40,9 @@
                 "args": [
                     "--inspect-brk",
                     "${workspaceRoot}/node_modules/jest/bin/jest.js",
-                    "${relativeFile}",
                     "--runInBand",
-                    "--coverage", "false"
+                    "--coverage", "false",
+                    "--testMatch", "**/tests/unit/**/${fileBasename}"
                 ]
             },
             "console": "integratedTerminal",
