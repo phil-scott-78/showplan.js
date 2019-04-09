@@ -152,18 +152,19 @@ export default class App extends Vue {
           return undefined;
         }
         `);
+            this.$nextTick(() => {
+                window.addEventListener('message', (event) => {
+                    const xml = event.data;
+                    this.planXmlChanged(xml);
+                });
+            });
+
             const vscode = vsCodeFunction();
             if (vscode !== undefined) {
                 // we need to send a message to VS Code to tell it we are
                 // ready to go and everything is loaded up so send us
                 // the xml payload
                 vscode.postMessage({ command: 'mounted' });
-                this.$nextTick(() => {
-                    window.addEventListener('message', (event) => {
-                        const xml = event.data;
-                        this.planXmlChanged(xml);
-                    });
-                });
             }
         }
     }

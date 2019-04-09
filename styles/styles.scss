@@ -6,7 +6,7 @@ body {
   font-family: 'Segoe Ui', Verdana, sans-serif;
 }
 
-body.vscode-light, body.vscode-dark, body.vscode-high-contrast {
+body.vscode-light, body.vscode-dark, body.vscode-high-contrast, body.embeded {
   .menu { display: none; }
   .upload-form, #app > p.footer { display: none; }
 }
