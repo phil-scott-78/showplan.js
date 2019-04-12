@@ -124,7 +124,7 @@
 import {
     Vue, Component, Prop, Watch, Emit,
 } from 'vue-property-decorator';
-import * as ShowPlan from '@/parser/showplan';
+import * as ShowPlan from 'showplan-js';
 import {
     hierarchy, tree, HierarchyPointNode, HierarchyPointLink,
 } from 'd3-hierarchy';

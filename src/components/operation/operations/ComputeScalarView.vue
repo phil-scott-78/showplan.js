@@ -9,7 +9,7 @@
 import {
     Vue, Component, Prop,
 } from 'vue-property-decorator';
-import { RelOp, ComputeScalar, ExpandedComputedColumn } from '@/parser/showplan';
+import { RelOp, ComputeScalar, ExpandedComputedColumn } from 'showplan-js';
 
 import DefinedValues from './DefinedValues.vue';
 

@@ -19,7 +19,7 @@
 import {
     Vue, Component, Prop,
 } from 'vue-property-decorator';
-import { DefinedValue, ExpandedComputedColumn } from '@/parser/showplan';
+import { DefinedValue, ExpandedComputedColumn } from 'showplan-js';
 
 import SqlString from './SqlString.vue';
 

@@ -88,7 +88,7 @@
 import {
     Vue, Component, Prop,
 } from 'vue-property-decorator';
-import { BaseStmtInfo } from '@/parser/showplan';
+import { BaseStmtInfo } from 'showplan-js';
 import BoolPill from '@/components/helpers/BoolPill.vue';
 
 @Component({

@@ -10,7 +10,7 @@ import {
 import SqlFormatter from '@/components/formatter';
 
 import '@/string-extensions';
-import { ExpandedComputedColumn } from '@/parser/showplan';
+import { ExpandedComputedColumn } from 'showplan-js';
 
 @Component({
 })

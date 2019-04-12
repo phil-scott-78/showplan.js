@@ -117,7 +117,7 @@
 import {
     Vue, Component, Prop,
 } from 'vue-property-decorator';
-import { RelOp, AdaptiveJoin, ExpandedComputedColumn } from '@/parser/showplan';
+import { RelOp, AdaptiveJoin, ExpandedComputedColumn } from 'showplan-js';
 
 import DefinedValues from './DefinedValues.vue';
 import SqlString from './SqlString.vue';

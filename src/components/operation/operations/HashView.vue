@@ -76,7 +76,7 @@
 import {
     Vue, Component, Prop,
 } from 'vue-property-decorator';
-import { RelOp, Hash, ExpandedComputedColumn } from '@/parser/showplan';
+import { RelOp, Hash, ExpandedComputedColumn } from 'showplan-js';
 
 import DefinedValues from './DefinedValues.vue';
 import SqlString from './SqlString.vue';

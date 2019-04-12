@@ -23,7 +23,7 @@
 </template>
 
 <script lang='ts'>
-import { RunTimeInformationTypeRunTimeCountersPerThread } from '@/parser/showplan';
+import { RunTimeInformationTypeRunTimeCountersPerThread } from 'showplan-js';
 import {
     Vue,
     Component,

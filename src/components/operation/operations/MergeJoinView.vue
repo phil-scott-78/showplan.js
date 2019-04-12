@@ -68,7 +68,7 @@
 import {
     Vue, Component, Prop,
 } from 'vue-property-decorator';
-import { RelOp, Merge, ExpandedComputedColumn } from '@/parser/showplan';
+import { RelOp, Merge, ExpandedComputedColumn } from 'showplan-js';
 import SqlString from './SqlString.vue';
 
 @Component({

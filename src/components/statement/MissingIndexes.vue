@@ -31,7 +31,7 @@
 import {
     Vue, Component, Prop,
 } from 'vue-property-decorator';
-import { BaseStmtInfo } from '@/parser/showplan';
+import { BaseStmtInfo } from 'showplan-js';
 
 import ListOrDiv from '@/components/helpers/ListOrDiv.vue';
 

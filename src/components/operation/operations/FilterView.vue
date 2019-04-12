@@ -12,7 +12,7 @@
 import {
     Vue, Component, Prop,
 } from 'vue-property-decorator';
-import { RelOp, Filter, ExpandedComputedColumn } from '@/parser/showplan';
+import { RelOp, Filter, ExpandedComputedColumn } from 'showplan-js';
 import SqlString from './SqlString.vue';
 
 @Component({

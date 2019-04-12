@@ -43,7 +43,7 @@
 import {
     Vue, Component, Prop, Emit,
 } from 'vue-property-decorator';
-import { ShowPlanXML } from '@/parser/showplan';
+import { ShowPlanXML } from 'showplan-js';
 
 @Component({
 })

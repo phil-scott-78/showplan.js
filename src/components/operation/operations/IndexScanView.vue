@@ -72,7 +72,7 @@
 import {
     Vue, Component, Prop,
 } from 'vue-property-decorator';
-import { RelOp, ExpandedComputedColumn, IndexScan } from '@/parser/showplan';
+import { RelOp, ExpandedComputedColumn, IndexScan } from 'showplan-js';
 
 import SqlString from './SqlString.vue';
 import ListOrDiv from '../../helpers/ListOrDiv.vue';

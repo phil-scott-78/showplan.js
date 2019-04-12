@@ -19,7 +19,7 @@
 import {
     Vue, Component, Prop,
 } from 'vue-property-decorator';
-import { RelOp, Collapse, ExpandedComputedColumn } from '@/parser/showplan';
+import { RelOp, Collapse, ExpandedComputedColumn } from 'showplan-js';
 import SqlString from './SqlString.vue';
 
 @Component({

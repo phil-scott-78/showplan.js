@@ -114,7 +114,7 @@
 import {
     Vue, Component, Prop,
 } from 'vue-property-decorator';
-import { Warnings } from '@/parser/showplan';
+import { Warnings } from 'showplan-js';
 
 @Component({
 })

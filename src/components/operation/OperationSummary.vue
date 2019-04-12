@@ -206,13 +206,12 @@
 
 <script lang='ts'>
 import { Vue, Component, Prop } from 'vue-property-decorator';
-import * as ShowPlan from '@/parser/showplan';
+import * as ShowPlan from 'showplan-js';
 
+import { Group, Grouper } from '@/grouping';
 import Warnings from '@/components/operation/operations/Warnings.vue';
 import CounterChart from '@/components/operation/operations/CounterChart.vue';
 
-import { Group } from '@/parser/grouping';
-import ColumnReferenceParser from '@/parser/column-reference-parser';
 import AdditionalOperationComponent from '@/components/operation/AdditionalOperationComponent.vue';
 import RawOperation from '@/components/operation/RawOperation.vue';
 
@@ -225,89 +224,105 @@ import RawOperation from '@/components/operation/RawOperation.vue';
     },
 })
 export default class OperationSummary extends Vue {
-  @Prop() public statement!: ShowPlan.BaseStmtInfo;
+    @Prop() public statement!: ShowPlan.BaseStmtInfo;
 
-  @Prop() public operation!: ShowPlan.RelOp;
+    @Prop() public operation!: ShowPlan.RelOp;
 
-  public selectedTab: string = 'overview';
+    public selectedTab: string = 'overview';
 
-  public get groupedOutput(): Group<ShowPlan.ColumnReference>[] {
-      return ColumnReferenceParser.Group(this.operation.OutputList);
-  }
+    public get groupedOutput(): Group<ShowPlan.ColumnReference>[] {
+        return OperationSummary.Group(this.operation.OutputList);
+    }
 
-  public get headingText(): string {
-      switch (this.operation.PhysicalOp) {
-          case 'Index Scan':
-          case 'Index Seek':
-              return `${this.operation.PhysicalOp} (NonClustered)`;
-          default:
-              return this.operation.PhysicalOp;
-      }
-  }
+    public get headingText(): string {
+        switch (this.operation.PhysicalOp) {
+            case 'Index Scan':
+            case 'Index Seek':
+                return `${this.operation.PhysicalOp} (NonClustered)`;
+            default:
+                return this.operation.PhysicalOp;
+        }
+    }
 
-  public get progressPercent(): string {
-      if (this.statement === undefined || this.statement.StatementSubTreeCost === undefined) {
-          return 'progress-0';
-      }
+    public get progressPercent(): string {
+        if (this.statement === undefined || this.statement.StatementSubTreeCost === undefined) {
+            return 'progress-0';
+        }
 
-      let percent = (this.operation.EstimateTotalCost / this.statement.StatementSubTreeCost) * 100;
-      if (percent < 10) {
-          percent = Math.round(percent);
-      } else {
-          percent = Math.round(percent / 5) * 5;
-      }
+        let percent = (this.operation.EstimateTotalCost / this.statement.StatementSubTreeCost) * 100;
+        if (percent < 10) {
+            percent = Math.round(percent);
+        } else {
+            percent = Math.round(percent / 5) * 5;
+        }
 
-      return `progress-${percent}`;
-  }
+        return `progress-${percent}`;
+    }
 
-  public get getSubHeadingText(): string {
-      switch (this.operation.PhysicalOp) {
-          case 'Index Scan':
-          case 'Index Seek':
-          case 'Clustered Index Scan':
-          case 'Clustered Index Seek':
-              return this.getShortName((this.operation.Action as ShowPlan.IndexScan).Object[0]);
-          default:
-              break;
-      }
+    public get getSubHeadingText(): string {
+        switch (this.operation.PhysicalOp) {
+            case 'Index Scan':
+            case 'Index Seek':
+            case 'Clustered Index Scan':
+            case 'Clustered Index Seek':
+                return this.getShortName((this.operation.Action as ShowPlan.IndexScan).Object[0]);
+            default:
+                break;
+        }
 
-      return this.operation.LogicalOp;
-  }
+        return this.operation.LogicalOp;
+    }
 
-  private get expandedColumns(): ShowPlan.ExpandedComputedColumn[] {
-      return this.operation.ExpandedComputedColumns;
-  }
+    private get expandedColumns(): ShowPlan.ExpandedComputedColumn[] {
+        return this.operation.ExpandedComputedColumns;
+    }
 
-  public get runtimeCountersSummary(): ShowPlan.RunTimeInformationTypeRunTimeCountersPerThread | undefined {
-      if (this.operation.RunTimeInformation === undefined || this.operation.RunTimeInformation.RunTimeCountersPerThread.length === 0) {
-          return undefined;
-      }
+    public get runtimeCountersSummary(): ShowPlan.RunTimeInformationTypeRunTimeCountersPerThread | undefined {
+        if (this.operation.RunTimeInformation === undefined || this.operation.RunTimeInformation.RunTimeCountersPerThread.length === 0) {
+            return undefined;
+        }
 
-      const summary = this.operation.RunTimeInformation.GetRunTimeCountersSummary();
-      if (summary === undefined) {
-          return summary;
-      }
+        const summary = this.operation.RunTimeInformation.GetRunTimeCountersSummary();
+        if (summary === undefined) {
+            return summary;
+        }
 
-      // in the absense of these values SSMS shows 0
-      if (summary.ActualRebinds === undefined) {
-          summary.ActualRebinds = 0;
-      }
+        // in the absense of these values SSMS shows 0
+        if (summary.ActualRebinds === undefined) {
+            summary.ActualRebinds = 0;
+        }
 
-      if (summary.ActualRewinds === undefined) {
-          summary.ActualRewinds = 0;
-      }
+        if (summary.ActualRewinds === undefined) {
+            summary.ActualRewinds = 0;
+        }
 
-      return summary;
-  }
+        return summary;
+    }
 
-  private getShortName(o: ShowPlan.ObjectType) {
-      const table = `${o.Table}.${o.Index}`;
-      if (o.Alias === undefined) {
-          return table;
-      }
+    private getShortName(o: ShowPlan.ObjectType) {
+        const table = `${o.Table}.${o.Index}`;
+        if (o.Alias === undefined) {
+            return table;
+        }
 
-      return `${table} ${o.Alias}`;
-  }
+        return `${table} ${o.Alias}`;
+    }
+
+    static Group(columns: ShowPlan.ColumnReference[]): Group<ShowPlan.ColumnReference>[] {
+        // return groupBy(columns, (a) => a.Database + '.' + a.Schema + '.' + a.Table);
+        return Grouper.groupBy<ShowPlan.ColumnReference>(columns, (a: ShowPlan.ColumnReference) => {
+            if (a.Database !== undefined && a.Schema !== undefined && a.Table !== undefined) {
+                let key = `${a.Database}.${a.Schema}.${a.Table}`;
+                if (a.Alias !== undefined) {
+                    key += ` as ${a.Alias}`;
+                }
+
+                return key;
+            }
+
+            return '';
+        });
+    }
 }
 </script>
 

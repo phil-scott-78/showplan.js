@@ -1,4 +1,4 @@
-import { RelOp } from '@/parser/showplan';
+import { RelOp } from 'showplan-js';
 import { Vue } from 'vue-property-decorator';
 import {
     mount, createLocalVue, Wrapper, VueClass,

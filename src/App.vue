@@ -35,7 +35,7 @@ import { Component, Vue } from 'vue-property-decorator';
 
 import FileUploadDrop from '@/components/FileUploadDrop.vue';
 import HeaderMenu from '@/components/Header.vue';
-import * as ShowPlan from '@/parser/showplan';
+import { ShowPlanXML, BaseStmtInfo } from 'showplan-js';
 
 @Component({
     components: { HeaderMenu, FileUploadDrop, Statement: () => import('@/components/Statement.vue') },
@@ -48,7 +48,7 @@ import * as ShowPlan from '@/parser/showplan';
     },
 })
 export default class App extends Vue {
-    public showPlan: ShowPlan.ShowPlanXML | undefined;
+    public showPlan: ShowPlanXML | undefined;
 
     public selectedStatementGuid: string | undefined;
 
@@ -83,7 +83,7 @@ export default class App extends Vue {
         this.darkMode = !this.darkMode;
     }
 
-    public get currentStatement(): ShowPlan.BaseStmtInfo | undefined {
+    public get currentStatement(): BaseStmtInfo | undefined {
         if (this.showPlan === undefined) {
             return undefined;
         }
@@ -95,7 +95,7 @@ export default class App extends Vue {
         return undefined;
     }
 
-    public showPlanChanged(showPlan: ShowPlan.ShowPlanXML | undefined) {
+    public showPlanChanged(showPlan: ShowPlanXML | undefined) {
         this.showPlan = showPlan;
 
         if (showPlan === undefined) {
@@ -130,9 +130,9 @@ export default class App extends Vue {
             return;
         }
 
-        import('@/parser/showplan-parser').then((ShowPlanParser) => {
+        import('showplan-js').then((showplan) => {
             try {
-                this.showPlanChanged(ShowPlanParser.default.Parse(plan));
+                this.showPlanChanged(showplan.ShowPlanParser.Parse(plan));
             } catch (e) {
                 this.errorMessage = e.message;
             }

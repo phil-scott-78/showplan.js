@@ -32,7 +32,7 @@
 import {
     Vue, Component, Prop,
 } from 'vue-property-decorator';
-import { RelOp, Segment, ExpandedComputedColumn } from '@/parser/showplan';
+import { RelOp, Segment, ExpandedComputedColumn } from 'showplan-js';
 import SqlString from './SqlString.vue';
 
 @Component({

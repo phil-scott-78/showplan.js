@@ -18,7 +18,7 @@
 import {
     Vue, Component, Prop,
 } from 'vue-property-decorator';
-import { RelOp, Top } from '@/parser/showplan';
+import { RelOp, Top } from 'showplan-js';
 import SqlString from './SqlString.vue';
 
 @Component({

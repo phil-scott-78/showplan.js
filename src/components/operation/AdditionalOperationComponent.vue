@@ -9,7 +9,7 @@
 
 import { Vue, Component, Prop } from 'vue-property-decorator';
 
-import * as ShowPlan from '@/parser/showplan';
+import * as ShowPlan from 'showplan-js';
 
 import SortBy from '@/components/operation/operations/SortByView.vue';
 import IndexScan from '@/components/operation/operations/IndexScanView.vue';

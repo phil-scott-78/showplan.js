@@ -121,7 +121,7 @@ import {
 } from 'vue-property-decorator';
 import {
     BaseStmtInfo, RelOp, StmtSimple, ShowPlanXML,
-} from '@/parser/showplan';
+} from 'showplan-js';
 
 import SmoothReflow from './helpers/SmoothReflow.vue';
 import CostAnalysis from './visualizations/CostAnalysis.vue';

@@ -58,7 +58,7 @@ import Dropdown from '@/components/helpers/Dropdown.vue';
 
 import SqlString from '@/components/operation/operations/SqlString.vue';
 
-import * as ShowPlan from '@/parser/showplan';
+import * as ShowPlan from 'showplan-js';
 
 @Component({
     components: { Dropdown, SqlString },

@@ -37,7 +37,7 @@
 import {
     Vue, Component, Prop,
 } from 'vue-property-decorator';
-import { RelOp, Remote, ExpandedComputedColumn } from '@/parser/showplan';
+import { RelOp, Remote, ExpandedComputedColumn } from 'showplan-js';
 import SqlString from './SqlString.vue';
 
 @Component({

@@ -17,7 +17,7 @@
 import {
     Vue, Component, Prop,
 } from 'vue-property-decorator';
-import { RelOp, BatchHashTableBuild } from '@/parser/showplan';
+import { RelOp, BatchHashTableBuild } from 'showplan-js';
 
 import DefinedValues from './DefinedValues.vue';
 import SqlString from './SqlString.vue';

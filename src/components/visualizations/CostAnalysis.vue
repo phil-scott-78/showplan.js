@@ -71,7 +71,7 @@ import {
     Vue, Component, Prop, Emit,
 } from 'vue-property-decorator';
 
-import * as ShowPlan from '@/parser/showplan';
+import * as ShowPlan from 'showplan-js';
 import { hierarchy, partition, HierarchyRectangularNode } from 'd3-hierarchy';
 import { arc } from 'd3-shape';
 import { path } from 'd3-path';

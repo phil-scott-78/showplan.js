@@ -49,7 +49,7 @@
 import {
     Vue, Component, Prop,
 } from 'vue-property-decorator';
-import { RelOp, StreamAggregate, ExpandedComputedColumn } from '@/parser/showplan';
+import { RelOp, StreamAggregate, ExpandedComputedColumn } from 'showplan-js';
 
 import DefinedValues from './DefinedValues.vue';
 import SqlString from './SqlString.vue';

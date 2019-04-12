@@ -20,7 +20,7 @@
 import {
     Vue, Component, Prop,
 } from 'vue-property-decorator';
-import { RelOp, CreateIndex } from '@/parser/showplan';
+import { RelOp, CreateIndex } from 'showplan-js';
 import SqlString from './SqlString.vue';
 
 @Component({

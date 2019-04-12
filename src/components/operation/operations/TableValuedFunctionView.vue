@@ -52,7 +52,7 @@
 import {
     Vue, Component, Prop,
 } from 'vue-property-decorator';
-import { RelOp, TableValuedFunction, ExpandedComputedColumn } from '@/parser/showplan';
+import { RelOp, TableValuedFunction, ExpandedComputedColumn } from 'showplan-js';
 
 import SqlString from './SqlString.vue';
 import ListOrDiv from '../../helpers/ListOrDiv.vue';

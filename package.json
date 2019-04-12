@@ -34,6 +34,7 @@
     "normalize.css": "^8.0.1",
     "numbro": "^2.1.2",
     "prismjs": "^1.16.0",
+    "showplan-js": "^1.0.0",
     "vue": "^2.6.10",
     "vue-class-component": "^7.0.1",
     "vue-dragscroll": "^1.8.3",

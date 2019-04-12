@@ -8,7 +8,7 @@
 import { Vue, Component, Prop } from 'vue-property-decorator';
 import TreeView from 'vue-json-tree'; // eslint-disable-line
 
-import * as ShowPlan from '@/parser/showplan';
+import * as ShowPlan from 'showplan-js';
 
 @Component({
     components: {

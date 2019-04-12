@@ -21,7 +21,7 @@ import {
 } from 'vue-property-decorator';
 import {
     RelOp, Concat, ColumnReference, ExpandedComputedColumn,
-} from '@/parser/showplan';
+} from 'showplan-js';
 import SqlString from './SqlString.vue';
 
 @Component({

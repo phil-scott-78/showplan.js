@@ -1,4 +1,4 @@
-export class Group<T> {
+class Group<T> {
     public key: string;
 
     public members: T[] = [];
@@ -8,7 +8,7 @@ export class Group<T> {
     }
 }
 
-export class Grouper {
+class Grouper {
     public static groupBy<T>(list: T[], func: (x: T) => string): Group<T>[] {
         const res: Group<T>[] = [];
         let group: Group<T> | undefined;
@@ -31,3 +31,5 @@ export class Grouper {
         return res;
     }
 }
+
+export { Group, Grouper };

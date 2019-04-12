@@ -23,7 +23,7 @@
 import {
     Vue, Component, Prop,
 } from 'vue-property-decorator';
-import { BaseStmtInfo } from '@/parser/showplan';
+import { BaseStmtInfo } from 'showplan-js';
 
 @Component({
 })

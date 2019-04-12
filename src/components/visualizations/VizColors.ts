@@ -1,4 +1,4 @@
-import * as ShowPlan from '@/parser/showplan';
+import * as ShowPlan from 'showplan-js';
 
 const Colors: { [id: string]: string } = {
     performance: 'var(--green)',

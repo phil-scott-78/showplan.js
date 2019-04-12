@@ -1,6 +1,6 @@
 MIT License
 
-Copyright (C) 2018, Phil Scott
+Copyright (C) 2019, Phil Scott
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in

@@ -1,4 +1,4 @@
-import * as ShowPlan from '@/parser/showplan';
+import * as ShowPlan from 'showplan-js';
 
 export class ParentRelOpAction extends ShowPlan.RelOpAction {
 }
