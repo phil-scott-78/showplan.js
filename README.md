@@ -1,31 +1,3 @@
 # ShowPlan.Js
 
-Visualization of SQL Server XML SHOWPLAN
-
-
-
-
-## Development Setup
-```
-npm install
-```
-
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
-
-### Compiles and minifies for production
-```
-npm run build
-```
-
-### Lints and fixes files
-```
-npm run lint
-```
-
-### Run your unit tests
-```
-npm run test:unit
-```
+This project has been split into multiple projects in the [ShowPlan organization](https://github.com/showplan)

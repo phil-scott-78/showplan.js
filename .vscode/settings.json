@@ -1,6 +1,0 @@
-{
-    "files.exclude": {
-        "coverage": true,
-        "node_modules": true
-    }
-}
